@@ -191,24 +191,12 @@ def show_frame(frame, title=None):
 def splash_screen(root):
     splash = ctk.CTkFrame(root, fg_color="#7a1cff")
     splash.grid(row=0, column=0, sticky="nsew")
-    try:
-        logo_img = Image.open("33.png").resize((300, 300))
-        logo_photo = ImageTk.PhotoImage(logo_img)
-        label_logo = ctk.CTkLabel(splash, image=logo_photo, text="")
-        label_logo.image = logo_photo
-        label_logo.pack(pady=120)
-    except:
-        ctk.CTkLabel(splash, text="HTC Smart Hub", font=("Arial Black", 60), text_color="white").pack(pady=150)
-
-    ctk.CTkLabel(splash, text="กำลังโหลดระบบ...", font=("Arial", 28, "bold"), text_color="white").pack(pady=10)
-    progress = ctk.CTkProgressBar(splash, width=500, progress_color="#cbb8ff")
-    progress.set(0)
-    progress.pack(pady=20)
+   
 
     def loading():
         for i in range(101):
             time.sleep(0.01)
-            progress.set(i / 100)
+           
         # เมื่อไปหน้าหลัก ให้รีเซ็ต last_announced เพื่อให้สามารถประกาศหน้าอื่นซ้ำได้ในอนาคต
         with last_announced_lock:
             last_announced["title"] = None
