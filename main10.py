@@ -115,7 +115,7 @@ def splash_screen(root):
 
 class AnimatedGIF(ctk.CTkLabel):
     def __init__(self, master, path, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
+        super().__init__(master, *args, **kwargs,text="")
         try:
             self.frames = [ImageTk.PhotoImage(img.copy().resize((900, 600)))
                            for img in ImageSequence.Iterator(Image.open(path))]
@@ -349,7 +349,7 @@ shortcuts = {
     "ช่างไฟฟ้า": ["ไฟฟ้า"],
     "ช่างยนต์": ["ยนต์", "ช่างยนต์"],
     "เทคโนโลยีสารสนเทศ": ["ไอที", "สารสนเทศ", "เทคโนโลยี"],
-    "เมคคาทรอนิกส์และหุ่นยนต์": ["เมคคา", "หุ่นยนต์", "แม็กคา", "แม็คคา", "แมคคา"],
+    "เมคคาทรอนิกส์และหุ่นยนต์": ["เมคคา", "หุ่นยนต์", "แม็กคา", "แม็คคา", "แมคคา","แมกคา","แม็กคา"],
     "การจัดการโลจิสติกส์ซัพพลายเชน": ["โลจิสติกส์", "ซัพพลายเชน"],
     "ช่างกลโรงงาน": ["กล", "กลโรงงาน"],
     "ช่างเชื่อมโลหะ": ["เชื่อม", "โลหะ"],
