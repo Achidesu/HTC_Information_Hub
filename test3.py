@@ -1,642 +1,874 @@
-# htc_smart_hub_with_continuous_mic.py
-# HTC Smart Hub — full file (lazy-load images + safe background listen)
-from cProfile import label
 import customtkinter as ctk
-from PIL import Image, ImageTk, ImageSequence
-import time, threading, tempfile, os
-import speech_recognition as sr
-from gtts import gTTS
-import pygame
-import sys
-import traceback
+from PIL import Image, ImageTk, ImageFilter, ImageEnhance, ImageOps 
+import tkinter as tk 
+import speech_recognition as sr 
+import threading 
+import time 
+import os
 
-# ---------- ตั้งค่าธีม ----------
+# --- กำหนดค่า Path (สมมติว่าไฟล์รูปภาพทั้งหมดอยู่ในโฟลเดอร์นี้) ---
+# ต้องกำหนด DEPT_IMAGE_PATH_BASE ให้ตรงกับตำแหน่งไฟล์จริงบนเครื่องที่ใช้งาน
+DEPT_IMAGE_PATH_BASE = "/home/pi/Test_GUI/Picture_slide/" 
+
+# --- ตั้งค่า appearance และ theme ---
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
-# ---------- ขนาดหน้าจอ ----------
-WINDOW_WIDTH = 1080
-WINDOW_HEIGHT = 1920
-
-# ---------- เตรียม pygame สำหรับเล่นเสียง ----------
-# (ยังคง init ตอนเริ่ม แต่ถ้าเป็นปัญหาช้าให้ย้ายเข้า thread)
-try:
-    pygame.init()
-    pygame.mixer.init()
-except Exception as e:
-    print("pygame init warning:", e)
-
-# ---------- TTS function (gTTS -> pygame) ----------
-tts_lock = threading.Lock()
-def speak_tts(text, lang="th"):
-    """
-    สร้างไฟล์ mp3 ชั่วคราวด้วย gTTS แล้วเล่นด้วย pygame (threaded).
-    ใช้ lock เพื่อไม่ให้เสียงทับกัน.
-    """
-    def _run():
-        try:
-            with tts_lock:
-                tf = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-                tmp_path = tf.name
-                tf.close()
-                try:
-                    tts = gTTS(text=text, lang=lang)
-                    tts.save(tmp_path)
-                except Exception as e:
-                    print("gTTS save error:", e)
-                    try: os.remove(tmp_path)
-                    except: pass
-                    return
-
-                try:
-                    pygame.mixer.music.load(tmp_path)
-                    pygame.mixer.music.play()
-                    while pygame.mixer.music.get_busy():
-                        time.sleep(0.1)
-                except Exception as e:
-                    print("ไม่สามารถเล่นเสียงได้:", e)
-                finally:
-                    try:
-                        os.remove(tmp_path)
-                    except:
-                        pass
-        except Exception as e:
-            print("TTS error:", e)
-
-    threading.Thread(target=_run, daemon=True).start()
-
-# ---------- ระบบรู้จำเสียง (Recognizer) ----------
-recognizer_main = sr.Recognizer()
-
-# ---------- ข้อมูลแผนก (รวมฝ่ายอำนวยการ) ----------
-# รูปแบบ tuple: (image_file, map_file, distance_meters, walk_time_minutes)
-departments = {
-    # ตัวอย่างแผนกต่าง ๆ (แก้เปลี่ยนไฟล์ตามโฟลเดอร์คุณ)
-    "แผนกวิชาช่างก่อสร้าง": ("B11.jpg", "s2.gif", 120, 3),
-    "แผนกวิชาช่างโยธา": ("B9.jpg", "s2.gif", 150, 4),
-    "แผนกวิชาช่างเฟอร์นิเจอร์และตกแต่งภายใน": ("B12.jpg", "s14.gif", 180, 5),
-    "แผนกวิชาช่างสำรวจ": ("B6.jpg", "s8.gif", 200, 6),
-    "แผนกวิชาสถาปัตยกรรม": ("B6.jpg", "s8.gif", 200, 6),
-    "แผนกวิชาช่างยนต์": ("B15.jpg", "s5.gif", 100, 3),
-    "แผนกวิชาช่างกลโรงงาน": ("B16.jpg", "s6.gif", 90, 2),
-    "แผนกวิชาช่างเชื่อมโลหะ": ("B17.jpg", "s9.gif", 110, 3),
-    "แผนกวิชาช่างเทคนิคพื้นฐาน": ("B1.jpg", "s12.gif", 130, 3),
-    "แผนกวิชาช่างไฟฟ้า": ("B10.jpg", "s2.gif", 140, 4),
-    "แผนกวิชาช่างอิเล็กทรอนิกส์": ("B8.jpg", "s1.gif", 160, 4),
-    "แผนกวิชาเครื่องทำความเย็นและปรับอากาศ": ("B2.jpg", "s10.gif", 180, 5),
-    "แผนกวิชาเทคโนโลยีสารสนเทศ": ("B13.jpg", "s6.gif", 170, 4),
-    "แผนกวิชาเทคโนโลยีปิโตรเลียม": ("B88.jpg", "s11.gif", 190, 5),
-    "แผนกวิชาเทคนิคพลังงาน": ("B3.jpg", "s7.gif", 200, 6),
-    "แผนกวิชาการจัดการโลจิสติกส์ซัพพลายเชน": ("s15.jpeg", "s13.gif", 160, 4),
-    "แผนกวิชาเทคนิคควบคุมระบบขนส่งทางราง": ("B14.jpg", "s4.gif", 210, 6),
-    "แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์": ("B3.1.jpg", "s7.gif", 200, 5),
-    "แผนกวิชาแผนกการบิน": ("s15.jpeg", "s13.gif", 160, 4),
-    "แผนกวิชาเทคโนโลยีคอมพิวเตอร์": ("w11.jpg", "w11.jpg", 180, 2),
-
-    # ฝ่าย/ห้องงานอำนวยการ
-    "ห้องการเงิน": ("ab.jpg", "o20.gif", 40, 1),
-    "ห้องงานทะเบียน": ("abc.jpg", "o18.gif", 40, 1),
-    "ห้องงานบุคลากร": ("a1.jpg", "o12.gif", 40, 1),
-    "ห้องงานการบัญชี": ("a3.jpg", "o13.gif", 40, 1),
-    "ห้องงานวางแผนและงบประมาณ": ("a3.jpg", "o13.gif", 50, 1),
-    "ห้องงานรองผู้อำนวยการแผนและความร่วมมือ": ("a4.jpg", "o14.gif", 50, 1),
-    "ห้องรองผู้อำนวยการฝ่ายกิจการนักเรียน นักศึกษา": ("a5.jpg", "o15.gif", 50, 1),
-    "ห้องรองผู้อำนวยการฝ่ายวิชาการ": ("a6.jpg", "o16.gif", 50, 1),
-    "ห้องรองผู้อำนวยการฝ่ายบริหารทรัพยากร": ("a7.jpg", "o17.gif", 50, 1),
-    "ห้องงานอาชีวศึกษาระบบทวิภาคี": ("a9.jpg", "o19.gif", 50, 1),
-    "ห้องงานพัฒนาหลักสูตร": ("a11.jpg", "o21.gif", 50, 1),
-    "งานครูที่ปรึกษา": ("w10.jpg", "l4.gif", 40, 1),
-    "งานปกครอง": ("w10.jpg", "l4.gif", 40, 1),
-    "งานแนะแนวและการจัดหางาน": ("w9.jpg", "l2.gif", 60, 1),
-    "งานกิจการนักเรียน นักศึกษา": ("w4.jpg", "l3.gif", 60, 1),
-    "งานวัดและประเมินผล": ("w3.jpg", "l2.gif", 50, 1),
-    "ศูนย์ประสานงานบัณฑิตศึกษา วิทยาลัยเทคนิคหาดใหญ่": ("w2.jpg", "l1.gif", 60, 1),
-    "สำนักงานอาชีวบัณฑิต วิทยาลัยเทคนิคหาดใหญ่": ("w2.jpg", "l1.gif", 60, 1),
-    "ร้านค้าสวัสดิการ": ("w1.jpg", "o1.gif", 210, 3),
-    "โรงอาหารใหม่": ("w8.jpg", "o5.gif", 230, 3),
-    "โรงอาหารเก่า": ("w7.jpg", "o3.gif", 110, 1),
-    "หอประชุม": ("w6.jpg", "o2.gif", 160, 2),
-    "ห้องสมุด": ("w5.jpg", "o9.gif", 60, 1),
-    "ตึกส้ม": ("w11.jpg", "w11.jpg", 180, 2),
-}
-
-# ---------- คำย่อ/shortcuts ----------
-shortcuts = {
-    "แผนกวิชาช่างอิเล็กทรอนิกส์": ["อิเล็ก", "อิเล็กทรอนิกส์", "อีเล็ก"],
-    "แผนกวิชาช่างไฟฟ้า": ["ไฟฟ้า"],
-    "แผนกวิชาช่างยนต์": ["ยนต์", "ช่างยนต์"],
-    "แผนกวิชาเทคโนโลยีสารสนเทศ": ["ไอที", "สารสนเทศ", "เทคโนโลยี"],
-    "แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์": ["เมคคา", "หุ่นยนต์"],
-    "แผนกวิชาการจัดการโลจิสติกส์ซัพพลายเชน": ["โลจิสติกส์", "ซัพพลายเชน"],
-    "ห้องการเงิน": ["การเงิน"],
-    "ห้องงานทะเบียน": ["งานทะเบียน", "ทะเบียน"],
-    "ห้องงานบุคลากร": ["งานบุคลากร", "บุคลากร"],
-    "ห้องงานการบัญชี": ["งานบัญชี", "การบัญชี", "บัญชี"],
-    "ห้องงานวางแผนและงบประมาณ": ["วางแผน", "งบประมาณ", "งานวางแผน"],
-    "ห้องงานรองผู้อำนวยการแผนและความร่วมมือ": ["แผนและความร่วมมือ", "งานแผน"],
-    "ห้องงานอาชีวศึกษาระบบทวิภาคี": ["ทวิภาคี", "ระบบทวิภาคี"],
-    "งานปกครอง": ["ปกครอง"],
-    "งานครูที่ปรึกษา": ["ที่ปรึกษา"],
-    "งานแนะแนวและการจัดหางาน": ["แนะแนว", "การจัดหางาน", "หางาน"],
-    "ร้านค้าสวัสดิการ": ["สหกรณ์", "ร้านค้าสวัสดิการ"],
-    "โรงอาหารใหม่": ["โรงอาหารใหม่"],
-    "โรงอาหารเก่า": ["โรงอาหารเก่า"],
-    "หอประชุม": ["หอประชุม"],
-    "ห้องสมุด": ["ห้องสมุด"],
-    "ตึกส้ม": ["ตึกส้ม"],
-}
-
-# ---------- ป้องกันการพูดซ้ำ ----------
-last_announced = {"title": None}
-last_announced_lock = threading.Lock()
-
-# ---------- สร้าง mapping สำหรับการค้นหา ----------
-_search_variants = {}
-for key in list(departments.keys()):
-    lower_key = key.lower()
-    variants = {lower_key}
-    if lower_key.startswith("แผนก"):
-        variants.add(lower_key.replace("แผนก", "").strip())
-    if lower_key.startswith("ห้อง"):
-        variants.add(lower_key.replace("ห้อง", "").strip())
-    _search_variants[key] = variants
-
-_shortcut_map = {}
-for main, words in shortcuts.items():
-    for w in words:
-        _shortcut_map[w.lower()] = main
-
-def find_department_by_text(text):
-    lowered = text.lower().strip()
-    lowered = lowered.replace("แผนก", "").replace("ห้อง", "").strip()
-
-    # shortcuts first
-    for sw, main in _shortcut_map.items():
-        if sw in lowered:
-            return main
-
-    # full/variants
-    for main_name, variants in _search_variants.items():
-        for v in variants:
-            if v and v in lowered:
-                return main_name
-
-    # word by word fallback
-    words = lowered.split()
-    for w in words:
-        for main_name, variants in _search_variants.items():
-            for v in variants:
-                if v and w in v:
-                    return main_name
-    return None
-
-# ---------- AnimatedGIF helper (lazy-load frames, animate only when started) ----------
-class AnimatedGIF(ctk.CTkLabel):
-    def __init__(self, master, path, width=900, height=600, delay=80, *args, **kwargs):
-        super().__init__(master, *args, **kwargs, text="")
-        self.path = path
-        self.width = width
-        self.height = height
-        self.delay = delay
-        self.frames = []
-        self.idx = 0
-        self._animating = False
-        self._loading = False
-        # show placeholder or first frame if possible lazily
-        self._placeholder_text = "(โหลด GIF...)"
-
-    def load_frames(self):
-        if self._loading or self.frames:
-            return
-        self._loading = True
-        try:
-            pil = Image.open(self.path)
-            temp_frames = []
-            for img in ImageSequence.Iterator(pil):
-                frm = img.copy().resize((self.width, self.height))
-                temp_frames.append(ImageTk.PhotoImage(frm))
-            self.frames = temp_frames
-        except Exception as e:
-            print(f"ไม่สามารถโหลด GIF: {self.path} -> {e}")
-            self.frames = []
-        finally:
-            self._loading = False
-
-    def start(self):
-        # load frames in background thread to avoid blocking UI
-        if self._animating:
-            return
-        def _start_worker():
-            try:
-                self.load_frames()
-                if not self.frames:
-                    # show text if failed
-                    def set_text():
-                        self.configure(text="(ไม่พบแผนที่ GIF)")
-                    self.after(0, set_text)
-                    return
-                # once frames loaded, begin animate on main thread
-                def _begin_anim():
-                    self._animating = True
-                    self.idx = 0
-                    self.configure(image=self.frames[self.idx], text="")
-                    self.after(self.delay, self._animate)
-                self.after(0, _begin_anim)
-            except Exception as e:
-                print("AnimatedGIF start error:", e)
-        threading.Thread(target=_start_worker, daemon=True).start()
-
-    def _animate(self):
-        if not self._animating or not self.frames:
-            return
-        try:
-            self.idx = (self.idx + 1) % len(self.frames)
-            self.configure(image=self.frames[self.idx])
-        except Exception as e:
-            print("AnimatedGIF animate error:", e)
-            self._animating = False
-            return
-        self.after(self.delay, self._animate)
-
-    def stop(self):
-        self._animating = False
-
-# ---------- ฟังก์ชันสร้างหน้าแผนก (lazy load image/map) ----------
-def create_image_page(root, title, img_path, map_path, distance, walk_time):
-    frame = ctk.CTkFrame(root, fg_color="white")
-    frame.grid(row=0, column=0, sticky="nsew")
-    frame._loaded = False
-    frame._img_path = img_path
-    frame._map_path = map_path
-
-    # header
-    header = ctk.CTkFrame(frame, fg_color="#7a1cff", corner_radius=0)
-    header.pack(fill="x")
-    try:
-        logo_img_obj = Image.open("33.png").resize((90, 90))
-        logo_ctkimg = ctk.CTkImage(light_image=logo_img_obj, dark_image=logo_img_obj, size=(90,90))
-        logo_label = ctk.CTkLabel(header, image=logo_ctkimg, text="")
-        logo_label.image = logo_ctkimg
-        logo_label.pack(side="left", padx=20, pady=8)
-    except Exception:
-        pass
-
-    ctk.CTkLabel(header, text=title, text_color="white", font=("Arial Black", 36)).pack(padx=20, pady=12, side="left")
-
-    # content
-    content = ctk.CTkFrame(frame, fg_color="white")
-    content.pack(pady=10, fill="both", expand=True)
-
-    # placeholder labels (image & map) - actual images loaded on demand
-    frame._img_label = ctk.CTkLabel(content, text="(กำลังโหลดรูปภาพ)", font=("Arial", 18), text_color="gray")
-    frame._img_label.pack(pady=10)
-
-    ctk.CTkLabel(content, text="🗺️ แผนที่ตำแหน่งห้อง / แผนก", font=("Arial", 24, "bold"), text_color="#5b00a0").pack(pady=8)
-
-    frame._map_container = ctk.CTkFrame(content, fg_color="white")
-    frame._map_container.pack(pady=6)
-
-    # distance/time
-    ctk.CTkLabel(content, text=f"📏 ระยะทาง: {distance} เมตร", font=("Arial", 20), text_color="#333").pack(pady=(16,4))
-    ctk.CTkLabel(content, text=f"⏱️ เวลาเดินโดยประมาณ: {walk_time} นาที", font=("Arial", 20), text_color="#333").pack(pady=(0,16))
-
-    # footer
-    footer = ctk.CTkFrame(frame, fg_color="#8c52ff", corner_radius=0)
-    footer.pack(side="bottom", fill="x")
-
-    return frame
-
-def ensure_page_loaded(frame, map_width=900, map_height=600, img_width=900, img_height=600):
-    """
-    โหลดรูปและ GIF เมื่อหน้าเพจถูกแสดงครั้งแรก (lazy load)
-    """
-    if getattr(frame, "_loaded", False):
-        return
-    frame._loaded = True
-
-    # load main image
-    try:
-        p = frame._img_path
-        if p and os.path.exists(p):
-            img_obj = Image.open(p).resize((img_width, img_height))
-            photo = ctk.CTkImage(light_image=img_obj, dark_image=img_obj, size=(img_width,img_height))
-            frame._img_label.configure(image=photo, text="")
-            frame._img_label.image = photo
-        else:
-            frame._img_label.configure(text="(ไม่พบรูปภาพหลัก)", image=None)
-    except Exception as e:
-        print("load main image error:", e)
-        frame._img_label.configure(text="(ไม่พบรูปภาพหลัก)", image=None)
-
-    # load map (gif or static)
-    map_p = frame._map_path
-    try:
-        if map_p and map_p.lower().endswith(".gif") and os.path.exists(map_p):
-            # use AnimatedGIF and start it
-            gif_widget = AnimatedGIF(frame._map_container, map_p, width=map_width, height=map_height, delay=80)
-            gif_widget.pack()
-            gif_widget.start()
-            frame._map_widget = gif_widget
-        else:
-            if map_p and os.path.exists(map_p):
-                map_img_obj = Image.open(map_p).resize((map_width, map_height))
-                map_photo = ctk.CTkImage(light_image=map_img_obj, dark_image=map_img_obj, size=(map_width,map_height))
-                map_lbl = ctk.CTkLabel(frame._map_container, image=map_photo, text="")
-                map_lbl.image = map_photo
-                map_lbl.pack()
-                frame._map_widget = map_lbl
-            else:
-                label = ctk.CTkLabel(frame._map_container, text="(ไม่พบแผนที่)", font=("Arial", 18), text_color="gray")
-                label.pack()
-                frame._map_widget = label
-    except Exception as e:
-        print("load map error:", e)
-        label = ctk.CTkLabel(frame._map_container, text="(ไม่พบแผนที่)", font=("Arial", 18), text_color="gray")
-        label.pack()
-        frame._map_widget = label
-
-# ---------- หน้าเมนูหลัก ----------
-def create_main_menu(root):
-    frame = ctk.CTkFrame(root, fg_color="#efeaff")
-    frame.grid(row=0, column=0, sticky="nsew")
-
-    # header bar
-    header = ctk.CTkFrame(frame, fg_color="#7a1cff", corner_radius=0)
-    header.pack(fill="x")
-    try:
-        logo_img_obj = Image.open("33.png").resize((120, 120))
-        logo_ctkimg = ctk.CTkImage(light_image=logo_img_obj, dark_image=logo_img_obj, size=(120,120))
-        logo_label = ctk.CTkLabel(header, image=logo_ctkimg, text="")
-        logo_label.image = logo_ctkimg
-        logo_label.pack(side="left", padx=20, pady=8)
-    except Exception:
-        pass
-
-    ctk.CTkLabel(header, text="HTC Smart Hub", text_color="white", font=("Arial Black", 40)).pack(side="left", padx=16, pady=12)
-
-    # large banner (optional)
-    try:
-        ff_img_obj = Image.open("FF.png").resize((950, 400))
-        ff_ctk = ctk.CTkImage(light_image=ff_img_obj, dark_image=ff_img_obj, size=(950,400))
-        ff_label = ctk.CTkLabel(frame, image=ff_ctk, text="")
-        ff_label.image = ff_ctk
-        ff_label.pack(pady=30)
-    except Exception:
-        pass
-
-    # animated hero (optional)
-    try:
-        hero = AnimatedGIF(frame, "s00.gif", width=1000, height=420, delay=80)
-        hero.pack(pady=20)
-        # start hero animation later when main menu shown
-        frame._hero_widget = hero
-    except Exception as e:
-        print("s00.gif load error:", e)
-        ctk.CTkLabel(frame, text="(ไม่พบไฟล์ s00.gif)", font=("Arial", 20), text_color="gray").pack(pady=20)
-
-    # ---------- ไมค์ลอยด้านซ้าย ----------
-    float_frame = ctk.CTkFrame(frame, fg_color="#7b2ff7", corner_radius=18)
-    float_frame.place(relx=0.02, rely=0.45, anchor="w")
-
-    mic_float_btn = ctk.CTkButton(float_frame, text="🎤", width=80, height=80, font=("Arial", 36, "bold"),
-                                  fg_color="white", text_color="#7b2ff7", hover_color="#eee",
-                                  corner_radius=40, command=lambda: threading.Thread(target=single_listen_and_process, daemon=True).start())
-    mic_float_btn.pack(pady=(10,6))
-
-    # ข้อความชวนพูด
-    mic_hint = ctk.CTkLabel(float_frame, text="กรุณาพูดแผนกวิชาหรือ\nฝ่ายอำนวยที่ท่านต้องการ", font=("Arial", 14), text_color="white", justify="center")
-    mic_hint.pack()
-
-    # bottom footers (2 layers)
-    footer_top = ctk.CTkFrame(frame, fg_color="#6b3fe8", corner_radius=0, height=50)
-    footer_top.pack(side="bottom", fill="x")
-    footer_label_top = ctk.CTkLabel(footer_top, text="ออกแบบ-เขียน โดย ช่างเทคโนโลยีคอมพิวเตอร์", text_color="white", font=("Arial", 18))
-    footer_label_top.pack(pady=8)
-
-    footer_bottom = ctk.CTkFrame(frame, fg_color="#8c52ff", corner_radius=0, height=48)
-    footer_bottom.pack(side="bottom", fill="x")
-
-    marquee_text = "  ออกแบบ-เขียน โดย ช่างเทคโนโลยีคอมพิวเตอร์  "
-    marquee_var = {"text": marquee_text}
-    marquee_label = ctk.CTkLabel(footer_bottom, text=marquee_text, text_color="white", font=("Arial", 20))
-    marquee_label.pack(pady=6)
-
-    def marquee_shift():
-        s = marquee_var["text"]
-        s = s[1:] + s[0]
-        marquee_var["text"] = s
-        marquee_label.configure(text=s)
-        footer_bottom.after(180, marquee_shift)
-
-    footer_bottom.after(180, marquee_shift)
-
-    return frame
-
-# ---------- หน้าแผนก (รายการ) ----------
-def create_department_page(root):
-    frame = ctk.CTkFrame(root, fg_color="white")
-    frame.grid(row=0, column=0, sticky="nsew")
-
-    ctk.CTkLabel(frame, text="รายการแผนก (สั่งด้วยเสียง)", font=("Arial Black", 30), text_color="#5b00a0").pack(pady=30)
-
-    list_frame = ctk.CTkFrame(frame, fg_color="white")
-    list_frame.pack(pady=10, fill="both", expand=True)
-    for name in departments.keys():
-        ctk.CTkLabel(list_frame, text=f"• {name}", font=("Arial", 20), text_color="#333").pack(anchor="w", padx=20, pady=6)
-
-    footer_top = ctk.CTkFrame(frame, fg_color="#6b3fe8", corner_radius=0, height=50)
-    footer_top.pack(side="bottom", fill="x")
-    ctk.CTkLabel(footer_top, text="ออกแบบ-เขียน โดย ช่างเทคโนโลยีคอมพิวเตอร์", text_color="white", font=("Arial", 18)).pack(pady=8)
-    footer_bottom = ctk.CTkFrame(frame, fg_color="#8c52ff", corner_radius=0, height=48)
-    footer_bottom.pack(side="bottom", fill="x")
-    marquee_label = ctk.CTkLabel(footer_bottom, text="  ออกแบบ-เขียน โดย ช่างเทคโนโลยีคอมพิวเตอร์  ", text_color="white", font=("Arial", 20))
-    marquee_label.pack(pady=6)
-    def marquee_shift2():
-        s = marquee_label.cget("text")
-        s = s[1:] + s[0]
-        marquee_label.configure(text=s)
-        footer_bottom.after(180, marquee_shift2)
-    footer_bottom.after(180, marquee_shift2)
-
-    return frame
-
-# ========================================================================
-# ฟังก์ชันเปิดหน้า และพูดชื่อแผนกเมื่อเป็น page แผนก/ห้อง
-# ========================================================================
-def show_frame(frame, title=None):
-    # ยกเลเยอร์
-    try:
-        frame.tkraise()
-    except Exception as e:
-        print("show_frame warning:", e)
-
-    # ถ้ามี hero GIF บนหน้าหลัก ให้เริ่มเมื่อแสดง
-    try:
-        if hasattr(frame, "_hero_widget"):
-            frame._hero_widget.start()
-    except Exception:
-        pass
-
-    # ถ้าเป็นหน้าแผนกจริง ๆ ให้ lazy-load รูปของหน้า
-    try:
-        if getattr(frame, "_img_path", None) is not None:
-            ensure_page_loaded(frame)
-    except Exception as e:
-        print("ensure_page_loaded error:", e)
-
-    if not title:
-        return
-
-    with last_announced_lock:
-        if last_announced["title"] == title:
-            return
-        last_announced["title"] = title
-
-    # พูดชื่อง่าย ๆ
-    if title.startswith("แผนก"):
-        name = title.replace("แผนก", "").strip()
-        info = departments.get(f"แผนก{name}") or departments.get(name) or departments.get(f"แผนก{name.strip()}")
-        if info:
-            distance = info[2]; walk_time = info[3]
-            speak_tts(f"แผนก {name} ระยะทาง {distance} เมตร เวลาเดินประมาณ {walk_time} นาที")
-        else:
-            speak_tts(title)
-    elif title.startswith("ห้อง"):
-        name = title.strip()
-        info = departments.get(name) or departments.get(name.replace("ห้อง", "").strip())
-        if info:
-            distance = info[2]; walk_time = info[3]
-            speak_tts(f"{name} ระยะทาง {distance} เมตร เวลาเดินประมาณ {walk_time} นาที")
-        else:
-            speak_tts(title)
-    else:
-        speak_tts(title)
-
-# ---------- ฟังก์ชันประมวลผลคำสั่งเสียง ----------
-def process_command_text(text):
-    if not text or not text.strip():
-        return
-    lowered = text.lower()
-    print("process_command_text got:", lowered)
-
-    # กลับ / หน้าหลัก
-    if "กลับ" in lowered or "หน้าหลัก" in lowered:
-        with last_announced_lock:
-            last_announced["title"] = None
-        root.after(0, lambda: show_frame(main_frame, "หน้าหลัก"))
-        return
-
-    # หาแผนก
-    found = find_department_by_text(lowered)
-    if found:
-        title = found if found.startswith("ห้อง") else (found if found.startswith("แผนก") else f"แผนก{found}")
-        # call on main thread
-        if found in image_pages_department:
-            root.after(0, lambda n=found, t=title: show_frame(image_pages_department[n], t))
-        else:
-            speak_tts("ไม่พบชื่อแผนกหรือห้องที่กล่าว กรุณาพูดใหม่")
-        return
-
-    # ไม่พบ
-    speak_tts("ไม่พบชื่อแผนกหรือห้องที่กล่าว กรุณาพูดใหม่")
-
-# ---------- Continuous listening thread (background) ----------
-def listen_continuously_thread():
-    r = sr.Recognizer()
-    # ปรับเสียงรอบข้างตอนเริ่มใน thread (อาจช้า ถ้ามีปัญหาให้ลด duration)
-    try:
-        with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=1)
-    except Exception as e:
-        print("ไมโครโฟนไม่พร้อมหรือไม่พบอุปกรณ์ (background):", e)
-
-    while True:
-        try:
-            with sr.Microphone() as source:
-                print("🎤 (Background) กำลังฟังเสียงตลอดเวลา…")
-                audio = r.listen(source, phrase_time_limit=4)
-            try:
-                text = r.recognize_google(audio, language="th-TH")
-                print("BG heard:", text)
-                process_command_text(text)
-            except sr.UnknownValueError:
-                continue
-            except sr.RequestError as e:
-                print("RequestError (background):", e)
-                time.sleep(1)
-                continue
-        except Exception as e:
-            print("Error listening background:", e)
-            time.sleep(0.5)
-            continue
-
-# ---------- single listen (on floating mic press) ----------
-def single_listen_and_process():
-    r = sr.Recognizer()
-    try:
-        with sr.Microphone() as source:
-            speak_tts("กรุณาพูดแผนกวิชาหรือฝ่ายอำนวยที่ท่านต้องการ")
-            r.adjust_for_ambient_noise(source, duration=0.6)
-            audio = r.listen(source, timeout=7, phrase_time_limit=6)
-        try:
-            text = r.recognize_google(audio, language="th-TH")
-            print("Single heard:", text)
-            process_command_text(text)
-        except sr.UnknownValueError:
-            speak_tts("ขอโทษ ไม่เข้าใจ กรุณาพูดใหม่")
-        except sr.RequestError:
-            speak_tts("ไม่สามารถเชื่อมต่อระบบรู้จำเสียงได้")
-    except Exception as e:
-        print("single listen error:", e)
-        speak_tts("มีข้อผิดพลาดการใช้ไมโครโฟน")
-
-# ========================================================================
-# Start application (ไม่มีหน้า splash) — สร้าง GUI ก่อนแล้วค่อยเริ่ม thread ฟังเสียง
-# ========================================================================
+# --- สร้างหน้าต่างหลัก ---
 root = ctk.CTk()
 root.title("HTC Smart Hub")
-root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-root.resizable(False, False)
-root.rowconfigure(0, weight=1)
-root.columnconfigure(0, weight=1)
+#root.attributes('-fullscreen', True) # สำหรับโหมด Fullscreen จริง
+root.geometry("1080x1920") # ใช้ขนาดมาตรฐานสำหรับหน้าจอสัมผัสแนวตั้ง
+root.configure(fg_color="white")
 
-# create frames
-main_frame = create_main_menu(root)
-department_frame = create_department_page(root)
+# ***************************************************************
+# ** Global Variables สำหรับควบคุมสถานะและ UI **
+# ***************************************************************
+is_blinking_on = True
+blinking_dot = None 
+is_listening = False 
+mic_canvas = None 
+aura_circles = [] 
+alpha_value = [0.0] 
+direction = [1] 
 
-# สร้างหน้า image pages (แต่ยังไม่โหลดรูป/แผนที่จนกว่าจะเปิด)
-image_pages_department = {}
-for n, v in departments.items():
-    title = n if n.startswith("ห้อง") else (n if n.startswith("แผนก") else f"แผนก{n}")
-    img_file, map_file, dist, wtime = v
-    image_pages_department[n] = create_image_page(root, title, img_file, map_file, dist, wtime)
+# --- คำสั่งเสียงทั้งหมด ---
+KEYWORDS_ELECTRONICS = ["อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "อิเล็กทรอนิก"] 
+KEYWORDS_CONSTRUCTION = ["ช่างก่อสร้าง", "ก่อสร้าง"]
+KEYWORDS_CIVIL = ["ช่างโยธา", "โยธา"]
+KEYWORDS_FURNITURE = ["ช่างเฟอร์นิเจอร์", "ตกแต่งภายใน", "เฟอร์นิเจอร์"]
+KEYWORDS_SURVEY = ["ช่างสำรวจ", "สำรวจ"]
+KEYWORDS_ARCHITECT = ["สถาปัตยกรรม", "สถาปัตย์"]
+KEYWORDS_AUTO = ["ช่างยนต์", "ยนต์"]
+KEYWORDS_FACTORY = ["ช่างกลโรงงาน", "กลโรงงาน"]
+KEYWORDS_WELDING = ["ช่างเชื่อมโลหะ", "เชื่อมโลหะ", "เชื่อม"]
+KEYWORDS_BASICTECH = ["ช่างเทคนิคพื้นฐาน", "เทคนิคพื้นฐาน"]
+KEYWORDS_ELECTRIC = ["ช่างไฟฟ้า", "ไฟฟ้า"]
+KEYWORDS_AIRCOND = ["เครื่องทำความเย็น", "ปรับอากาศ", "แอร์", "ระบบความเย็น"]
+KEYWORDS_IT = ["เทคโนโลยีสารสนเทศ", "ไอที", "สารสนเทศ", "it"]
+KEYWORDS_PETROLEUM = ["เทคโนโลยีปิโตรเลียม", "ปิโตรเลียม"]
+KEYWORDS_ENERGY = ["เทคนิคพลังงาน", "พลังงาน"]
+KEYWORDS_LOGISTICS = ["โลจิสติกส์", "ซัพพลายเชน", "logistics"]
+KEYWORDS_RAIL = ["ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง"]
+KEYWORDS_MECHATRONICS = ["เมคคาทรอนิกส์", "หุ่นยนต์", "เมคคา", "หุ่นยนต์", "แม็กคา", "แม็คคา", "แมคคา","แมกคา","แม็กคา", "mechatronics"]
+KEYWORDS_AIRLINE = ["แผนกการบิน", "การบิน", "aviation"]
+KEYWORDS_COMPUTER_TECH = ["เทคโนโลยีคอมพิวเตอร์", "เทคโนโลยีคอม", "คอมพิวเตอร์", "คอมพิว"]
+    
+NAVIGATION_TRIGGER_IMAGE = "60 ปี.jpg" 
+NAVIGATION_DISPLAY_MAP_PATH = "/home/pi/Test_GUI/Tower/1.png" # แผนที่หลักสำหรับหน้า Guided Map
 
-# แสดงหน้าหลักทันที (ไม่มี splash)
-root.after(100, lambda: show_frame(main_frame, "หน้าหลัก"))
+# --------------------------------------------------------------------------------------------------
+# ** Mappings for Department Images and Video Maps (ตามที่ผู้ใช้ระบุ) **
+# --------------------------------------------------------------------------------------------------
+# [Image File (for slide/dept page), Video Map File (for dept page map placeholder)]
+DEPT_FILE_MAPPING = {
+    "แผนกวิชาช่างอิเล็กทรอนิกส์": ("B8.jpg", "z11.mp4"),
+    "แผนกวิชาช่างก่อสร้าง": ("B11.jpg", "z4.mp4"),
+    "แผนกวิชาช่างโยธา": ("B9.jpg", "z4.mp4"),
+    "แผนกวิชาช่างเฟอร์นิเจอร์และตกแต่งภายใน": ("B12.jpg", "z13.mp4"),
+    "แผนกวิชาช่างสำรวจ": ("B6.jpg", "z6.mp4"),
+    "แผนกวิชาสถาปัตยกรรม": ("B6.jpg", "z6.mp4"), 
+    "แผนกวิชาช่างยนต์": ("B15.jpg", "z8.mp4"),
+    "แผนกวิชาช่างกลโรงงาน": ("B16.jpg", "z9.mp4"),
+    "แผนกวิชาช่างเชื่อมโลหะ": ("B17.jpg", "z7.mp4"),
+    "แผนกวิชาช่างเทคนิคพื้นฐาน": ("B1.jpg", "z1.mp4"),
+    "แผนกวิชาช่างไฟฟ้า": ("B10.jpg", "z4.mp4"),
+    "แผนกวิชาเครื่องทำความเย็นและปรับอากาศ": ("B2.jpg", "z3.mp4"),
+    "แผนกวิชาเทคโนโลยีสารสนเทศ": ("B13.jpg", "z9.mp4"),
+    "แผนกวิชาเทคโนโลยีปิโตรเลียม": ("B88.jpg", "z2.mp4"),
+    "แผนกวิชาเทคนิคพลังงาน": ("B3.jpg", "z5.mp4"),
+    "แผนกวิชาการจัดการโลจิสติกส์ซัพพลายเชน": ("s15.jpeg", "z12.mp4"),
+    "แผนกวิชาเทคนิคควบคุมระบบขนส่งทางราง": ("B14.jpg", "z.mp4"),
+    "แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์": ("B3.jpg", "z5.mp4"), 
+    "แผนกวิชาแผนกการบิน": ("s15.jpeg", "z12.mp4"), 
+    "แผนกวิชาเทคโนโลยีคอมพิวเตอร์": ("w11.jpg", "z10.mp4"),
+}
+# --------------------------------------------------------------------------------------------------
 
-# เริ่ม thread ฟังเสียงหลัง GUI ขึ้น (เลื่อน 1 วิ เพื่อให้ UI แสดงก่อน)
-def start_background_listening_delayed():
-    threading.Thread(target=listen_continuously_thread, daemon=True).start()
+# Default appearance settings for departments
+DEFAULTS = {
+    "แผนกวิชาช่างอิเล็กทรอนิกส์": (160, 4, "#87CEFA"), 
+    "แผนกวิชาช่างก่อสร้าง": (120, 3, "#FF8C00"), 
+    "แผนกวิชาช่างโยธา": (150, 4, "#A52A2A"), 
+    "แผนกวิชาช่างเฟอร์นิเจอร์และตกแต่งภายใน": (180, 5, "#D2691E"), 
+    "แผนกวิชาช่างสำรวจ": (200, 6, "#556B2F"), 
+    "แผนกวิชาสถาปัตยกรรม": (200, 6, "#708090"), 
+    "แผนกวิชาช่างยนต์": (100, 3, "#DC143C"), 
+    "แผนกวิชาช่างกลโรงงาน": (90, 2, "#4682B4"), 
+    "แผนกวิชาช่างเชื่อมโลหะ": (110, 3, "#FF4500"), 
+    "แผนกวิชาช่างเทคนิคพื้นฐาน": (130, 3, "#BDB76B"), 
+    "แผนกวิชาช่างไฟฟ้า": (140, 4, "#FFD700"), 
+    "แผนกวิชาเครื่องทำความเย็นและปรับอากาศ": (180, 5, "#00BFFF"), 
+    "แผนกวิชาเทคโนโลยีสารสนเทศ": (170, 4, "#9370DB"), 
+    "แผนกวิชาเทคโนโลยีปิโตรเลียม": (190, 5, "#32CD32"), 
+    "แผนกวิชาเทคนิคพลังงาน": (200, 6, "#3CB371"), 
+    "แผนกวิชาการจัดการโลจิสติกส์ซัพพลายเชน": (160, 4, "#20B2AA"), 
+    "แผนกวิชาเทคนิคควบคุมระบบขนส่งทางราง": (210, 6, "#6A5ACD"), 
+    "แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์": (200, 5, "#BA55D3"), 
+    "แผนกวิชาแผนกการบิน": (160, 4, "#4169E1"), 
+    "แผนกวิชาเทคโนโลยีคอมพิวเตอร์": (180, 2, "#8A2BE2") 
+}
 
-root.after(1000, start_background_listening_delayed)
+DEPARTMENTS_CONFIG = {}
+for dept_name, (img_file, video_file) in DEPT_FILE_MAPPING.items():
+    size, duration, color = DEFAULTS.get(dept_name, (160, 4, "#87CEFA"))
+    # Format: (IMG_FILE_SLIDE, IMG_FILE_DEPT, SIZE, DURATION, FULL_PATH, COLOR)
+    DEPARTMENTS_CONFIG[dept_name] = (img_file, img_file, size, duration, os.path.join(DEPT_IMAGE_PATH_BASE, img_file), color)
 
-# ถ้าต้องการ ให้เริ่มแอนิเมชัน hero บนหน้าหลักเมื่อ GUI แสดง
-def start_hero_if_any():
+
+# ** Waypoints for all 20 departments **
+WAYPOINTS_BASE = [545, 500] 
+WAYPOINTS_FAR_TOP_LEFT = [545, 500, 350, 400, 200, 250, 100, 150] 
+WAYPOINTS_FAR_TOP_RIGHT = [545, 500, 650, 400, 800, 250, 900, 150] 
+WAYPOINTS_FAR_BOTTOM_LEFT = [545, 500, 400, 600, 250, 750, 100, 850] 
+WAYPOINTS_FAR_BOTTOM_RIGHT = [545, 500, 600, 650, 800, 750, 950, 850] 
+
+WAYPOINTS_DEPARTMENTS = {
+    "แผนกวิชาช่างอิเล็กทรอนิกส์": [545, 500, 400, 390, 400, 300, 250, 200, 150, 180], 
+    "แผนกวิชาช่างก่อสร้าง": [545, 500, 700, 450, 800, 550, 950, 520, 900, 400], 
+    "แผนกวิชาช่างโยธา": WAYPOINTS_FAR_TOP_RIGHT, 
+    "แผนกวิชาช่างเฟอร์นิเจอร์และตกแต่งภายใน": [545, 500, 750, 400, 850, 250, 700, 150, 600, 200], 
+    "แผนกวิชาช่างสำรวจ": WAYPOINTS_FAR_TOP_RIGHT, 
+    "แผนกวิชาสถาปัตยกรรม": WAYPOINTS_FAR_TOP_RIGHT, 
+    "แผนกวิชาช่างยนต์": WAYPOINTS_FAR_TOP_LEFT, 
+    "แผนกวิชาช่างกลโรงงาน": WAYPOINTS_FAR_TOP_LEFT, 
+    "แผนกวิชาช่างเชื่อมโลหะ": WAYPOINTS_FAR_TOP_LEFT, 
+    "แผนกวิชาช่างเทคนิคพื้นฐาน": [545, 500, 600, 400, 700, 300, 800, 250], 
+    "แผนกวิชาช่างไฟฟ้า": [545, 500, 500, 600, 300, 650, 100, 600, 80, 500], 
+    "แผนกวิชาเครื่องทำความเย็นและปรับอากาศ": WAYPOINTS_FAR_TOP_LEFT, 
+    "แผนกวิชาเทคโนโลยีสารสนเทศ": WAYPOINTS_FAR_BOTTOM_RIGHT, 
+    "แผนกวิชาเทคโนโลยีปิโตรเลียม": [545, 500, 650, 600, 800, 700, 950, 650, 1000, 750], 
+    "แผนกวิชาเทคนิคพลังงาน": WAYPOINTS_FAR_BOTTOM_LEFT, 
+    "แผนกวิชาการจัดการโลจิสติกส์ซัพพลายเชน": WAYPOINTS_FAR_BOTTOM_LEFT, 
+    "แผนกวิชาเทคนิคควบคุมระบบขนส่งทางราง": [545, 500, 450, 250, 300, 150, 100, 200], 
+    "แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์": WAYPOINTS_FAR_TOP_LEFT, 
+    "แผนกวิชาแผนกการบิน": WAYPOINTS_FAR_BOTTOM_LEFT, 
+    "แผนกวิชาเทคโนโลยีคอมพิวเตอร์": WAYPOINTS_FAR_BOTTOM_RIGHT, 
+}
+
+# *** Global Variables สำหรับ Image Slides ***
+IMAGE_SLIDE_FOLDER = DEPT_IMAGE_PATH_BASE 
+IMAGE_SLIDE_HEIGHT = 300 
+IMAGE_SLIDE_WIDTH_LIMIT = 900 
+SLIDE_GAP = 55 
+SLIDE_FRAME_WIDTH = 5 
+SLIDE_FRAME_COLOR = "black" 
+slide_photo_images = [] 
+image_slide_canvas = None 
+active_slide_items = []
+last_x = 0
+is_dragging = False
+
+# ** Global UI Components **
+home_content_frame = ctk.CTkFrame(root, fg_color="white")
+electronics_content_frame = ctk.CTkFrame(root, fg_color="white")
+navigation_content_frame = ctk.CTkFrame(root, fg_color="white")
+image_slide_frame = None
+survey_frame = None
+credit_frame = None
+bottom_bar = None
+
+# -----------------------------------------------------------------
+# --- ฟังก์ชันควบคุมหน้าต่างนำทางแบบมีเส้นทาง (Guided Page) ---
+# -----------------------------------------------------------------
+def show_frame(frame_to_show):
+    """ฟังก์ชันสลับเฟรมที่แสดงบนหน้าจอหลัก (root) และจัดการการแสดงผลของส่วนล่าง"""
+    global image_slide_frame, survey_frame, credit_frame, bottom_bar
+    
+    home_content_frame.pack_forget()
+    electronics_content_frame.pack_forget()
+    navigation_content_frame.pack_forget()
+    
+    should_show_slides = (frame_to_show == home_content_frame)
+    should_show_survey_credit = (frame_to_show != navigation_content_frame) # ซ่อนทั้งหมดเมื่อเป็น Full Screen Map
+    
+    if image_slide_frame:
+        if should_show_slides:
+            image_slide_frame.pack(side="bottom", fill="x", pady=(0, 0))
+        else:
+            image_slide_frame.pack_forget()
+
+    for widget in [survey_frame, credit_frame]:
+        if widget:
+            if should_show_survey_credit:
+                widget.pack(side="bottom", fill="x", pady=(0, 0) if widget == survey_frame else 0)
+            else:
+                widget.pack_forget()
+            
+    if bottom_bar: bottom_bar.pack(side="bottom", fill="x") 
+             
+    frame_to_show.pack(side="top", fill="both", expand=True)
+             
+    top_bar.lift()
     try:
-        if hasattr(main_frame, "_hero_widget"):
-            main_frame._hero_widget.start()
-    except Exception:
-        pass
-
-root.after(500, start_hero_if_any)
-
-# run
-try:
-    root.mainloop()
-except Exception:
-    traceback.print_exc()
-    try:
-        root.destroy()
+        if mic_frame is not None:
+            if frame_to_show != navigation_content_frame: 
+                 mic_frame.lift() 
+            else:
+                 mic_frame.lower(top_bar)
     except:
         pass
-    sys.exit(1)
+
+def print_status(message):
+    """ฟังก์ชันสำหรับพิมพ์ข้อความสถานะใน Terminal พร้อมเวลา"""
+    print(f"[{time.strftime('%H:%M:%S')}] {message}")
+
+
+def show_guided_page(title, header_bg_color, dept_image_path, waypoints, video_map_file): 
+    """
+    แสดงเนื้อหาแผนก/กิจกรรมแบบมีเส้นทางนำทาง (Guided Page)
+    """
+    # ... (โค้ด show_guided_page เหมือนเดิม) ...
+    
+    MAP_DISPLAY_WIDTH_ELEC = 1152
+    MAP_DISPLAY_HEIGHT_ELEC = 648
+    DEPT_IMAGE_WIDTH = 950 
+    DEPT_IMAGE_HEIGHT = 400 
+
+    # ล้างเนื้อหาเก่า
+    for widget in electronics_content_frame.winfo_children():
+        widget.destroy() 
+
+    # ตรวจสอบ Waypoints
+    if len(waypoints) < 4:
+         print_status("--- [GUIDED PAGE ERROR]: Waypoints ไม่ถูกต้อง ---")
+         # สร้างหน้าจอข้อผิดพลาดแทน
+         header_frame = ctk.CTkFrame(electronics_content_frame, height=150, fg_color=header_bg_color)
+         header_frame.pack(side="top", fill="x")
+         ctk.CTkLabel(header_frame, text=title, font=("Kanit", 36, "bold"), text_color="white").pack(pady=(50, 20), padx=20)
+         ctk.CTkLabel(electronics_content_frame, text="⚠️ ไม่สามารถสร้างเส้นทางนำทางได้: Waypoints ไม่เพียงพอ ⚠️", font=("Kanit", 24), text_color="red").pack(pady=50)
+         ctk.CTkButton(electronics_content_frame, text="❮ กลับสู่หน้าหลัก", command=lambda: show_frame(home_content_frame), font=("Kanit", 28, "bold"), fg_color="#00C000", hover_color="#008000", width=250, height=70, corner_radius=15).pack(pady=(20, 40))
+         show_frame(electronics_content_frame)
+         return
+
+    START_X, START_Y = waypoints[0], waypoints[1]
+    END_X, END_Y = waypoints[-2], waypoints[-1]
+    
+    # 1. Header 
+    header_frame = ctk.CTkFrame(electronics_content_frame, height=150, fg_color=header_bg_color)
+    header_frame.pack(side="top", fill="x")
+    ctk.CTkLabel(header_frame, text=title, font=("Kanit", 36, "bold"), text_color="white").pack(pady=(50, 20), padx=20) 
+             
+    # 2. รูปภาพแผนก
+    try:
+         if os.path.exists(dept_image_path):
+             dept_img = Image.open(dept_image_path)
+             dept_img_resized = dept_img.resize((DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT), Image.LANCZOS)
+             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, dark_image=dept_img_resized, size=(DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT))
+             ctk.CTkLabel(electronics_content_frame, image=dept_ctk_image, text="").pack(pady=(20, 10))
+         else:
+             ctk.CTkLabel(electronics_content_frame, text=f"[ไม่พบรูปภาพ: {os.path.basename(dept_image_path)}]", font=("Kanit", 24)).pack(pady=(20, 10))
+    except Exception as e:
+         print_status(f"ไม่พบรูปภาพแผนก: {e}")
+         ctk.CTkLabel(electronics_content_frame, text="[พื้นที่สำหรับรูปภาพ]", font=("Kanit", 24)).pack(pady=(20, 10))
+
+
+    # 3. กรอบสำหรับข้อความนำทาง
+    guide_frame = ctk.CTkFrame(electronics_content_frame, fg_color="transparent")
+    guide_frame.pack(pady=(10, 5))
+    ctk.CTkLabel(guide_frame, 
+                 text="โปรดเดินตามเส้นทางที่กำหนดในแผนผังนี้ (เส้นประสีน้ำเงิน)", 
+                 font=("Kanit", 22, "bold"), 
+                 text_color="#8000FF").pack(side="left")
+
+    # 4. แผนผังการเดิน (Map Image) พร้อมเส้นประ และการแจ้งเตือนเรื่องวิดีโอ
+    video_alert = ctk.CTkLabel(electronics_content_frame, 
+                             text=f"*** ⚠️ แผนที่เดิมถูกแทนที่ด้วยวิดีโอ '{video_map_file}' (ไม่สามารถเล่นต่อเนื่องได้ในระบบนี้) ⚠️ ***", 
+                             font=("Kanit", 18, "bold"), 
+                             text_color="#FF0000")
+    video_alert.pack(pady=(5, 5))
+    
+    try:
+        map_img = Image.open(NAVIGATION_DISPLAY_MAP_PATH)
+        map_img_resized = map_img.resize((MAP_DISPLAY_WIDTH_ELEC, MAP_DISPLAY_HEIGHT_ELEC), Image.LANCZOS)
+        map_tk_img = ImageTk.PhotoImage(map_img_resized)
+        
+        map_container_frame = ctk.CTkFrame(
+            electronics_content_frame, 
+            fg_color="white", 
+            width=MAP_DISPLAY_WIDTH_ELEC, 
+            height=MAP_DISPLAY_HEIGHT_ELEC
+        )
+        map_container_frame.pack(pady=10) 
+        
+        map_canvas = tk.Canvas(
+            map_container_frame,
+            width=MAP_DISPLAY_WIDTH_ELEC,
+            height=MAP_DISPLAY_HEIGHT_ELEC,
+            bg="white",
+            highlightthickness=0,
+            bd=0
+        )
+        map_canvas.pack() 
+       
+        map_canvas.create_image(0, 0, image=map_tk_img, anchor="nw")
+        map_canvas.image = map_tk_img 
+
+        # วาดเส้นประแสดงเส้นทางการเดินแบบหลายจุด (Waypoints)
+        map_canvas.create_line(
+             *waypoints, 
+             fill="blue", 
+             width=6, 
+             dash=(20, 10), 
+             arrow=tk.LAST, 
+             arrowshape=(30, 40, 10)
+        )
+        
+        # วาดจุด Start/End
+        map_canvas.create_oval(START_X - 15, START_Y - 15, START_X + 15, START_Y + 15, fill="green", outline="white", width=3)
+        map_canvas.create_text(START_X, START_Y, text="START", fill="white", font=("Kanit", 10, "bold"))
+        map_canvas.create_oval(END_X - 15, END_Y - 15, END_X + 15, END_Y + 15, fill="red", outline="white", width=3)
+        map_canvas.create_text(END_X, END_Y, text="END", fill="white", font=("Kanit", 10, "bold"))
+        
+    except FileNotFoundError:
+        ctk.CTkLabel(electronics_content_frame, text=f"⚠️ ไม่พบไฟล์รูปแผนผัง '{NAVIGATION_DISPLAY_MAP_PATH}' ⚠️", font=("Kanit", 24), text_color="red").pack(pady=20)
+    except Exception as e:
+        ctk.CTkLabel(electronics_content_frame, text=f"⚠️ ข้อผิดพลาดในการโหลดรูปภาพ: {e} ⚠️", font=("Kanit", 24), text_color="red").pack(pady=20)
+
+    # 5. ปุ่มกลับ
+    ctk.CTkButton(electronics_content_frame, 
+                  text="❮ กลับสู่หน้าหลัก", 
+                  command=lambda: show_frame(home_content_frame), 
+                  font=("Kanit", 28, "bold"), 
+                  fg_color="#00C000", 
+                  hover_color="#008000", 
+                  width=250, height=70, 
+                  corner_radius=15).pack(pady=(20, 40))
+
+    show_frame(electronics_content_frame)
+
+# -----------------------------------------------------------------
+# ** NEW: Function Generators and Mappings (แก้ไขส่วนนี้) **
+# -----------------------------------------------------------------
+
+# NEW: Mapping Department Name to its Handler Function object
+DEPT_FUNCTION_MAPPING = {} 
+
+def generate_dept_wrapper(dept_name):
+    """Generates the show_..._page function for a given department name."""
+    
+    if dept_name not in DEPARTMENTS_CONFIG:
+        print_status(f"Configuration not found for: {dept_name}")
+        return lambda: print_status(f"Error: No config for {dept_name}")
+
+    config_data = DEPARTMENTS_CONFIG[dept_name]
+    header_bg_color = config_data[5]
+    dept_image_path = config_data[4]
+    waypoints = WAYPOINTS_DEPARTMENTS.get(dept_name, WAYPOINTS_BASE)
+    # DEPT_FILE_MAPPING[dept_name] is a tuple (img_file, video_file)
+    video_map_file = DEPT_FILE_MAPPING[dept_name][1] 
+
+    def show_dept_page():
+        print_status(f"--- [SYSTEM]: นำทางไปยังหน้าแผนก: {dept_name} ---")
+        show_guided_page(
+            title=dept_name,
+            header_bg_color=header_bg_color,
+            dept_image_path=dept_image_path,
+            waypoints=waypoints,
+            video_map_file=video_map_file 
+        )
+        
+    # Set a more user-friendly name for debugging/inspection (optional but good)
+    show_dept_page.__name__ = f"show_{dept_name.replace('แผนกวิชา', '').replace(' ', '_')}_page"
+    
+    return show_dept_page
+
+# 1. Create all 20 department wrapper functions and map them to the full department name
+for dept_name in DEPT_FILE_MAPPING.keys():
+    handler_func = generate_dept_wrapper(dept_name)
+    DEPT_FUNCTION_MAPPING[dept_name] = handler_func
+
+# 2. Define the list for Voice Command Mapping
+VOICE_COMMAND_MAPPING_LIST = [
+    (KEYWORDS_ELECTRONICS, "แผนกวิชาช่างอิเล็กทรอนิกส์"),
+    (KEYWORDS_CONSTRUCTION, "แผนกวิชาช่างก่อสร้าง"),
+    (KEYWORDS_CIVIL, "แผนกวิชาช่างโยธา"),
+    (KEYWORDS_FURNITURE, "แผนกวิชาช่างเฟอร์นิเจอร์และตกแต่งภายใน"),
+    (KEYWORDS_SURVEY, "แผนกวิชาช่างสำรวจ"),
+    (KEYWORDS_ARCHITECT, "แผนกวิชาสถาปัตยกรรม"),
+    (KEYWORDS_AUTO, "แผนกวิชาช่างยนต์"),
+    (KEYWORDS_FACTORY, "แผนกวิชาช่างกลโรงงาน"),
+    (KEYWORDS_WELDING, "แผนกวิชาช่างเชื่อมโลหะ"),
+    (KEYWORDS_BASICTECH, "แผนกวิชาช่างเทคนิคพื้นฐาน"),
+    (KEYWORDS_ELECTRIC, "แผนกวิชาช่างไฟฟ้า"),
+    (KEYWORDS_AIRCOND, "แผนกวิชาเครื่องทำความเย็นและปรับอากาศ"),
+    (KEYWORDS_IT, "แผนกวิชาเทคโนโลยีสารสนเทศ"),
+    (KEYWORDS_PETROLEUM, "แผนกวิชาเทคโนโลยีปิโตรเลียม"),
+    (KEYWORDS_ENERGY, "แผนกวิชาเทคนิคพลังงาน"),
+    (KEYWORDS_LOGISTICS, "แผนกวิชาการจัดการโลจิสติกส์ซัพพลายเชน"),
+    (KEYWORDS_RAIL, "แผนกวิชาเทคนิคควบคุมระบบขนส่งทางราง"),
+    (KEYWORDS_MECHATRONICS, "แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์"),
+    (KEYWORDS_AIRLINE, "แผนกวิชาแผนกการบิน"),
+    (KEYWORDS_COMPUTER_TECH, "แผนกวิชาเทคโนโลยีคอมพิวเตอร์"),
+]
+
+# 3. Build the final VOICE_COMMAND_MAPPING dynamically
+VOICE_COMMAND_MAPPING = {}
+for keywords, dept_name in VOICE_COMMAND_MAPPING_LIST:
+    if dept_name in DEPT_FUNCTION_MAPPING:
+        VOICE_COMMAND_MAPPING[tuple(keywords)] = DEPT_FUNCTION_MAPPING[dept_name]
+
+
+def show_60_years_page():
+    """ฟังก์ชัน Wrapper สำหรับการแสดงหน้า 60 ปี"""
+    GOLD_BACKGROUND = "#FFD700" 
+    waypoints = WAYPOINTS_DEPARTMENTS.get("แผนกวิชาช่างอิเล็กทรอนิกส์", WAYPOINTS_BASE) # ใช้ Waypoints Default
+    
+    show_guided_page(
+        title="60 ปี วิทยาลัยเทคนิคหาดใหญ่",
+        header_bg_color=GOLD_BACKGROUND,
+        dept_image_path=os.path.join(IMAGE_SLIDE_FOLDER, NAVIGATION_TRIGGER_IMAGE), 
+        waypoints=waypoints,
+        video_map_file="No Video Map"
+    )
+
+def show_navigation_page():
+    """ ฟังก์ชันเดิมสำหรับแสดงแผนผังนำทางแบบ Full Screen """
+    # ... (โค้ด show_navigation_page เหมือนเดิม) ...
+    MAX_NAVIGATION_MAP_HEIGHT = 750 
+    for widget in navigation_content_frame.winfo_children():
+        widget.destroy()
+    back_button_frame = ctk.CTkFrame(navigation_content_frame, fg_color="transparent", height=120)
+    back_button_frame.pack(side="top", fill="x", pady=(30, 0), padx=40)
+    ctk.CTkButton(back_button_frame, text="❮ กลับสู่หน้าหลัก", command=lambda: show_frame(home_content_frame), font=("Kanit", 28, "bold"), fg_color="#FF4500", hover_color="#CC3700", width=250, height=70, corner_radius=15).pack(side="left")
+
+    try:
+        map_img = Image.open(NAVIGATION_DISPLAY_MAP_PATH)
+        scale_ratio = 1080 / map_img.width
+        new_width = 1080
+        new_height = int(map_img.height * scale_ratio)
+
+        if new_height > MAX_NAVIGATION_MAP_HEIGHT:
+            new_height = MAX_NAVIGATION_MAP_HEIGHT
+            scale_ratio = new_height / map_img.height
+            new_width = int(map_img.width * scale_ratio)
+        
+        map_img_resized = map_img.resize((new_width, new_height), Image.LANCZOS)
+        map_photo = ImageTk.PhotoImage(map_img_resized)
+        
+        map_canvas_widget = tk.Canvas(navigation_content_frame, 
+                                      width=new_width, 
+                                      height=new_height, 
+                                      bg="white", 
+                                      highlightthickness=0, bd=0)
+        map_canvas_widget.pack(pady=20)
+        
+        map_canvas_widget.create_image(0, 0, image=map_photo, anchor="nw")
+        map_canvas_widget.image = map_photo 
+        
+    except Exception as e:
+        ctk.CTkLabel(navigation_content_frame, text=f"⚠️ ไม่พบไฟล์รูปแผนผัง '{NAVIGATION_DISPLAY_MAP_PATH}' หรือเกิดข้อผิดพลาดในการโหลด: {e} ⚠️", font=("Kanit", 24), text_color="red").pack(pady=20)
+
+    show_frame(navigation_content_frame)
+
+# -----------------------------------------------------------------
+# --- ฟังก์ชัน Speech Recognition และ MIC Animation ---
+# -----------------------------------------------------------------
+def reset_mic_icon():
+    """รีเซ็ตไอคอนไมค์เป็นสถานะปกติ"""
+    global is_listening
+    is_listening = False
+    if mic_canvas:
+        for circle in aura_circles:
+            mic_canvas.delete(circle)
+        aura_circles.clear()
+        mic_canvas.create_image(90, 90, image=mic_photo)
+
+def animate_listening():
+    """สร้างเอฟเฟกต์ออร่าเมื่อกำลังฟัง"""
+    global alpha_value, direction
+    
+    if not is_listening:
+        return
+
+    alpha_value[0] += direction[0] * 0.05
+    if alpha_value[0] >= 1.0 or alpha_value[0] <= 0.0:
+        direction[0] *= -1 
+        
+    if len(aura_circles) < 3: 
+        radius = 45 + int(alpha_value[0] * 30)
+        colors = ["#E0B0FF", "#C77DFF", "#9D4EDD"]
+        color_index = len(aura_circles) % len(colors)
+        fill_color = colors[color_index]
+        
+        circle = mic_canvas.create_oval(90 - radius, 90 - radius, 90 + radius, 90 + radius,
+                                        outline=fill_color, width=3)
+        aura_circles.append(circle)
+        
+    if len(aura_circles) > 3:
+        mic_canvas.delete(aura_circles.pop(0))
+
+    mic_canvas.tag_raise(mic_canvas.find_all()[-1])
+    
+    root.after(100, animate_listening)
+
+def start_listening_thread(event=None):
+    """เริ่มกระบวนการฟังเสียงในเธรดแยก"""
+    global is_listening
+    if is_listening:
+        print_status("--- [MIC]: กำลังรอการประมวลผลคำสั่งเดิม... ---")
+        return
+    
+    print_status("--- [MIC]: เริ่มกระบวนการฟัง... ---")
+    is_listening = True
+    reset_mic_icon()
+    animate_listening()
+    
+    threading.Thread(target=listen_and_process, daemon=True).start()
+
+def listen_and_process():
+    """ฟังก์ชันหลักสำหรับรับเสียงและประมวลผลคำสั่ง"""
+    r = sr.Recognizer()
+    mic = sr.Microphone()
+    
+    try:
+        with mic as source:
+            r.adjust_for_ambient_noise(source)
+    except Exception as e:
+        print_status(f"--- [MIC ERROR]: ไม่สามารถเข้าถึงไมโครโฟน: {e} ---")
+        root.after(0, reset_mic_icon)
+        return
+
+    try:
+        with mic as source:
+            print_status("--- [MIC]: กำลังรอคำสั่งเสียง (จำกัด 7 วินาที)... ---")
+            audio = r.listen(source, timeout=7)
+    except sr.WaitTimeoutError:
+        print_status("--- [MIC ERROR]: ไม่ได้รับเสียงภายใน 7 วินาที ---")
+        root.after(0, reset_mic_icon)
+        return
+    except Exception as e:
+        print_status(f"--- [MIC ERROR]: เกิดข้อผิดพลาดในการฟัง: {e} ---")
+        root.after(0, reset_mic_icon)
+        return
+        
+    try:
+        text = r.recognize_google(audio, language="th-TH")
+        handle_speech_command(text)
+    except sr.UnknownValueError:
+        print_status("--- [MIC ERROR]: ไม่สามารถเข้าใจคำพูด (UnknownValueError) ---")
+    except sr.RequestError as e:
+        print_status(f"--- [MIC ERROR]: ไม่สามารถเชื่อมต่อกับ Google Speech; Error: {e} ---")
+    finally:
+        root.after(0, reset_mic_icon)
+        
+def handle_speech_command(text):
+    """ฟังก์ชันสำหรับประมวลผลคำสั่งเสียงเพื่อนำทาง"""
+    global is_listening
+    text_lower = text.lower().replace(" ", "")
+    print_status(f"--- [MIC] ได้ยิน: '{text}' (ตรวจสอบ: '{text_lower}') ---")
+
+    # 1. ตรวจสอบคำสั่ง "กลับ"
+    if "กลับ" in text_lower or "home" in text_lower:
+        print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'กลับ' นำทางกลับสู่หน้าหลัก ---")
+        root.after(0, lambda: show_frame(home_content_frame))
+        return
+        
+    # 2. ตรวจสอบคำสั่งสำหรับแผนกทั้งหมด (ใช้ Mapping ที่สร้างใหม่)
+    for keywords, handler_func in VOICE_COMMAND_MAPPING.items():
+        for keyword in keywords:
+            if keyword in text_lower: 
+                print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนก: {handler_func.__name__} ---")
+                root.after(0, handler_func)
+                return
+
+    # หากไม่พบคำสั่งใด ๆ
+    print_status("--- [SYSTEM]: ตรวจไม่พบคำสั่งนำทางที่ตรงกัน ---")
+
+
+# -------------------------------------------------------------------
+# --- Image Slides (แถบเลื่อนด้านล่าง) ---
+# -------------------------------------------------------------------
+
+def load_slide_images():
+    """โหลดและปรับขนาดรูปภาพทั้งหมดในโฟลเดอร์สำหรับแถบเลื่อน"""
+    global slide_photo_images
+
+    slide_photo_images = []
+    
+    valid_extensions = ('.jpg', '.jpeg', '.png')
+    
+    # กรองเฉพาะไฟล์ที่อยู่ใน DEPT_FILE_MAPPING เพื่อแสดงเฉพาะแผนกที่กำหนด
+    image_files_to_load = [v[0] for v in DEPT_FILE_MAPPING.values()]
+    
+    # เพิ่มรูป 60 ปี.jpg (Navigation Trigger)
+    image_files_to_load.append(NAVIGATION_TRIGGER_IMAGE)
+    
+    # กรองและจัดเรียงไฟล์ที่มีอยู่จริง
+    # ใช้ for loop แทน list comprehension เพื่อให้สามารถโหลดไฟล์ซ้ำได้หากมีการกำหนดไฟล์ซ้ำใน DEPT_FILE_MAPPING 
+    # (เช่น B6.jpg สำหรับช่างสำรวจและสถาปัตยกรรม)
+    for img_file in image_files_to_load:
+        filepath = os.path.join(IMAGE_SLIDE_FOLDER, img_file)
+        if os.path.exists(filepath) and img_file.lower().endswith(valid_extensions):
+            
+            try:
+                img = Image.open(filepath)
+                original_width, original_height = img.size
+
+                target_image_height = IMAGE_SLIDE_HEIGHT - (SLIDE_FRAME_WIDTH * 2)
+                
+                # Resize based on height
+                if original_height != target_image_height:
+                    ratio = target_image_height / original_height
+                    new_width = int(original_width * ratio)
+                    img = img.resize((new_width, target_image_height), Image.LANCZOS)
+
+                # Limit width (if needed)
+                target_image_width_limit = IMAGE_SLIDE_WIDTH_LIMIT - (SLIDE_FRAME_WIDTH * 2)
+                if img.width > target_image_width_limit:
+                    ratio = target_image_width_limit / img.width
+                    new_height = int(img.height * ratio)
+                    img = img.resize((target_image_width_limit, new_height), Image.LANCZOS)
+
+                # Add border
+                img = ImageOps.expand(img, border=SLIDE_FRAME_WIDTH, fill=SLIDE_FRAME_COLOR) 
+                
+                slide_photo_images.append({
+                    'photo': ImageTk.PhotoImage(img),
+                    'filename': img_file,
+                    'original_dept_name': next((k for k, v in DEPT_FILE_MAPPING.items() if v[0] == img_file), None) # ห้ามใช้ None
+                })
+                print_status(f"--- [IMAGE SLIDE]: โหลดรูปภาพ: {img_file} ({img.width}x{img.height}) ---")
+            except Exception as e:
+                print_status(f"--- [IMAGE SLIDE ERROR]: ไม่สามารถโหลดรูปภาพ {img_file}: {e} ---")
+
+    if not slide_photo_images: 
+        print_status(f"--- [IMAGE SLIDE]: ไม่พบรูปภาพที่กำหนดในโฟลเดอร์: {IMAGE_SLIDE_FOLDER} ---")
+        return
+
+
+def draw_slides_on_canvas():
+    """วาดรูปภาพที่โหลดไว้ทั้งหมดลงบน Canvas และผูกการทำงาน (FIXED)"""
+    global image_slide_canvas, active_slide_items, next_image_x_placement
+
+    if not image_slide_canvas or not slide_photo_images:
+        return
+
+    image_slide_canvas.delete("all")
+    active_slide_items = []
+    
+    current_x = SLIDE_GAP
+    
+    # ใช้ DEPT_FILE_MAPPING เพื่อสร้างแผนที่ย้อนกลับ (filename -> dept_name)
+    dept_name_map = {}
+    for dept_name, (img_file, _) in DEPT_FILE_MAPPING.items():
+        # หากมีหลายแผนกใช้รูปเดียวกัน จะเก็บเฉพาะแผนกแรกที่พบ
+        if img_file not in dept_name_map:
+            dept_name_map[img_file] = dept_name
+            
+    # วาดรูปภาพทั้งหมด
+    for i, slide_data in enumerate(slide_photo_images):
+        photo = slide_data['photo']
+        filename = slide_data['filename']
+        img_width = photo.width()
+        img_height = photo.height()
+        
+        y_pos = IMAGE_SLIDE_HEIGHT // 2
+        canvas_item_id = image_slide_canvas.create_image(current_x, y_pos, image=photo, anchor="w")
+        active_slide_items.append(canvas_item_id)
+        
+        # -------------------------------------------------------------------
+        # ** FIXED: BIND CLICK HANDLERS **
+        # -------------------------------------------------------------------
+        
+        # 1. ตรวจสอบว่าเป็นรูปภาพแผนกหรือไม่
+        dept_name_from_file = dept_name_map.get(filename)
+
+        if dept_name_from_file:
+            # ใช้ DEPT_FUNCTION_MAPPING เพื่อค้นหา Handler (FIXED)
+            dept_handler = DEPT_FUNCTION_MAPPING.get(dept_name_from_file) 
+            
+            if dept_handler:
+                # ใช้ default argument 'handler=dept_handler' เพื่อ Lock ค่า function handler ใน closure
+                def handle_dept_click(event, handler=dept_handler):
+                    if not is_dragging:
+                        root.after(0, handler)
+                
+                image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_dept_click)
+                print_status(f"--- [SLIDE]: ผูกฟังก์ชันเข้ากับรูปภาพ '{filename}' ({dept_name_from_file}) สำเร็จ ---")
+            else:
+                 print_status(f"--- [SLIDE ERROR]: ไม่พบฟังก์ชัน handler สำหรับ '{dept_name_from_file}' ---")
+                 
+
+        # 2. Handle 60 ปี.jpg
+        elif filename == NAVIGATION_TRIGGER_IMAGE:
+            def handle_60_years_click(event):
+                if not is_dragging:
+                    root.after(0, show_60_years_page)
+            image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_60_years_click)
+            print_status(f"--- [SLIDE]: ผูกฟังก์ชัน 'show_60_years_page' เข้ากับรูปภาพ '{filename}' สำเร็จ ---")
+        
+        else:
+             print_status(f"--- [SLIDE]: ไม่มีการผูกฟังก์ชันคลิกสำหรับรูปภาพ '{filename}' ---")
+             
+        # อัปเดตตำแหน่ง x สำหรับรูปภาพถัดไป
+        current_x += img_width + SLIDE_GAP
+
+    # กำหนดขนาดของ scroll region
+    image_slide_canvas.config(scrollregion=(0, 0, current_x, IMAGE_SLIDE_HEIGHT))
+    next_image_x_placement = current_x 
+
+def handle_mouse_down(event):
+    """เริ่มลาก (Drag)"""
+    global last_x, is_dragging
+    last_x = event.x
+    is_dragging = False 
+    image_slide_canvas.scan_mark(event.x, event.y)
+
+def handle_mouse_move(event):
+    """กำลังลาก (Dragging)"""
+    global is_dragging
+    if abs(event.x - last_x) > 5: 
+        is_dragging = True
+    image_slide_canvas.scan_dragto(event.x, event.y, gain=1)
+
+def handle_mouse_up(event):
+    """สิ้นสุดการลาก (Release)"""
+    global is_dragging
+    pass
+
+# -------------------------------------------------------------------
+# --- UI Initialization (การสร้าง UI) ---
+# -------------------------------------------------------------------
+
+# --- 1. Top Bar ---
+top_bar = ctk.CTkFrame(root, height=80, fg_color="#0066CC")
+top_bar.pack(side="top", fill="x")
+
+try:
+    logo_img = Image.open("/home/pi/Test_GUI/icons/33.png").resize((50, 50))
+    logo_ctk_image = ctk.CTkImage(light_image=logo_img, dark_image=logo_img, size=(50, 50))
+    logo_label = ctk.CTkLabel(top_bar, image=logo_ctk_image, text="")
+    logo_label.pack(side="left", padx=10, pady=15)
+except Exception as e:
+    print_status(f"ไม่พบไฟล์โลโก้ (33.png): {e}")
+
+title_label = ctk.CTkLabel(top_bar, text="HTC Smart Hub", text_color="white", font=("Kanit", 36, "bold"))
+title_label.pack(side="left", padx=10, pady=15)
+
+# --- 4. Bottom Bar (ล่างสุด) ---
+bottom_bar = ctk.CTkFrame(root, height=45, fg_color="#A070FF")
+bottom_bar.pack(side="bottom", fill="x")
+bottom_label = ctk.CTkLabel(
+    bottom_bar, text="© 2025 HatYai Technical College", font=("Arial", 20, "bold"), text_color="white"
+)
+bottom_label.pack(pady=5)
+
+# --- 3. Credit / Marquee ---
+credit_frame = ctk.CTkFrame(root, height=55, fg_color="#D6B0FF")
+credit_frame.pack(side="bottom", fill="x")
+canvas = tk.Canvas(
+    credit_frame, height=55, bg="#D6B0FF", highlightthickness=0, bd=0,
+)
+canvas.pack(fill="both", expand=True)
+credit_text = "จัดทำโดย นักศึกษา แผนกภาควิชาเทคโนโลยีคอมพิวเตอร์"
+try:
+    marquee_font = ("Kanit", 26, "bold")
+except:
+    marquee_font = ("Arial", 26, "bold")
+text_id = canvas.create_text(
+    1080, 28, text=credit_text, fill="#333333", font=marquee_font, anchor="w"
+)
+def marquee_animation():
+    """ฟังก์ชันสำหรับเลื่อนข้อความ"""
+    canvas.move(text_id, -2, 0)
+    x1, y1, x2, y2 = canvas.bbox(text_id)
+    if x2 < 0:
+        text_width = x2 - x1
+        canvas.move(text_id, 1080 + text_width, 0)
+    root.after(30, marquee_animation)
+
+marquee_animation()
+
+# --- 2. Image Slides ---
+image_slide_frame = ctk.CTkFrame(root, height=IMAGE_SLIDE_HEIGHT + 10, fg_color="white") 
+image_slide_frame.pack(side="bottom", fill="x")
+
+load_slide_images()
+
+image_slide_canvas = tk.Canvas(
+    image_slide_frame, 
+    height=IMAGE_SLIDE_HEIGHT, 
+    bg="white", 
+    highlightthickness=0, bd=0
+)
+image_slide_canvas.pack(fill="x", padx=10, pady=(5, 5))
+
+draw_slides_on_canvas()
+
+image_slide_canvas.bind("<ButtonPress-1>", handle_mouse_down)
+image_slide_canvas.bind("<B1-Motion>", handle_mouse_move)
+image_slide_canvas.bind("<ButtonRelease-1>", handle_mouse_up)
+
+
+# --- 5. Survey Button ---
+survey_frame = ctk.CTkFrame(root, height=100, fg_color="white")
+survey_frame.pack(side="bottom", fill="x", pady=(0, 0))
+survey_button = ctk.CTkButton(
+    survey_frame,
+    text="แบบสอบถามความพึงพอใจ 📝",
+    font=("Kanit", 24, "bold"),
+    fg_color="#3399FF",
+    hover_color="#0077CC",
+    width=350,
+    height=60,
+    corner_radius=10,
+    command=lambda: print_status("--- [SYSTEM]: เปิดหน้าแบบสอบถาม (ไม่ทำงานในโค้ดนี้) ---")
+)
+survey_button.pack(pady=(15, 20))
+
+
+# ***************************************************************
+# ** UI กลาง (Home Content) **
+# ***************************************************************
+home_content_frame.pack(side="top", fill="both", expand=True)
+home_content_frame.pack_propagate(False)
+
+home_label = ctk.CTkLabel(home_content_frame, 
+                          text="ยินดีต้อนรับสู่ HTC Smart Hub", 
+                          font=("Kanit", 48, "bold"), 
+                          text_color="#0066CC")
+home_label.pack(pady=(100, 20))
+
+sub_label = ctk.CTkLabel(home_content_frame, 
+                         text="กรุณาแตะปุ่มไมค์เพื่อสั่งการด้วยเสียง หรือแตะรูปภาพด้านล่างเพื่อเลือกแผนกวิชา", 
+                         font=("Kanit", 28), 
+                         text_color="#333333")
+sub_label.pack(pady=(0, 50))
+
+map_nav_button = ctk.CTkButton(home_content_frame, 
+                              text="ดูแผนที่นำทางแบบเต็มจอ", 
+                              command=show_navigation_page, 
+                              font=("Kanit", 28, "bold"), 
+                              fg_color="#CC0066", 
+                              hover_color="#AA0044", 
+                              width=300, 
+                              height=80, 
+                              corner_radius=15)
+map_nav_button.pack(pady=(20, 40))
+
+
+# === ไอคอนไมค์ ===
+try:
+    mic_frame = tk.Frame(root, bg="white", width=180, height=180)
+    mic_frame.place(x=-25, y=725)
+    mic_canvas = tk.Canvas(
+        mic_frame, width=180, height=180, bg="white", highlightthickness=0, bd=0
+    )
+    mic_canvas.pack()
+    mic_canvas.bind("<Button-1>", start_listening_thread)
+    mic_frame.bind("<Button-1>", start_listening_thread)
+    
+    mic_image = Image.open("/home/pi/Test_GUI/microphone/microphone.png").resize((90, 90))
+    mic_photo = ImageTk.PhotoImage(mic_image)
+    
+    reset_mic_icon() 
+except Exception as e:
+    print_status(f"--- [MIC UI ERROR]: ไม่สามารถสร้างไอคอนไมค์: {e} ---")
+
+
+# ***************************************************************
+# ** เริ่มต้นการทำงาน **
+# ***************************************************************
+if __name__ == "__main__":
+    root.mainloop()
