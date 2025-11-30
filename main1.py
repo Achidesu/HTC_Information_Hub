@@ -1114,6 +1114,9 @@ NAV_MAPPING = {
 }
 
 
+
+
+
 def stop_drag(event):
     """ปล่อยเมาส์"""
     pass # ไม่ต้องทำอะไรพิเศษที่นี่ logic คลิกจะอยู่ที่ on_slide_click
@@ -1345,194 +1348,299 @@ image_slide_canvas.bind("<B1-Motion>", do_drag)
 image_slide_canvas.bind("<ButtonRelease-1>", on_slide_click)
 
 
-# -------------------------------------------------------------------
-# --- การสร้าง UI ส่วนกลาง (Home Content Frame) ---
-# -------------------------------------------------------------------
-
-# === ไอคอนไมค์พร้อมเอฟเฟกต์ออร่า (Fixed บน root) ===
-try:
-    mic_frame = tk.Frame(root, bg="white", width=120, height=120)
-    mic_frame.place(x=920, y=20) 
-    mic_frame.lift()
-    # (โค้ดสำหรับ Mic Icon และ Aura Effect ถูกตัดออก)
-except Exception as e:
-    print_status(f"ไม่สามารถสร้าง Mic Frame ได้: {e}")
-    mic_frame = None
-
 # ***************************************************************
 # ** Speech Recognition Functions (ทำงานใน Thread แยก) **
 # ***************************************************************
 # (โค้ด Speech Recognition ถูกตัดออก)
 def listen_for_speech():
     """ฟังก์ชันหลักในการรับเสียงจากไมค์และแปลงเป็นข้อความ พร้อมแก้ปัญหาค้าง"""
-    # ... (โค้ด sr.Recognizer() และ sr.Microphone() ถูกตัดออก)
-    r = sr.Recognizer() 
+    global is_listening
+    r = sr.Recognizer()
     LANGUAGE = "th-TH" 
-    global is_listening 
+
+    is_listening = True 
+    print_status("--- [MIC STATUS]: โปรดพูดตอนนี้ (Listening...) ---")
     
-    # ... (โค้ด listen_for_speech: ตรวจสอบคำสั่งเสียงและเรียก show_xxx_page) 
-    # ** ในส่วนนี้เมื่อมีการตรวจพบคำสั่งให้เรียก show_xxx_page() ซึ่งจะเรียก bind_inactivity_reset() เอง **
-    
-    is_listening = True
-    print_status("--- [MIC STATUS]: โปรดพูดตอนนี้ (Listening...) ---") 
-    try:
+    try: # Outer try block เพื่อจับ Exception ใหญ่ และส่งต่อไปยัง finally
         with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=0.8)
+            r.adjust_for_ambient_noise(source, duration=0.8) 
+            
             try:
                 audio = r.listen(source, timeout=7, phrase_time_limit=15)
                 print_status("--- [MIC STATUS]: ได้รับเสียงแล้ว กำลังประมวลผล... ---")
-                text = r.recognize_google(audio, language=LANGUAGE)
+                
+                text = r.recognize_google(audio, language=LANGUAGE) 
+                
                 print("\n*** [RECOGNIZED TEXT] ***")
                 print(f"ผลลัพธ์: {text}")
                 print("***************************\n")
+                
                 text_lower = text.lower()
                 
-                # -------------------------------------------------------
-                # การตรวจสอบคำสั่งเสียงและการนำทาง (ตัวอย่าง)
-                # -------------------------------------------------------
+                # --- MODIFIED: ตรวจสอบคำสั่งทั้งหมด (เพิ่มใหม่ตั้งแต่ข้อ 9 เป็นต้นไป) ---
                 
                 # 1. ตรวจสอบ "ตึก 11" (เดิม)
-                if "ตึก 11" in text_lower: 
+                if "ตึก 11" in text_lower:
                     print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ตึก 11' นำทางไปยังหน้าตึก 11 ---")
-                    root.after(0, show_tuk11_page)
+                    root.after(0, show_tuk11_page) 
                     return
+                
                 # 2. ตรวจสอบ "ปิโตรเลียม" (เดิม)
                 for keyword in ["ปิโตรเลียม", "แผนกปิโตรเลียม"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกปิโตรเลียม ---")
                         root.after(0, show_petroleum_page)
                         return
+                
                 # 3. ตรวจสอบ "ก่อสร้าง" (เดิม)
                 for keyword in ["ก่อสร้าง", "แผนกก่อสร้าง", "ช่างก่อสร้าง"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกก่อสร้าง ---")
                         root.after(0, show_construction_page)
-                        return
+                        return 
+
                 # 4. ตรวจสอบ "ตึก 60 ปี" (เดิม)
                 for keyword in ["ตึก 60 ปี", "60 ปี"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: 'ตึก 60 ปี' นำทางไปยังหน้ากิจกรรม 60 ปี ---")
                         root.after(0, show_60_years_page)
                         return
+                    
                 # 5. ตรวจสอบ "อิเล็กทรอนิกส์" (เดิม)
                 for keyword in ["อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "อิเล็กทรอนิก"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกอิเล็กทรอนิกส์ ---")
-                        root.after(0, show_electronics_page)
+                        root.after(0, show_electronics_page) 
                         return
+                
                 # 6. ตรวจสอบ "ไฟฟ้า" (เดิม)
                 for keyword in ["ช่างไฟฟ้า", "ไฟฟ้า", "แผนกไฟฟ้า", "ไฟฟ้ากำลัง"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกไฟฟ้ากำลัง ---")
                         root.after(0, show_electrical_page)
                         return
+
                 # 7. ตรวจสอบ "ตกแต่งภายใน" (เดิม)
                 for keyword in ["ตกแต่งภายใน", "แผนกตกแต่งภายใน", "ช่างตกแต่งภายใน"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกตกแต่งภายใน ---")
                         root.after(0, show_interior_decoration_page)
                         return
-                # 8. ตรวจสอบ "สารสนเทศ" (เดี่ยว)
-                for keyword in ["สารสนเทศ", "ไอที", "it", "คอมพิวเตอร์"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกสารสนเทศ (เดี่ยว) ---")
-                        root.after(0, show_it_page)
-                        return
                 
-                # --- NEW: 9. ตรวจสอบ ระบบราง --- 
+                # --- NEW: 9. ตรวจสอบ ระบบราง ---
                 for keyword in ["ระบบราง", "รถไฟ"]:
                     if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกระบบราง ---")
-                        root.after(0, show_rail_page)
+                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกวิชาระบบราง ---")
+                        root.after(0, show_rail_page) 
                         return
-                
-                # --- NEW: 10. ตรวจสอบ วิชาพื้นฐาน --- 
+                        
+                # --- NEW: 10. ตรวจสอบ วิชาพื้นฐาน ---
                 for keyword in ["วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกวิชาพื้นฐาน ---")
-                        root.after(0, show_basic_subjects_page)
+                        root.after(0, show_basic_subjects_page) 
                         return
-
-                # --- NEW: 11. ตรวจสอบ ศูนย์ส่งเสริม --- 
+                        
+                # --- NEW: 11. ตรวจสอบ ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้ ---
                 for keyword in ["ศูนย์ส่งเสริม", "อาชีวศึกษาภาคใต้", "ส่งเสริม"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าศูนย์ส่งเสริมฯ ---")
-                        root.after(0, show_southern_center_page)
+                        root.after(0, show_southern_center_page) 
                         return
-
-                # --- NEW: 12. ตรวจสอบ สถาปัตยกรรม/สำรวจ --- 
+                        
+                # --- NEW: 12. ตรวจสอบ สถาปัตยกรรม/ช่างสำรวจ ---
                 for keyword in ["สถาปัตยกรรม", "สำรวจ", "ช่างสำรวจ"]:
                     if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกสถาปัตยกรรม/สำรวจ ---")
-                        root.after(0, show_arch_survey_page)
+                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกสถาปัตยกรรม/ช่างสำรวจ ---")
+                        root.after(0, show_arch_survey_page) 
                         return
-                
-                # --- NEW: 13. ตรวจสอบ เครื่องกล/ทำความเย็น --- 
+                        
+                # --- NEW: 13. ตรวจสอบ เครื่องกล/ทำความเย็น ---
                 for keyword in ["เครื่องกล", "เครื่องทำความเย็น", "ปรับอากาศ", "แอร์"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกเครื่องกล/ทำความเย็น ---")
-                        root.after(0, show_mech_refrig_page)
+                        root.after(0, show_mech_refrig_page) 
                         return
-                
-                # --- NEW: 14. ตรวจสอบ เทคนิคพื้นฐาน --- 
+                        
+                # --- NEW: 14. ตรวจสอบ เทคนิคพื้นฐาน ---
                 for keyword in ["เทคนิคพื้นฐาน", "พื้นฐานช่าง"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกเทคนิคพื้นฐาน ---")
-                        root.after(0, show_basic_tech_page)
+                        root.after(0, show_basic_tech_page) 
                         return
-                
-                # --- NEW: 15. ตรวจสอบ โยธา/โรงงาน/สารสนเทศ (ตึกเดียวกัน) --- 
-                for keyword in ["โยธา", "ช่างโยธา", "โรงงาน"]:
-                    if keyword in text_lower: 
-                        print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'โยธา/โรงงาน/สารสนเทศ' นำทางไปยังหน้าตึกโยธา ---")
-                        root.after(0, show_civil_workshop_it_page) 
+                        
+                # --- NEW: 15. ตรวจสอบ โยธา/โรงงาน/สารสนเทศ (ตึกเดียวกัน) ---
+                for keyword in ["โยธา", "ช่างโยธา", "โรงงาน", "สารสนเทศ"]:
+                    if keyword in text_lower:
+                         # ใช้ตรรกะตรวจจับคำสั่งรวมตึกโยธา/โรงงาน/สารสนเทศ (หากพูดคำใดคำหนึ่ง)
+                         if any(k in text_lower for k in ["โยธา", "โรงงาน", "ช่างโยธา"]):
+                            print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'โยธา/โรงงาน/สารสนเทศ' นำทางไปยังหน้าตึกโยธา ---")
+                            root.after(0, show_civil_workshop_it_page)
+                            return
+                         # ถ้าพูดแค่ "สารสนเทศ" ให้เรียกหน้า สารสนเทศเดี่ยว (ข้อ 8)
+                         elif keyword in ["สารสนเทศ", "ไอที", "it", "คอมพิวเตอร์"]:
+                             pass # ให้ไปเช็คในข้อ 8 ต่อ
+                         
+
+                # 8. (สำรอง) ตรวจสอบ "สารสนเทศ" (เดิม)
+                for keyword in ["สารสนเทศ", "ไอที", "it", "คอมพิวเตอร์"]:
+                    if keyword in text_lower:
+                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกสารสนเทศ (เดี่ยว) ---")
+                        root.after(0, show_it_page) 
                         return
-                
-                # --- NEW: 16. ตรวจสอบ โลจิสติกส์/พลังงาน/เชื่อม --- 
+                        
+                # --- NEW: 16. ตรวจสอบ โลจิสติกส์/พลังงาน/เชื่อม ---
                 for keyword in ["โลจิสติกส์", "พลังงาน", "เชื่อม", "การเชื่อมและผลิต"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกโลจิสติกส์/พลังงาน/เชื่อม ---")
-                        root.after(0, show_logistics_energy_welding_page)
+                        root.after(0, show_logistics_energy_welding_page) 
                         return
-                
-                # --- NEW: 17. ตรวจสอบ โลหะ --- 
+                        
+                # --- NEW: 17. ตรวจสอบ โลหะ ---
                 for keyword in ["โลหะ", "แผนกโลหะ"]:
                     if keyword in text_lower:
                         print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกวิชาโลหะ ---")
-                        root.after(0, show_metalworking_page)
+                        root.after(0, show_metalworking_page) 
                         return
-                        
-                # -------------------------------------------------------
-
+                
             except sr.WaitTimeoutError:
                 print_status("--- [MIC ERROR]: ไม่ได้รับเสียงภายใน 7 วินาที ---")
             except sr.UnknownValueError:
-                print_status("--- [MIC ERROR]: ไม่สามารถเข้าใจคำพูด ---")
+                print_status("--- [MIC ERROR]: ไม่สามารถเข้าใจคำพูด (UnknownValueError) ---")
             except sr.RequestError as e:
-                print_status(f"--- [MIC ERROR]: ไม่สามารถเชื่อมต่อกับบริการ Google Speech Recognition ได้: {e} ---")
+                print_status(f"--- [MIC ERROR]: ไม่สามารถเชื่อมต่อกับ Google Speech (ตรวจสอบอินเทอร์เน็ต); {e} ---")
             except Exception as e:
-                print_status(f"--- [MIC ERROR]: ข้อผิดพลาดอื่น ๆ: {e} ---")
+                print_status(f"--- [MIC ERROR]: เกิดข้อผิดพลาดในการประมวลผล: {e} ---") 
             
-    except Exception as e:
-        print_status(f"--- [MIC ERROR]: ข้อผิดพลาดในการเริ่มต้นไมค์: {e} ---")
     finally:
+        # ** FIX: บล็อกนี้จะทำงานเสมอ แม้จะมี return หรือ Exception **
         is_listening = False
-        print_status("--- [MIC STATUS]: หยุดรอรับเสียง ---")
-        root.after(0, lambda: stop_aura_animation(True))
+        print_status("--- [MIC STATUS]: การฟังเสร็จสิ้น (IDLE) ---")
 
 
-def start_listening_thread():
-    """เริ่มต้น Thread สำหรับการฟังเสียง"""
-    global is_listening
-    if not is_listening:
-        thread = threading.Thread(target=listen_for_speech)
-        thread.daemon = True
-        thread.start()
-        start_aura_animation()
         
 def toggle_mic_click(event):
     """ฟังก์ชันที่ถูกเรียกเมื่อคลิกไอคอนไมค์"""
     start_listening_thread()
+
+def start_listening_thread(event=None):
+    """Start the listening process in a separate thread to prevent freezing"""
+    global is_listening
+    if not is_listening:
+        Thread_Mic = threading.Thread(target=listen_for_speech)
+        Thread_Mic.start()
+    else:
+        print_status("--- [SYSTEM]: ระบบกำลังฟังอยู่... ---")
+
+try:
+    # 1. Create the Frame (Positioned at bottom left based on your previous code)
+    # Adjusted x to 20 so it's not cut off
+    mic_frame = tk.Frame(root, bg="white", width=180, height=180)
+    mic_frame.place(x=20, y=725) 
+
+    # 2. Create Canvas
+    mic_canvas = tk.Canvas(
+        mic_frame,
+        width=180,
+        height=180,
+        bg="white",
+        highlightthickness=0,
+        bd=0
+    )
+    mic_canvas.pack()
+    
+    # 3. Bind Click Events (Fixes the click issue)
+    mic_canvas.bind("<Button-1>", start_listening_thread) 
+    mic_frame.bind("<Button-1>", start_listening_thread)
+
+    # 4. Load Image Safely
+    # Put "microphone.png" in your project folder, or update this path
+    MIC_IMAGE_PATH = "microphone/microphone.png" 
+    
+    if os.path.exists(MIC_IMAGE_PATH):
+        mic_image = Image.open(MIC_IMAGE_PATH).resize((90, 90))
+        mic_photo = ImageTk.PhotoImage(mic_image)
+    else:
+        # Create a placeholder circle if image is missing
+        print_status(f"Warning: Microphone image not found at {MIC_IMAGE_PATH}")
+        mic_image = Image.new('RGBA', (90, 90), (200, 200, 200, 0))
+        mic_photo = ImageTk.PhotoImage(mic_image)
+
+    # 5. Create Aura Circles
+    aura_circles = []
+    colors = ["#E0B0FF", "#C77DFF", "#9D4EDD"]
+    radii = [80, 60, 40]
+
+    for i, (color, radius) in enumerate(zip(colors, radii)):
+        circle = mic_canvas.create_oval(
+            90 - radius, 90 - radius,
+            90 + radius, 90 + radius,
+            fill="",
+            outline=color,
+            width=3,
+            tags="aura" # Common tag
+        )
+        aura_circles.append(circle) 
+
+    # 6. Place Microphone Icon in Center
+    mic_canvas.create_image(90, 90, image=mic_photo, tags="mic")
+    mic_canvas.image = mic_photo # Keep reference
+
+    # 7. Aura Animation Function
+    def animate_aura():
+        global is_listening, alpha_value, direction, mic_canvas, aura_circles
+        
+        # Check if mic_canvas still exists (prevents error on close)
+        try:
+            if not mic_canvas.winfo_exists(): return
+        except: return
+
+        if is_listening:
+            base_color_hex = ["#FFD700", "#FFA500", "#FF4500"] # Gold/Red when listening
+            speed = 4.0
+            border_width = 5
+        else:
+            base_color_hex = ["#E0B0FF", "#C77DFF", "#9D4EDD"] # Purple when idle
+            speed = 1.5
+            border_width = 3
+        
+        # Update Alpha/Pulse
+        alpha_value[0] += direction[0] * speed
+        if alpha_value[0] >= 100:
+            alpha_value[0] = 100
+            direction[0] = -1
+        elif alpha_value[0] <= 0:
+            alpha_value[0] = 0
+            direction[0] = 1
+
+        intensity = alpha_value[0] / 100.0
+        
+        # Calculate colors
+        colors_animated = []
+        for hex_color in base_color_hex:
+            r_base = int(hex_color[1:3], 16)
+            g_base = int(hex_color[3:5], 16)
+            b_base = int(hex_color[5:7], 16)
+            
+            # Pulse logic
+            r_final = int(r_base * (0.6 + 0.4 * intensity)) 
+            g_final = int(g_base * (0.6 + 0.4 * intensity))
+            b_final = int(b_base * (0.6 + 0.4 * intensity))
+            
+            colors_animated.append(f"#{r_final:02x}{g_final:02x}{b_final:02x}")
+
+        # Update Canvas
+        for i, circle in enumerate(aura_circles):
+            mic_canvas.itemconfig(circle, outline=colors_animated[i], width=border_width)
+
+        root.after(20, animate_aura)
+
+    # Start Animation
+    animate_aura()
+    mic_frame.lift()
+
+except Exception as e:
+    print_status(f"Error creating Microphone UI: {e}")
 
 # ***************************************************************
 # ** Aura Animation Functions (ถูกตัดออก) **
