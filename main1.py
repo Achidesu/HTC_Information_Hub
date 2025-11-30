@@ -7,6 +7,8 @@ import time
 import os 
 from tkvideo import tkvideo
 
+from test4 import WAYPOINTS_BASIC_SUBJECTS, WAYPOINTS_CONSTRUCTION, WAYPOINTS_ELECTRICAL, WAYPOINTS_ELECTRONICS, WAYPOINTS_INTERIOR_DECORATION, WAYPOINTS_SOUTHERN_CENTER
+
 # --- ตั้งค่า appearance และ theme ---
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
