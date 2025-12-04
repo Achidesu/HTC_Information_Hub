@@ -30,27 +30,44 @@ direction = [1]
 
 # ** Navigation Variables **
 electronics_window = None 
-# --- MODIFIED: เพิ่มคำสั่งเสียงทั้งหมดตามคำขอใหม่ ---
-KEYWORDS_NAVIGATION = [
-    "อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "อิเล็กทรอนิก", 
-    "ก่อสร้าง", "แผนกก่อสร้าง", "ช่างก่อสร้าง", 
-    "ตึก 60 ปี", "60 ปี", 
-    "ช่างไฟฟ้า", "ไฟฟ้า", "แผนกไฟฟ้า", 
-    "ตกแต่งภายใน", "แผนกตกแต่งภายใน",
-    "ตึก 11", # ตึก 11 โดยตรง
-    "สารสนเทศ", "ไอที", "IT", "คอมพิวเตอร์" , # สารสนเทศ (เดี่ยวหรือตึก 11)
-    "ปิโตรเลียม", "แผนกปิโตรเลียม", 
-    # --- NEW KEYWORDS ---
-    "ระบบราง", "รถไฟ", 
-    "วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ",
-    "ศูนย์ส่งเสริม", "อาชีวศึกษาภาคใต้", "ส่งเสริม",
-    "สถาปัตยกรรม", "สำรวจ", "ช่างสำรวจ",
-    "เครื่องกล", "เครื่องทำความเย็น", "ปรับอากาศ", "แอร์",
-    "เทคนิคพื้นฐาน", "พื้นฐานช่าง", 
-    "โยธา", "ช่างโยธา", 
-    "โรงงาน", "โลจิสติกส์", "พลังงาน", "เชื่อม", "การเชื่อมและผลิต", "โลหะ",
-    # --------------------
-] 
+
+# ***************************************************************
+# ** NEW: Global Keyword Lists สำหรับ Speech Recognition (ใช้เพื่ออ้างอิง) **
+# ***************************************************************
+KEYWORDS_ELECTRONICS = ["อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "อิเล็กทรอนิก"] 
+KEYWORDS_CONSTRUCTION = ["ช่างก่อสร้าง", "ก่อสร้าง"]
+KEYWORDS_CIVIL = ["ช่างโยธา", "โยธา"]
+KEYWORDS_FURNITURE = ["ช่างเฟอร์นิเจอร์", "ตกแต่งภายใน", "เฟอร์นิเจอร์"]
+KEYWORDS_SURVEY = ["ช่างสำรวจ", "สำรวจ"]
+KEYWORDS_ARCHITECT = ["สถาปัตยกรรม", "สถาปัตย์"]
+KEYWORDS_AUTO = ["ช่างยนต์", "ยนต์"]
+KEYWORDS_FACTORY = ["ช่างกลโรงงาน", "กลโรงงาน"]
+KEYWORDS_WELDING = ["ช่างเชื่อมโลหะ", "เชื่อมโลหะ", "เชื่อม"]
+KEYWORDS_BASICTECH = ["ช่างเทคนิคพื้นฐาน", "เทคนิคพื้นฐาน", "พื้นฐานช่าง"]
+KEYWORDS_ELECTRIC = ["ช่างไฟฟ้า", "ไฟฟ้า", "ไฟฟ้ากำลัง"]
+KEYWORDS_AIRCOND = ["เครื่องทำความเย็น", "ปรับอากาศ", "แอร์", "ระบบความเย็น"]
+KEYWORDS_IT = ["เทคโนโลยีสารสนเทศ", "ไอที", "สารสนเทศ", "it", "คอมพิวเตอร์"]
+KEYWORDS_PETROLEUM = ["เทคโนโลยีปิโตรเลียม", "ปิโตรเลียม"]
+KEYWORDS_ENERGY = ["เทคนิคพลังงาน", "พลังงาน"]
+KEYWORDS_LOGISTICS = ["โลจิสติกส์", "ซัพพลายเชน", "logistics"]
+KEYWORDS_RAIL = ["ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง", "ระบบราง", "รถไฟ"]
+KEYWORDS_MECHATRONICS = ["เมคคาทรอนิกส์", "หุ่นยนต์", "เมคคา", "หุ่นยนต์", "แม็กคา", "แม็คคา", "แมคคา","แมกคา","แม็กคา", "mechatronics"]
+KEYWORDS_AIRLINE = ["แผนกการบิน", "การบิน", "aviation"]
+KEYWORDS_COMPUTER_TECH = ["เทคโนโลยีคอมพิวเตอร์", "เทคโนโลยีคอม", "คอมพิวเตอร์", "คอมพิว", "ตึกส้ม"]
+KEYWORDS_BASIC_SUBJECTS = ["วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ"]
+KEYWORDS_SOUTHERN_CENTER = ["ศูนย์ส่งเสริม", "อาชีวศึกษาภาคใต้", "ส่งเสริม"]
+KEYWORDS_60YEARS = ["ตึก 60 ปี", "60 ปี"]
+KEYWORDS_TUK11 = ["ตึก 11"]
+
+# รวบรวม Keyword ทั้งหมดเข้าด้วยกัน
+KEYWORDS_NAVIGATION = (
+    KEYWORDS_ELECTRONICS + KEYWORDS_CONSTRUCTION + KEYWORDS_CIVIL + KEYWORDS_FURNITURE + 
+    KEYWORDS_SURVEY + KEYWORDS_ARCHITECT + KEYWORDS_AUTO + KEYWORDS_FACTORY + 
+    KEYWORDS_WELDING + KEYWORDS_BASICTECH + KEYWORDS_ELECTRIC + KEYWORDS_AIRCOND + 
+    KEYWORDS_IT + KEYWORDS_PETROLEUM + KEYWORDS_ENERGY + KEYWORDS_LOGISTICS + 
+    KEYWORDS_RAIL + KEYWORDS_MECHATRONICS + KEYWORDS_AIRLINE + KEYWORDS_COMPUTER_TECH + 
+    KEYWORDS_BASIC_SUBJECTS + KEYWORDS_SOUTHERN_CENTER + KEYWORDS_60YEARS + KEYWORDS_TUK11
+)
 
 # ** สำหรับการนำทางเฉพาะ **
 NAVIGATION_TRIGGER_IMAGE = "60 ปี.jpg" 
@@ -61,7 +78,6 @@ NAVIGATION_DISPLAY_MAP_PATH = "Tower/1.png"
 # *** Global Variables สำหรับ Image Slides ***
 IMAGE_SLIDE_FOLDER = "Picture_slide" 
 IMAGE_SLIDE_HEIGHT = 300 
-IMAGE_SLIDE_WIDTH_LIMIT = 900 
 SLIDE_GAP = 55 
 SLIDE_FRAME_WIDTH = 5 
 SLIDE_FRAME_COLOR = "black" 
@@ -78,67 +94,64 @@ last_x = 0
 is_dragging = False
 
 # ***************************************************************
-# ** NEW/UPDATED: Global Variables สำหรับหน้าแผนกและ Waypoints **
+# ** PATHS AND WAYPOINTS (อ้างอิงตามที่คุณกำหนดใหม่ทั้งหมด) **
 # ***************************************************************
-# ปรับให้ใช้ Path เดียวกับแผนผังหลัก
 ELECTRONICS_MAP_PATH = "Tower/1.png" 
-# กำหนดขนาดของรูปภาพแผนผังที่คุณส่งมา (1152x648)
 MAP_DISPLAY_WIDTH_ELEC = 1152
 MAP_DISPLAY_HEIGHT_ELEC = 648
-
-# Path สำหรับรูปภาพแผนกวิชาต่างๆ (เดิม)
-ELECTRONICS_DEPT_IMAGE_PATH = "Picture_slide/อิเล็กทรอนิกส์.jpg"
-SIXTY_YEARS_DEPT_IMAGE_PATH = os.path.join(IMAGE_SLIDE_FOLDER, NAVIGATION_TRIGGER_IMAGE)
-CONSTRUCTION_DEPT_IMAGE_PATH = "Picture_slide/ก่อสร้าง.jpg" 
-ELECTRICAL_DEPT_IMAGE_PATH = "Picture_slide/ช่างไฟฟ้า.jpg"
-INTERIOR_DECORATION_DEPT_IMAGE_PATH = "Picture_slide/ตกแต่งภายใน.jpg"
-TUK11_DEPT_IMAGE_PATH = "Picture_slide/ตึก11.jpg"
-IT_DEPT_IMAGE_PATH = "Picture_slide/สารสนเทศ_กลโรงงาน.jpg"
-PETROLEUM_DEPT_IMAGE_PATH = "Picture_slide/ปิโตรเลียม.jpg" 
 
 DEPT_IMAGE_WIDTH = 950 
 DEPT_IMAGE_HEIGHT = 400 
 FOOTSTEPS_ICON_PATH = "icons/footsteps.png"
 
-
-# NEW: Path และ Waypoints สำหรับแผนกใหม่ (ตามคำขอ)
-
-# สถาปัตยกรรม (Architecture) และ ช่างสำรวจ (Surveying) - ตึกเดียวกัน
-ARCH_SURVEY_DEPT_IMAGE_PATH = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg" 
-WAYPOINTS_ARCH_SURVEY = [545, 500, 600, 200, 750, 150, 850, 200] # เส้นทางไปทางขวาบน (สมมติ)
-# เครื่องกล (Mechanical) และ เครื่องทำความเย็นและปรับอากาศ (Refrigeration) - ตึกเดียวกัน
-MECH_REFRIG_DEPT_IMAGE_PATH = "Picture_slide/เครื่องกล_ทำความเย็น.jpg"
-WAYPOINTS_MECH_REFRIG = [545, 500, 300, 450, 200, 300, 150, 400] # เส้นทางไปทางซ้ายบน (สมมติ)
-# โยธา (Civil Engineering), โรงงาน (Workshop), และ สารสนเทศ (IT) - ตึกเดียวกัน
-CIVIL_WORKSHOP_IT_DEPT_IMAGE_PATH = "Picture_slide/โยธา_โรงงาน_สารสนเทศ.jpg"
-WAYPOINTS_CIVIL_WORKSHOP_IT = [545, 500, 700, 650, 850, 700, 900, 800] # เส้นทางไปทางขวาล่างไกล (สมมติ)
-# โลจิสติกส์ (Logistics), พลังงาน (Energy), และ การเชื่อมและผลิต (Welding) - ตึกเดียวกัน
-LOGISTICS_ENERGY_WELDING_DEPT_IMAGE_PATH = "Picture_slide/โลจิสติกส์_พลังงาน_เชื่อม.jpg"
-WAYPOINTS_LOGISTICS_ENERGY_WELDING = [545, 500, 500, 750, 400, 800, 200, 900] # เส้นทางไปทางซ้ายล่างไกล (สมมติ)
-
-# แผนกเดี่ยว
-RAIL_DEPT_IMAGE_PATH = "Picture_slide/ระบบราง.jpg"
-BASIC_SUBJECTS_DEPT_IMAGE_PATH = "Picture_slide/วิชาพื้นฐาน.jpg"
-SOUTHERN_CENTER_IMAGE_PATH = "Picture_slide/ศูนย์ส่งเสริม.jpg"
-BASIC_TECH_DEPT_IMAGE_PATH = "Picture_slide/เทคนิคพื้นฐาน.jpg"
-METALWORKING_DEPT_IMAGE_PATH = "Picture_slide/โลหะ.jpg"
-TECHNIC_MAC_IMAGE_PATH = "Picture_slide/เทคนิคเครื่องกล.jpg"
-MACHA_IMAGE_PATH = "Picture_slide/แมคคา.jpg"
-AIR_CON_IMAGE_PATH = "Picture_slide/ทำความเย็น.jpg"
-CIVIL_IMAGE_PATH = "Picture_slide/โยธา.jpg"
+# --- NEW PATHS & VIDEOS (อ้างอิงตามที่คุณกำหนดมาใหม่) ---
+AIRCONDI_DEPT_IMAGE_PATH      = "Picture_slide/ทำความเย็น.jpg"
+AIRLINE_DEPT_IMAGE_PATH       = "Picture_slide/ตึก11.jpg"
+ARCHITECT_DEPT_IMAGE_PATH     = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg"
+AUTO_DEPT_IMAGE_PATH          = "Picture_slide/ช่างยนต์.jpg"
+BASIC_TECH_DEPT_IMAGE_PATH    = "Picture_slide/เทคนิคพื้นฐาน.jpg"
+CIVIL_DEPT_IMAGE_PATH         = "Picture_slide/โยธา.jpg"
+COMPUTER_TECH_DEPT_IMAGE_PATH = "Picture_slide/ตึกส้ม.jpg"
+CONSTRUCTION_DEPT_IMAGE_PATH  = "Picture_slide/ก่อสร้าง.jpg"
+ELECTRIC_DEPT_IMAGE_PATH      = "Picture_slide/ช่างไฟฟ้า.jpg"
+ELECTRONICS_DEPT_IMAGE_PATH   = "Picture_slide/อิเล็กทรอนิกส์.jpg"
+ENERGY_DEPT_IMAGE_PATH        = "Picture_slide/แมคคา_พลังงาน.jpg"
+FACTORY_DEPT_IMAGE_PATH       = "Picture_slide/สารสนเทศ_กลโรงงาน.jpg"
+FURNITURE_DEPT_IMAGE_PATH     = "Picture_slide/ตกแต่งภายใน.jpg"
+IT_DEPT_IMAGE_PATH            = "Picture_slide/สารสนเทศ_กลโรงงาน.jpg"
+LOGISTICS_DEPT_IMAGE_PATH     = "Picture_slide/ตึก11.jpg"
+MECHATRONICS_DEPT_IMAGE_PATH  = "Picture_slide/แมคคา_พลังงาน.jpg"
+PETROLEUM_DEPT_IMAGE_PATH     = "Picture_slide/ปิโตรเลียม.jpg"
+RAIL_DEPT_IMAGE_PATH          = "Picture_slide/ระบบราง.jpg"
+SURVEY_DEPT_IMAGE_PATH        = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg"
+WELDING_DEPT_IMAGE_PATH       = "Picture_slide/ช่างเชื่อมโลหะ.jpg"
+SIXTY_YEARS_DEPT_IMAGE_PATH     = os.path.join(IMAGE_SLIDE_FOLDER, NAVIGATION_TRIGGER_IMAGE)
 
 
-WAYPOINT_BASIC_TECH_VIDEO = "Tower/Waypoint_Video/To_basic_tech.mp4"
-WAYPOINT_ELEC_VIDEO = ""
-WAYPOINT_SURVEY_VIDEO = "Tower/Waypoint_Video/To_survey.mp4"
-WAYPOINT_IT_VIDEO = "Tower/Waypoint_Video/To_IT.mp4"
-WAYPOINT_RAILWAY_VIDEO = "Tower/Waypoint_Video/To_railway.mp4"
-WAYPOINT_TECHNIC_MAC_VIDEO = "Tower/Waypoint_Video/To_technic_mac.mp4"
-WAYPOINT_WELDER_VIDEO = "Tower/Waypoint_Video/To_welder.mp4"
-WAYPOINT_MACCHA_VIDEO = "Tower/Waypoint_Video/To_maccha.mp4"
-WAYPOINT_PETROLEUM_VIDEO = "Tower/Waypoint_Video/To_petroleum.mp4"
-WAYPOINT_AIR_CON_VIDEO = "Tower/Waypoint_Video/To_air_con.mp4"
-WAYPOINT_CIVIL_VIDEO = "Tower/Waypoint_Video/To_civil.mp4"
+WAYPOINT_AIRCONDI_VIDEO        = "Tower/Waypoint_Video/To_AIRCONDI.mp4"
+WAYPOINT_AIRLINE_VIDEO         = "Tower/Waypoint_Video/To_AIRLINE.mp4"
+WAYPOINT_ARCHITECT_VIDEO       = "Tower/Waypoint_Video/To_ARCHITECT.mp4"
+WAYPOINT_AUTO_VIDEO            = "Tower/Waypoint_Video/To_AUTO.mp4"
+WAYPOINT_BASIC_TECH_VIDEO      = "Tower/Waypoint_Video/To_BASIC_TECH.mp4"
+WAYPOINT_CIVIL_VIDEO           = "Tower/Waypoint_Video/To_CIVIL.mp4"
+WAYPOINT_COMPUTER_TECH_VIDEO   = "Tower/Waypoint_Video/To_COMPUTER_TECH.mp4"
+WAYPOINT_CONSTRUCTION_VIDEO    = "Tower/Waypoint_Video/To_CONSTRUCTION.mp4"
+WAYPOINT_ELECTRIC_VIDEO        = "Tower/Waypoint_Video/To_ELECTRIC.mp4"
+WAYPOINT_ELECTRONICS_VIDEO     = "Tower/Waypoint_Video/To_ELECTRONICS.mp4"
+WAYPOINT_ENERGY_VIDEO          = "Tower/Waypoint_Video/To_ENERGY.mp4"
+WAYPOINT_FACTORY_VIDEO         = "Tower/Waypoint_Video/To_FACTORY.mp4"
+WAYPOINT_FURNITURE_VIDEO       = "Tower/Waypoint_Video/To_FURNITURE.mp4"
+WAYPOINT_IT_VIDEO              = "Tower/Waypoint_Video/To_IT.mp4"
+WAYPOINT_LOGISTICS_VIDEO       = "Tower/Waypoint_Video/To_LOGISTICS.mp4"
+WAYPOINT_MECHATRONICS_VIDEO    = "Tower/Waypoint_Video/To_MECHATRONICS.mp4"
+WAYPOINT_PETROLEUM_VIDEO       = "Tower/Waypoint_Video/To_PETROLEUM.mp4"
+WAYPOINT_RAIL_VIDEO            = "Tower/Waypoint_Video/To_RAIL.mp4"
+WAYPOINT_SURVEY_VIDEO          = "Tower/Waypoint_Video/To_SURVEY.mp4"
+WAYPOINT_WELDING_VIDEO         = "Tower/Waypoint_Video/To_WELDING.mp4"
+# แผนกที่ไม่มีวิดีโอ (อ้างอิงตามโค้ดเดิมที่ไม่มี Path/วิดีโอถูกลบออก)
+WAYPOINT_BASIC_SUBJECTS_VIDEO = ""
+WAYPOINT_SOUTHERN_CENTER_VIDEO = ""
+WAYPOINT_60YEARS_VIDEO = ""
 
 
 # ** Global UI Components (ประกาศไว้ด้านบนเพื่อเข้าถึงใน show_frame) **
@@ -331,7 +344,7 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
     :param title: หัวข้อที่จะแสดงบน Header
     :param header_bg_color: สีพื้นหลังของ Header
     :param dept_image_path: Path รูปภาพที่จะแสดงใต้ Header
-    :param waypoints: รายการพิกัด [x1, y1, x2, y2, ...] สำหรับวาดเส้นทาง
+    :param waypoint_video: Path ของวิดีโอ Waypoint
     """
     global ELECTRONICS_MAP_PATH, MAP_DISPLAY_WIDTH_ELEC, MAP_DISPLAY_HEIGHT_ELEC
     global DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT
@@ -356,7 +369,7 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
                  
     # 2. รูปภาพแผนก (จาก Path ที่กำหนด)
     try:
-         if os.path.exists(dept_image_path):
+         if dept_image_path and os.path.exists(dept_image_path):
              dept_img = Image.open(dept_image_path)
              dept_img_resized = dept_img.resize((DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT), Image.LANCZOS)
              dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, dark_image=dept_img_resized, size=(DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT))
@@ -366,7 +379,7 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
                           text="").pack(pady=(20, 10))
          else:
              ctk.CTkLabel(electronics_content_frame, 
-                      text=f"[ไม่พบรูปภาพ: {os.path.basename(dept_image_path)}]", 
+                      text=f"[ไม่พบรูปภาพ: {os.path.basename(dept_image_path) if dept_image_path else 'N/A'}]", 
                       font=("Kanit", 24)).pack(pady=(20, 10))
     except Exception as e:
          print_status(f"ไม่พบรูปภาพแผนก: {e}")
@@ -388,14 +401,6 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
 
     # 4. แผนผังการเดิน (Map Image) พร้อมเส้นประ
     try:
-        # ใช้ ELECTRONICS_MAP_PATH ซึ่งถูกกำหนดเป็น Tower/1.png
-        # map_img = Image.open(ELECTRONICS_MAP_PATH)
-        
-        # ปรับขนาดรูปภาพตามขนาดจริง (1152x648)
-        # map_img_resized = map_img.resize((MAP_DISPLAY_WIDTH_ELEC, MAP_DISPLAY_HEIGHT_ELEC), Image.LANCZOS)
-        # map_tk_img = ImageTk.PhotoImage(map_img_resized) # ใช้ ImageTk.PhotoImage สำหรับ Canvas
-        
-        # --- ใช้ Tkinter Canvas เพื่อรองรับการวาดเส้น ---
         map_container_frame = ctk.CTkFrame(
             electronics_content_frame, 
             fg_color="white", 
@@ -404,22 +409,21 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
         )
         map_container_frame.pack(pady=10)
 
-        # --- 2. VIDEO FRAME (Below the image) ---
-        # We use a container frame to center the video and give it a background
-
-        # The video label goes inside the container
+        # --- VIDEO FRAME ---
         video_label = tk.Label(map_container_frame, bg="white", borderwidth=0)
         video_label.pack(expand=True)
 
         
         VIDEO_PATH = waypoint_video
 
-        if os.path.exists(VIDEO_PATH):
+        # ** FIX: ตรวจสอบ VIDEO_PATH ก่อนเล่น/แสดงข้อความ **
+        if VIDEO_PATH and os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
+            # ตรวจสอบและควบคุมขนาดให้เหมาะสมกับ Label 900x500
             player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(900, 500))
             player.play()
             print_status(f"Video loaded: {VIDEO_PATH}")
         else:
-            ctk.CTkLabel(map_container_frame, text=f"Waypoint Video Not Found! PATH : [ {VIDEO_PATH} ]",font=("Kanit",18),text_color="red").pack()
+            ctk.CTkLabel(map_container_frame, text=f"Waypoint Video Not Found! PATH : [ {VIDEO_PATH} ]",font=("Kanit",18),text_color="red").pack(pady=20)
             print_status(f"Video not found! : [ {VIDEO_PATH} ]")
 
         # =============================================================================
@@ -435,6 +439,12 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
                      text=f"⚠️ ไม่พบรูปภาพแผนผัง '{ELECTRONICS_MAP_PATH}' ⚠️", 
                      font=("Kanit", 24),
                      text_color="red").pack(pady=20)
+    except Exception as e:
+        print_status(f"Error loading video or map: {e}")
+        ctk.CTkLabel(map_container_frame, 
+                     text=f"Error loading map/video: {e}",
+                     font=("Kanit", 18),
+                     text_color="red").pack()
 
 
     # 5. ปุ่มกลับสู่หน้าหลัก
@@ -499,7 +509,7 @@ video_label.pack(expand=True)
 try:
     VIDEO_PATH = "Tower/Start_Point/E1.mp4" 
 
-    if os.path.exists(VIDEO_PATH):
+    if os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
         # Adjusted size to fit below the banner (e.g., 900x500)
         player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(900, 500))
         player.play()
@@ -507,7 +517,7 @@ try:
     else:
         video_label.pack_forget()
         ctk.CTkLabel(video_container, 
-                     text=f"Video not found: {VIDEO_PATH}", 
+                     text=f"Video not found or invalid format: {VIDEO_PATH}", 
                      text_color="red", 
                      font=("Kanit", 24)).pack(expand=True)
 except Exception as e:
@@ -515,13 +525,17 @@ except Exception as e:
 
 # =============================================================================
 
+# ***************************************************************
+# ** UPDATED: ฟังก์ชัน Wrapper สำหรับแผนกต่างๆ **
+# ***************************************************************
+
 def show_electronics_page():
     BLUE_BACKGROUND = "#87CEFA" 
     show_guided_page(
         title="แผนกวิชาอิเล็กทรอนิกส์", 
         header_bg_color=BLUE_BACKGROUND, 
         dept_image_path=ELECTRONICS_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_ELECTRONICS
+        waypoint_video=WAYPOINT_ELECTRONICS_VIDEO
     )
 
 def show_60_years_page():
@@ -529,8 +543,8 @@ def show_60_years_page():
     show_guided_page(
         title="60 ปี วิทยาลัยเทคนิคหาดใหญ่", 
         header_bg_color=GOLD_BACKGROUND, 
-        dept_image_path=SIXTY_YEARS_DEPT_IMAGE_PATH, # ใช้รูป 60 ปี.jpg จากโฟลเดอร์สไลด์
-        waypoints=WAYPOINTS_ELECTRONICS # ใช้เส้นทางเดียวกับอิเล็กทรอนิกส์ (สมมติ)
+        dept_image_path=SIXTY_YEARS_DEPT_IMAGE_PATH, 
+        waypoint_video=WAYPOINT_60YEARS_VIDEO
     )
 
 def show_construction_page():
@@ -539,7 +553,7 @@ def show_construction_page():
         title="แผนกวิชาก่อสร้าง",
         header_bg_color=ORANGE_BACKGROUND, 
         dept_image_path=CONSTRUCTION_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_CONSTRUCTION
+        waypoint_video=WAYPOINT_CONSTRUCTION_VIDEO
     )
 
 def show_electrical_page():
@@ -547,8 +561,8 @@ def show_electrical_page():
     show_guided_page(
         title="แผนกวิชาไฟฟ้ากำลัง", 
         header_bg_color=YELLOW_BACKGROUND, 
-        dept_image_path=ELECTRICAL_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_ELECTRICAL
+        dept_image_path=ELECTRIC_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_ELECTRIC_VIDEO
     )
 
 def show_interior_decoration_page():
@@ -556,30 +570,30 @@ def show_interior_decoration_page():
     show_guided_page(
         title="แผนกวิชาตกแต่งภายใน", 
         header_bg_color=BROWN_BACKGROUND, 
-        dept_image_path=INTERIOR_DECORATION_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_INTERIOR_DECORATION
+        dept_image_path=FURNITURE_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_FURNITURE_VIDEO
     )
 
-# --- ฟังก์ชัน Wrapper สำหรับหน้าแผนกวิชาสารสนเทศ (ตึก 11) ---
 def show_tuk11_page():
+    # ตึก 11 (ใช้สำหรับ การบิน/โลจิสติกส์ - อ้างอิงจาก AIRLINE_DEPT_IMAGE_PATH)
     PURPLE_BACKGROUND = "#8A2BE2" 
     show_guided_page(
-        title="ตึก 11 (แผนกวิชาสารสนเทศ)", 
+        title="ตึก 11 (การบินและโลจิสติกส์)", 
         header_bg_color=PURPLE_BACKGROUND, 
-        dept_image_path=TUK11_DEPT_IMAGE_PATH,
-        waypoint_video=WAYPOINT_IT_VIDEO
+        dept_image_path=AIRLINE_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_AIRLINE_VIDEO
     )
-    
+
 def show_it_page():
+    # สารสนเทศ/IT ถูกรวมกับกลโรงงาน (FACTORY_DEPT_IMAGE_PATH)
     DARK_BLUE_BACKGROUND = "#483D8B" 
     show_guided_page(
-        title="แผนกวิชาสารสนเทศ", 
+        title="แผนกวิชาสารสนเทศ (รวมกลโรงงาน)", 
         header_bg_color=DARK_BLUE_BACKGROUND, 
         dept_image_path=IT_DEPT_IMAGE_PATH,
         waypoint_video=WAYPOINT_IT_VIDEO
     )
-
-# --- ฟังก์ชัน Wrapper สำหรับหน้าแผนกวิชาปิโตรเลียม ---
+    
 def show_petroleum_page():
     GREEN_BACKGROUND = "#006400" 
     show_guided_page(
@@ -589,70 +603,57 @@ def show_petroleum_page():
         waypoint_video=WAYPOINT_PETROLEUM_VIDEO
     )
     
-# ***************************************************************
-# --- NEW: ฟังก์ชัน Wrapper สำหรับแผนกใหม่ (ตามคำขอ) ---
-# ***************************************************************
+# --- แผนกที่ต้องใช้ Path/Video ใหม่ ---
 
 def show_technic_mac_page():
+    # ช่างยนต์ (AUTO_DEPT_IMAGE_PATH)
     TEAL_BACKGROUND = "#008080" 
     show_guided_page(
-        title="แผนกเทคนิคเครื่องกล",
+        title="แผนกวิชาช่างยนต์",
         header_bg_color=TEAL_BACKGROUND,
-        dept_image_path=TECHNIC_MAC_IMAGE_PATH,
-        waypoint_video=WAYPOINT_TECHNIC_MAC_VIDEO
+        dept_image_path=AUTO_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_AUTO_VIDEO
     )
 
-# --- ระบบราง ---
+def show_factory_it_page():
+    # เครื่องกลโรงงาน/สารสนเทศ (FACTORY_DEPT_IMAGE_PATH)
+    DARK_BLUE_BACKGROUND = "#483D8B" 
+    show_guided_page(
+        title="แผนกเครื่องกลโรงงาน (รวมสารสนเทศ)",
+        header_bg_color=DARK_BLUE_BACKGROUND,
+        dept_image_path=FACTORY_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_FACTORY_VIDEO
+    )
+
+def show_mechatronics_energy_page():
+    # แมคคาทรอนิค/พลังงาน (MECHATRONICS_DEPT_IMAGE_PATH)
+    RED_ORANGE_BACKGROUND = "#FF4500"
+    show_guided_page(
+        title="แผนกแมคคาทรอนิค (รวมพลังงาน)",
+        header_bg_color=RED_ORANGE_BACKGROUND,
+        dept_image_path=MECHATRONICS_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_MECHATRONICS_VIDEO
+    )
+    
+def show_airline_logistics_page():
+    # การบิน/โลจิสติกส์ (AIRLINE_DEPT_IMAGE_PATH/LOGISTICS_DEPT_IMAGE_PATH)
+    PURPLE_BACKGROUND = "#8A2BE2" 
+    show_guided_page(
+        title="แผนกการบินและโลจิสติกส์", 
+        header_bg_color=PURPLE_BACKGROUND, 
+        dept_image_path=AIRLINE_DEPT_IMAGE_PATH, # ใช้รูปตึก 11
+        waypoint_video=WAYPOINT_AIRLINE_VIDEO
+    )
+
 def show_rail_page():
     ORANGE_BACKGROUND = "#FF9900" 
     show_guided_page(
         title="แผนกวิชาระบบราง", 
         header_bg_color=ORANGE_BACKGROUND, 
         dept_image_path=RAIL_DEPT_IMAGE_PATH,
-        waypoint_video=WAYPOINT_RAILWAY_VIDEO
+        waypoint_video=WAYPOINT_RAIL_VIDEO
     )
 
-# --- วิชาพื้นฐาน ---
-def show_basic_subjects_page():
-    TEAL_BACKGROUND = "#008080" 
-    show_guided_page(
-        title="แผนกวิชาพื้นฐาน (วิชาสามัญ)", 
-        header_bg_color=TEAL_BACKGROUND, 
-        dept_image_path=BASIC_SUBJECTS_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_BASIC_SUBJECTS
-    )
-
-# --- ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้ ---
-def show_southern_center_page():
-    INDIGO_BACKGROUND = "#4B0082" 
-    show_guided_page(
-        title="ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้", 
-        header_bg_color=INDIGO_BACKGROUND, 
-        dept_image_path=SOUTHERN_CENTER_IMAGE_PATH,
-        waypoints=WAYPOINTS_SOUTHERN_CENTER
-    )
-
-# --- สถาปัตยกรรม, ช่างสำรวจ (ตึกเดียวกัน) ---
-def show_arch_survey_page():
-    BROWN_BACKGROUND = "#8B4513" 
-    show_guided_page(
-        title="แผนกสถาปัตยกรรมและช่างสำรวจ", 
-        header_bg_color=BROWN_BACKGROUND, 
-        dept_image_path=ARCH_SURVEY_DEPT_IMAGE_PATH,
-        waypoint_video=WAYPOINT_SURVEY_VIDEO
-    )
-
-# --- เครื่องกล, เครื่องทำความเย็น (ตึกเดียวกัน) ---
-def show_mech_refrig_page():
-    SILVER_BACKGROUND = "#C0C0C0" 
-    show_guided_page(
-        title="แผนกเครื่องกลและทำความเย็น", 
-        header_bg_color=SILVER_BACKGROUND, 
-        dept_image_path=MECH_REFRIG_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_MECH_REFRIG
-    )
-
-# --- เทคนิคพื้นฐาน ---
 def show_basic_tech_page():
     DARK_YELLOW_BACKGROUND = "#B8860B" 
     show_guided_page(
@@ -662,64 +663,75 @@ def show_basic_tech_page():
         waypoint_video=WAYPOINT_BASIC_TECH_VIDEO
     )
 
-# --- โยธา, โรงงาน, สารสนเทศ (ตึกเดียวกัน) ---
-def show_civil_workshop_it_page():
-    GRAY_BACKGROUND = "#708090" 
+def show_arch_survey_page():
+    # สถาปัตยกรรม/ช่างสำรวจ (ARCHITECT_DEPT_IMAGE_PATH)
+    BROWN_BACKGROUND = "#8B4513" 
     show_guided_page(
-        title="แผนกโยธา (รวมโรงงาน/สารสนเทศ)", 
-        header_bg_color=GRAY_BACKGROUND, 
-        dept_image_path=CIVIL_WORKSHOP_IT_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_CIVIL_WORKSHOP_IT
+        title="แผนกสถาปัตยกรรมและช่างสำรวจ", 
+        header_bg_color=BROWN_BACKGROUND, 
+        dept_image_path=ARCHITECT_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_ARCHITECT_VIDEO
     )
 
-# --- โลจิสติกส์, พลังงาน, เชื่อม (ตึกเดียวกัน) ---
-def show_logistics_energy_welding_page():
-    RED_ORANGE_BACKGROUND = "#FF4500" 
-    show_guided_page(
-        title="แผนกโลจิสติกส์ พลังงาน และการเชื่อม", 
-        header_bg_color=RED_ORANGE_BACKGROUND, 
-        dept_image_path=LOGISTICS_ENERGY_WELDING_DEPT_IMAGE_PATH,
-        waypoints=WAYPOINTS_LOGISTICS_ENERGY_WELDING
-    )
-
-# --- โลหะ ---
-def show_metalworking_page():
-    BLACK_BACKGROUND = "#222222" 
-    show_guided_page(
-        title="แผนกวิชาโลหะ", 
-        header_bg_color=BLACK_BACKGROUND, 
-        dept_image_path=METALWORKING_DEPT_IMAGE_PATH,
-        waypoint_video=WAYPOINT_WELDER_VIDEO
-    )
-
-def show_maccha_page():
-    RED_ORANGE_BACKGROUND = "#FF4500"
-    show_guided_page(
-        title="แผนกแมคคาทรอนิค",
-        header_bg_color=RED_ORANGE_BACKGROUND,
-        dept_image_path=MACHA_IMAGE_PATH,
-        waypoint_video=WAYPOINT_MACCHA_VIDEO
-    )
-
-def show_air_con_page():
+def show_air_condi_page():
+    # เครื่องทำความเย็นและปรับอากาศ (AIRCONDI_DEPT_IMAGE_PATH)
     SILVER_BACKGROUND = "#C0C0C0"
     show_guided_page(
         title="แผนกทำความเย็นและปรับอากาศ",
         header_bg_color=SILVER_BACKGROUND,
-        dept_image_path=AIR_CON_IMAGE_PATH,
-        waypoint_video=WAYPOINT_AIR_CON_VIDEO
+        dept_image_path=AIRCONDI_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_AIRCONDI_VIDEO
+    )
+
+def show_welding_page():
+    # ช่างเชื่อมโลหะ (WELDING_DEPT_IMAGE_PATH)
+    BLACK_BACKGROUND = "#222222" 
+    show_guided_page(
+        title="แผนกวิชาช่างเชื่อมโลหะ", 
+        header_bg_color=BLACK_BACKGROUND, 
+        dept_image_path=WELDING_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_WELDING_VIDEO
     )
 
 def show_civil_page():
+    # โยธา (CIVIL_DEPT_IMAGE_PATH)
     GRAY_BACKGROUND = "#708090"
     show_guided_page(
         title="แผนกวิชาช่างโยธา",
         header_bg_color=GRAY_BACKGROUND,
-        dept_image_path=CIVIL_IMAGE_PATH,
+        dept_image_path=CIVIL_DEPT_IMAGE_PATH,
         waypoint_video=WAYPOINT_CIVIL_VIDEO
     )
+    
+def show_computer_tech_page():
+    # คอมพิวเตอร์เทคนิค (COMPUTER_TECH_DEPT_IMAGE_PATH)
+    ORANGE_BACKGROUND = "#FF8C00"
+    show_guided_page(
+        title="แผนกคอมพิวเตอร์เทคนิค",
+        header_bg_color=ORANGE_BACKGROUND,
+        dept_image_path=COMPUTER_TECH_DEPT_IMAGE_PATH,
+        waypoint_video=WAYPOINT_COMPUTER_TECH_VIDEO
+    )
 
-# -----------------------------------------------------------------
+# --- แผนกที่ไม่มีใน Path ใหม่ (ใช้ชื่อเดิม/รวม) ---
+def show_basic_subjects_page():
+    TEAL_BACKGROUND = "#008080" 
+    show_guided_page(
+        title="แผนกวิชาพื้นฐาน (วิชาสามัญ)", 
+        header_bg_color=TEAL_BACKGROUND, 
+        dept_image_path="", # ไม่มี Path รูปภาพที่กำหนด
+        waypoint_video=WAYPOINT_BASIC_SUBJECTS_VIDEO
+    )
+
+def show_southern_center_page():
+    INDIGO_BACKGROUND = "#4B0082" 
+    show_guided_page(
+        title="ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้", 
+        header_bg_color=INDIGO_BACKGROUND, 
+        dept_image_path="", # ไม่มี Path รูปภาพที่กำหนด
+        waypoint_video=WAYPOINT_SOUTHERN_CENTER_VIDEO
+    )
+# ***************************************************************
     
 # -----------------------------------------------------------------
 # --- ฟังก์ชันควบคุมหน้าต่างนำทางเฉพาะ (60 ปี.jpg เดิม - ยังคงเก็บไว้) ---
@@ -896,149 +908,19 @@ def place_previous_slide():
         'slide_index': prev_slide_index
     }
     
-    active_slide_items.insert(0, new_item) 
-    
-    # --- DELETED ALL THE OLD if/elif tag_bind CODE HERE ---
-
-
-def place_previous_slide():
-    """สร้างและวางรูปภาพก่อนหน้าลงบน Canvas ที่ตำแหน่งด้านซ้าย"""
-    global active_slide_items, image_slide_canvas
-    
-    image_photo, image_width, image_filename, prev_slide_index = get_previous_slide()
-    
-    if image_photo is None:
-        return
-        
-    # วางรูปภาพใหม่ต่อจากขอบซ้ายของรูปภาพแรก (ที่ active_slide_items[0])
-    first_item = active_slide_items[0]
-    first_item_left_edge = first_item['right_edge'] - first_item['width']
-    
-    new_x_center = first_item_left_edge - SLIDE_GAP - (image_width / 2)
-        
-    canvas_item_id = image_slide_canvas.create_image(
-        new_x_center, 
-        IMAGE_SLIDE_HEIGHT // 2, 
-        image=image_photo, 
-        anchor="center"
-    )
-
-    new_item = {
-        'id': canvas_item_id,
-        'width': image_width,
-        'photo': image_photo,
-        'right_edge': new_x_center + image_width / 2,
-        'slide_index': prev_slide_index
-    }
-    
     active_slide_items.insert(0, new_item) # <-- ใส่ไว้ข้างหน้าสุด
     
     # 6. ผูก Event
     # ***************************************************************
     # ** BINDING **
     # ***************************************************************
-    # (Binding code for previous slide is similar to place_next_slide, omitted for brevity)
-    # 60 ปี
-    if image_filename == NAVIGATION_TRIGGER_IMAGE:
-        def handle_60_years_click(event):
-            if not is_dragging:
-                root.after(0, show_60_years_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_60_years_click)
-    # ก่อสร้าง
-    elif image_filename == "ก่อสร้าง.jpg":
-        def handle_construction_click(event):
-            if not is_dragging:
-                root.after(0, show_construction_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_construction_click)
-    # อิเล็กทรอนิกส์
-    elif image_filename == "อิเล็กทรอนิกส์.jpg":
-        def handle_electronics_click(event):
-            if not is_dragging:
-                root.after(0, show_electronics_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_electronics_click)
-    # ไฟฟ้ากำลัง
-    elif image_filename == "ช่างไฟฟ้า.jpg":
-        def handle_electrical_click(event):
-            if not is_dragging:
-                root.after(0, show_electrical_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_electrical_click)
-    # ตกแต่งภายใน
-    elif image_filename == "ตกแต่งภายใน.jpg":
-        def handle_interior_decoration_click(event):
-            if not is_dragging:
-                root.after(0, show_interior_decoration_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_interior_decoration_click)
-    # ตึก 11 / สารสนเทศ
-    elif image_filename == "ตึก11.jpg":
-        def handle_tuk11_click(event):
-            if not is_dragging:
-                root.after(0, show_tuk11_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_tuk11_click)
-    # ปิโตรเลียม
-    elif image_filename == "ปิโตรเลียม.jpg":
-        def handle_petroleum_click(event):
-            if not is_dragging:
-                root.after(0, show_petroleum_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_petroleum_click)
-    # --- NEW: แผนกใหม่ ---
-    # ระบบราง
-    elif image_filename == "ระบบราง.jpg":
-        def handle_rail_click(event):
-            if not is_dragging:
-                root.after(0, show_rail_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_rail_click)
-    # วิชาพื้นฐาน
-    elif image_filename == "วิชาพื้นฐาน.jpg":
-        def handle_basic_subjects_click(event):
-            if not is_dragging:
-                root.after(0, show_basic_subjects_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_basic_subjects_click)
-    # ศูนย์ส่งเสริมฯ
-    elif image_filename == "ศูนย์ส่งเสริม.jpg":
-        def handle_southern_center_click(event):
-            if not is_dragging:
-                root.after(0, show_southern_center_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_southern_center_click)
-    # สถาปัตยกรรม/สำรวจ
-    elif image_filename == "สถาปัตยกรรม_สำรวจ.jpg":
-        def handle_arch_survey_click(event):
-            if not is_dragging:
-                root.after(0, show_arch_survey_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_arch_survey_click)
-    # เครื่องกล/ทำความเย็น
-    elif image_filename == "เครื่องกล_ทำความเย็น.jpg":
-        def handle_mech_refrig_click(event):
-            if not is_dragging:
-                root.after(0, show_mech_refrig_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_mech_refrig_click)
-    # เทคนิคพื้นฐาน
-    elif image_filename == "เทคนิคพื้นฐาน.jpg":
-        def handle_basic_tech_click(event):
-            if not is_dragging:
-                root.after(0, show_basic_tech_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_basic_tech_click)
-    # โยธา/โรงงาน/สารสนเทศ
-    elif image_filename == "โยธา_โรงงาน_สารสนเทศ.jpg":
-        def handle_civil_workshop_it_click(event):
-            if not is_dragging:
-                root.after(0, show_civil_workshop_it_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_civil_workshop_it_click)
-    # โลจิสติกส์/พลังงาน/เชื่อม
-    elif image_filename == "โลจิสติกส์_พลังงาน_เชื่อม.jpg":
-        def handle_logistics_energy_welding_click(event):
-            if not is_dragging:
-                root.after(0, show_logistics_energy_welding_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_logistics_energy_welding_click)
-    # โลหะ
-    elif image_filename == "โลหะ.jpg":
-        def handle_metalworking_click(event):
-            if not is_dragging:
-                root.after(0, show_metalworking_page)
-        image_slide_canvas.tag_bind(canvas_item_id, '<Button-1>', handle_metalworking_click)
+    # ** FIX: โค้ดนี้ถูกซ้ำซ้อนและควรถูกลบออก **
+    # ** การ Bind ควรทำเพียงครั้งเดียวใน on_slide_click เพื่อรองรับการลาก/คลิก **
+    pass
+    # ***************************************************************
     
     # 7. ปรับ next_image_x_placement (ใช้สำหรับ animate)
-    # next_image_x_placement ถูกใช้สำหรับตำแหน่งเริ่มต้นของรูปภาพที่จะถูกสร้างใน place_next_slide
-    # ดังนั้นเมื่อมีการสร้างรูปภาพทางซ้าย เราไม่จำเป็นต้องอัปเดต next_image_x_placement
+    # next_image_x_placement ไม่ได้ถูกใช้อีกต่อไป
     
 
 # ***************************************************************
@@ -1091,31 +973,43 @@ def do_drag(event):
 # ** NEW: Navigation Mapping (Filename -> Function) **
 # ***************************************************************
 NAV_MAPPING = {
-    "60 ปี.jpg": show_60_years_page,
-    "ก่อสร้าง.jpg": show_construction_page,
-    "อิเล็กทรอนิกส์.jpg": show_electronics_page,
-    "ช่างไฟฟ้า.jpg": show_electrical_page,
-    "ตกแต่งภายใน.jpg": show_interior_decoration_page,
-    "ตึก11.jpg": show_tuk11_page,
-    "ปิโตรเลียม.jpg": show_petroleum_page,
-    "ระบบราง.jpg": show_rail_page,
-    "วิชาพื้นฐาน.jpg": show_basic_subjects_page,
-    "ศูนย์ส่งเสริม.jpg": show_southern_center_page,
-    "สถาปัตยกรรม_สำรวจ.jpg": show_arch_survey_page,
-    "เครื่องกล_ทำความเย็น.jpg": show_mech_refrig_page,
-    "เทคนิคพื้นฐาน.jpg": show_basic_tech_page,
-    "สารสนเทศ_กลโรงงาน.jpg": show_it_page,
-    "โลจิสติกส์_พลังงาน_เชื่อม.jpg": show_logistics_energy_welding_page,
-    "โลหะ.jpg": show_metalworking_page,
-    "เทคนิคเครื่องกล.jpg": show_technic_mac_page,
-    "แมคคา.jpg": show_maccha_page,
-    "ทำความเย็น.jpg": show_air_con_page,
-    "โยธา.jpg": show_civil_page
+    # แผนกเดี่ยว/ตึกที่แยกภาพ
+    NAVIGATION_TRIGGER_IMAGE.split('/')[-1]: show_60_years_page, # 60 ปี
+    CONSTRUCTION_DEPT_IMAGE_PATH.split('/')[-1]: show_construction_page, # ก่อสร้าง
+    ELECTRIC_DEPT_IMAGE_PATH.split('/')[-1]: show_electrical_page, # ช่างไฟฟ้า
+    ELECTRONICS_DEPT_IMAGE_PATH.split('/')[-1]: show_electronics_page, # อิเล็กทรอนิกส์
+    PETROLEUM_DEPT_IMAGE_PATH.split('/')[-1]: show_petroleum_page, # ปิโตรเลียม
+    RAIL_DEPT_IMAGE_PATH.split('/')[-1]: show_rail_page, # ระบบราง
+    BASIC_TECH_DEPT_IMAGE_PATH.split('/')[-1]: show_basic_tech_page, # เทคนิคพื้นฐาน
+    WELDING_DEPT_IMAGE_PATH.split('/')[-1]: show_welding_page, # ช่างเชื่อมโลหะ
+    CIVIL_DEPT_IMAGE_PATH.split('/')[-1]: show_civil_page, # โยธา (เดี่ยว)
+    FURNITURE_DEPT_IMAGE_PATH.split('/')[-1]: show_interior_decoration_page, # ตกแต่งภายใน
+    COMPUTER_TECH_DEPT_IMAGE_PATH.split('/')[-1]: show_computer_tech_page, # คอมพิวเตอร์เทคนิค
+    
+    # แผนกที่ใช้ Path/ตึกร่วมกัน/เดี่ยว (จากรูป Path ที่คุณให้มา)
+    AIRCONDI_DEPT_IMAGE_PATH.split('/')[-1]: show_air_condi_page, # ทำความเย็น
+    AUTO_DEPT_IMAGE_PATH.split('/')[-1]: show_technic_mac_page, # ช่างยนต์
+    
+    # ตึกรวม: สถาปัตย์/สำรวจ
+    ARCHITECT_DEPT_IMAGE_PATH.split('/')[-1]: show_arch_survey_page, 
+    SURVEY_DEPT_IMAGE_PATH.split('/')[-1]: show_arch_survey_page, 
+
+    # ตึกรวม: กลโรงงาน/สารสนเทศ (FACTORY_DEPT_IMAGE_PATH)
+    FACTORY_DEPT_IMAGE_PATH.split('/')[-1]: show_factory_it_page, 
+    IT_DEPT_IMAGE_PATH.split('/')[-1]: show_factory_it_page,
+
+    # ตึกรวม: แมคคา/พลังงาน (MECHATRONICS_DEPT_IMAGE_PATH)
+    MECHATRONICS_DEPT_IMAGE_PATH.split('/')[-1]: show_mechatronics_energy_page, 
+    ENERGY_DEPT_IMAGE_PATH.split('/')[-1]: show_mechatronics_energy_page,
+
+    # ตึกรวม: การบิน/โลจิสติกส์ (AIRLINE_DEPT_IMAGE_PATH/LOGISTICS_DEPT_IMAGE_PATH)
+    AIRLINE_DEPT_IMAGE_PATH.split('/')[-1]: show_airline_logistics_page,
+    LOGISTICS_DEPT_IMAGE_PATH.split('/')[-1]: show_airline_logistics_page,
+    
+    # แผนกที่ไม่มีรูปภาพ (สำหรับคำสั่งเสียงเท่านั้น)
+    "": show_basic_subjects_page, # วิชาพื้นฐาน
+    "": show_southern_center_page, # ศูนย์ส่งเสริม
 }
-
-
-
-
 
 def stop_drag(event):
     """ปล่อยเมาส์"""
@@ -1137,7 +1031,8 @@ def on_slide_click(event):
     # ถ้าไม่ใช่การลาก (คือการคลิก)
     # หา Item ที่ถูกคลิก
     try:
-        item_id = image_slide_canvas.find_closest(event.x, event.y)[0]
+        # ใช้ find_withtag เพื่อให้แน่ใจว่าคลิกถูกรูปภาพ ไม่ใช่ Canvas
+        item_id = image_slide_canvas.find_closest(event.x, event.y)[0] 
         
         # ค้นหาข้อมูลรูปภาพจาก ID
         clicked_item = None
@@ -1156,9 +1051,10 @@ def on_slide_click(event):
                 print_status(f"คลิกรูปภาพ: {filename}")
                 root.after(0, NAV_MAPPING[filename])
             else:
-                print_status(f"คลิกรูปภาพ: {filename} (ไม่มีฟังก์ชันนำทาง)")
+                print_status(f"คลิกรูปภาพ: {filename} (ไม่มีฟังก์ชันนำทางใน NAV_MAPPING)")
                 
     except Exception as e:
+        # อาจเกิดจากการคลิกบนพื้นที่ว่างของ Canvas
         print_status(f"Click Error: {e}")
 
 # -----------------------------------------------------------------
@@ -1193,7 +1089,7 @@ def load_slide_images():
                 if original_height < target_image_height:
                     target_image_height = original_height # ใช้ความสูงเดิม
                 # ปรับความกว้าง (ถ้าเกิน limit)
-                target_image_width_limit = IMAGE_SLIDE_WIDTH_LIMIT - (SLIDE_FRAME_WIDTH * 2)
+                target_image_width_limit = 900 - (SLIDE_FRAME_WIDTH * 2) # ใช้ 900 เป็นค่าลิมิต
                 if img.width > target_image_width_limit:
                     ratio = target_image_width_limit / img.width
                     new_height = int(img.height * ratio)
@@ -1226,11 +1122,6 @@ def animate_image_slide():
         image_slide_canvas.move(item['id'], move_distance, 0)
         item['right_edge'] += move_distance
     
-    # อัปเดต next_image_x_placement (ถ้ามี)
-    # next_image_x_placement ไม่ถูกใช้ในการสร้างรูปภาพอีกต่อไป แต่ถูกแทนที่ด้วย active_slide_items[-1]['right_edge']
-    # ลบโค้ดส่วนนี้ออกเพื่อให้การลาก/ปล่อยทำงานได้ดีขึ้น
-    # next_image_x_placement += move_distance 
-
     # 1. ตรวจสอบและลบรูปภาพที่ออกไปจากขอบซ้ายแล้ว
     if active_slide_items and active_slide_items[0]['right_edge'] < 0:
         item_to_remove = active_slide_items.pop(0)
@@ -1342,8 +1233,6 @@ image_slide_canvas.pack(fill="both", expand=True)
 image_slide_canvas.bind("<Button-1>", start_drag)
 image_slide_canvas.bind("<B1-Motion>", do_drag)
 
-# --- CHANGE THIS LINE --- 
-# Old: image_slide_canvas.bind("<ButtonRelease-1>", stop_drag)
 # New: Bind to the function that actually handles the click logic
 image_slide_canvas.bind("<ButtonRelease-1>", on_slide_click)
 
@@ -1377,132 +1266,138 @@ def listen_for_speech():
                 
                 text_lower = text.lower()
                 
-                # --- MODIFIED: ตรวจสอบคำสั่งทั้งหมด (เพิ่มใหม่ตั้งแต่ข้อ 9 เป็นต้นไป) ---
+                # =================================================================
+                # --- MODIFIED: ตรวจสอบคำสั่งทั้งหมด (ใช้ KEYWORDS_XXX ใหม่) ---
+                # =================================================================
                 
-                # 1. ตรวจสอบ "ตึก 11" (เดิม)
-                if "ตึก 11" in text_lower:
-                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ตึก 11' นำทางไปยังหน้าตึก 11 ---")
-                    root.after(0, show_tuk11_page) 
+                # 0. ตรวจสอบคำสั่งกลับหน้าหลัก
+                for keyword in ["กลับหน้าหลัก", "กลับบ้าน", "หน้าแรก", "ไปหน้าหลัก"]:
+                    if keyword in text_lower:
+                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางกลับหน้าหลัก ---")
+                        root.after(0, go_to_main_screen)
+                        return
+                        
+                # 1. อิเล็กทรอนิกส์
+                if any(k in text_lower for k in KEYWORDS_ELECTRONICS):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'อิเล็กทรอนิกส์' นำทาง... ---")
+                    root.after(0, show_electronics_page) 
                     return
                 
-                # 2. ตรวจสอบ "ปิโตรเลียม" (เดิม)
-                for keyword in ["ปิโตรเลียม", "แผนกปิโตรเลียม"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกปิโตรเลียม ---")
-                        root.after(0, show_petroleum_page)
-                        return
-                
-                # 3. ตรวจสอบ "ก่อสร้าง" (เดิม)
-                for keyword in ["ก่อสร้าง", "แผนกก่อสร้าง", "ช่างก่อสร้าง"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกก่อสร้าง ---")
-                        root.after(0, show_construction_page)
-                        return 
+                # 2. ก่อสร้าง
+                if any(k in text_lower for k in KEYWORDS_CONSTRUCTION):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ก่อสร้าง' นำทาง... ---")
+                    root.after(0, show_construction_page)
+                    return 
 
-                # 4. ตรวจสอบ "ตึก 60 ปี" (เดิม)
-                for keyword in ["ตึก 60 ปี", "60 ปี"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: 'ตึก 60 ปี' นำทางไปยังหน้ากิจกรรม 60 ปี ---")
-                        root.after(0, show_60_years_page)
-                        return
+                # 3. ตึก 60 ปี
+                if any(k in text_lower for k in KEYWORDS_60YEARS):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ตึก 60 ปี' นำทาง... ---")
+                    root.after(0, show_60_years_page)
+                    return
                     
-                # 5. ตรวจสอบ "อิเล็กทรอนิกส์" (เดิม)
-                for keyword in ["อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "อิเล็กทรอนิก"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกอิเล็กทรอนิกส์ ---")
-                        root.after(0, show_electronics_page) 
-                        return
-                
-                # 6. ตรวจสอบ "ไฟฟ้า" (เดิม)
-                for keyword in ["ช่างไฟฟ้า", "ไฟฟ้า", "แผนกไฟฟ้า", "ไฟฟ้ากำลัง"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกไฟฟ้ากำลัง ---")
-                        root.after(0, show_electrical_page)
-                        return
+                # 4. ไฟฟ้ากำลัง
+                if any(k in text_lower for k in KEYWORDS_ELECTRIC):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ไฟฟ้ากำลัง' นำทาง... ---")
+                    root.after(0, show_electrical_page)
+                    return
 
-                # 7. ตรวจสอบ "ตกแต่งภายใน" (เดิม)
-                for keyword in ["ตกแต่งภายใน", "แผนกตกแต่งภายใน", "ช่างตกแต่งภายใน"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกตกแต่งภายใน ---")
-                        root.after(0, show_interior_decoration_page)
-                        return
-                
-                # --- NEW: 9. ตรวจสอบ ระบบราง ---
-                for keyword in ["ระบบราง", "รถไฟ"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกวิชาระบบราง ---")
-                        root.after(0, show_rail_page) 
-                        return
-                        
-                # --- NEW: 10. ตรวจสอบ วิชาพื้นฐาน ---
-                for keyword in ["วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกวิชาพื้นฐาน ---")
-                        root.after(0, show_basic_subjects_page) 
-                        return
-                        
-                # --- NEW: 11. ตรวจสอบ ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้ ---
-                for keyword in ["ศูนย์ส่งเสริม", "อาชีวศึกษาภาคใต้", "ส่งเสริม"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าศูนย์ส่งเสริมฯ ---")
-                        root.after(0, show_southern_center_page) 
-                        return
-                        
-                # --- NEW: 12. ตรวจสอบ สถาปัตยกรรม/ช่างสำรวจ ---
-                for keyword in ["สถาปัตยกรรม", "สำรวจ", "ช่างสำรวจ"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกสถาปัตยกรรม/ช่างสำรวจ ---")
-                        root.after(0, show_arch_survey_page) 
-                        return
-                        
-                # --- NEW: 13. ตรวจสอบ เครื่องกล/ทำความเย็น ---
-                for keyword in ["เครื่องกล", "เครื่องทำความเย็น", "ปรับอากาศ", "แอร์"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกเครื่องกล/ทำความเย็น ---")
-                        root.after(0, show_mech_refrig_page) 
-                        return
-                        
-                # --- NEW: 14. ตรวจสอบ เทคนิคพื้นฐาน ---
-                for keyword in ["เทคนิคพื้นฐาน", "พื้นฐานช่าง"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกเทคนิคพื้นฐาน ---")
-                        root.after(0, show_basic_tech_page) 
-                        return
-                        
-                # --- NEW: 15. ตรวจสอบ โยธา/โรงงาน/สารสนเทศ (ตึกเดียวกัน) ---
-                for keyword in ["โยธา", "ช่างโยธา", "โรงงาน", "สารสนเทศ"]:
-                    if keyword in text_lower:
-                         # ใช้ตรรกะตรวจจับคำสั่งรวมตึกโยธา/โรงงาน/สารสนเทศ (หากพูดคำใดคำหนึ่ง)
-                         if any(k in text_lower for k in ["โยธา", "โรงงาน", "ช่างโยธา"]):
-                            print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'โยธา/โรงงาน/สารสนเทศ' นำทางไปยังหน้าตึกโยธา ---")
-                            root.after(0, show_civil_workshop_it_page)
-                            return
-                         # ถ้าพูดแค่ "สารสนเทศ" ให้เรียกหน้า สารสนเทศเดี่ยว (ข้อ 8)
-                         elif keyword in ["สารสนเทศ", "ไอที", "it", "คอมพิวเตอร์"]:
-                             pass # ให้ไปเช็คในข้อ 8 ต่อ
-                         
+                # 5. ตกแต่งภายใน
+                if any(k in text_lower for k in KEYWORDS_FURNITURE):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ตกแต่งภายใน' นำทาง... ---")
+                    root.after(0, show_interior_decoration_page)
+                    return
 
-                # 8. (สำรอง) ตรวจสอบ "สารสนเทศ" (เดิม)
-                for keyword in ["สารสนเทศ", "ไอที", "it", "คอมพิวเตอร์"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกสารสนเทศ (เดี่ยว) ---")
-                        root.after(0, show_it_page) 
-                        return
+                # 6. ปิโตรเลียม
+                if any(k in text_lower for k in KEYWORDS_PETROLEUM):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ปิโตรเลียม' นำทาง... ---")
+                    root.after(0, show_petroleum_page)
+                    return
                         
-                # --- NEW: 16. ตรวจสอบ โลจิสติกส์/พลังงาน/เชื่อม ---
-                for keyword in ["โลจิสติกส์", "พลังงาน", "เชื่อม", "การเชื่อมและผลิต"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกโลจิสติกส์/พลังงาน/เชื่อม ---")
-                        root.after(0, show_logistics_energy_welding_page) 
-                        return
+                # 7. ระบบราง
+                if any(k in text_lower for k in KEYWORDS_RAIL):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ระบบราง' นำทาง... ---")
+                    root.after(0, show_rail_page) 
+                    return
                         
-                # --- NEW: 17. ตรวจสอบ โลหะ ---
-                for keyword in ["โลหะ", "แผนกโลหะ"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางไปยังหน้าแผนกวิชาโลหะ ---")
-                        root.after(0, show_metalworking_page) 
-                        return
-                
+                # 8. เทคนิคพื้นฐาน
+                if any(k in text_lower for k in KEYWORDS_BASICTECH):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'เทคนิคพื้นฐาน' นำทาง... ---")
+                    root.after(0, show_basic_tech_page) 
+                    return
+                        
+                # 9. สถาปัตยกรรม/ช่างสำรวจ
+                if any(k in text_lower for k in KEYWORDS_ARCHITECT + KEYWORDS_SURVEY):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'สถาปัตยกรรม/ช่างสำรวจ' นำทาง... ---")
+                    root.after(0, show_arch_survey_page) 
+                    return
+                        
+                # 10. กลโรงงาน/สารสนเทศ/IT (รวมตึก)
+                if any(k in text_lower for k in KEYWORDS_FACTORY):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'กลโรงงาน' นำทางไปยังหน้าแผนกกลโรงงาน/สารสนเทศ ---")
+                    root.after(0, show_factory_it_page)
+                    return
+                        
+                # 11. แมคคาทรอนิค/พลังงาน
+                if any(k in text_lower for k in KEYWORDS_MECHATRONICS + KEYWORDS_ENERGY):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'แมคคาทรอนิค/พลังงาน' นำทาง... ---")
+                    root.after(0, show_mechatronics_energy_page)
+                    return
+                        
+                # 12. การบิน/โลจิสติกส์ (ตึก 11)
+                if any(k in text_lower for k in KEYWORDS_AIRLINE + KEYWORDS_LOGISTICS + KEYWORDS_TUK11):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'การบิน/โลจิสติกส์/ตึก 11' นำทาง... ---")
+                    root.after(0, show_airline_logistics_page) 
+                    return
+                        
+                # 13. ช่างยนต์ (AUTO)
+                if any(k in text_lower for k in KEYWORDS_AUTO):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ช่างยนต์' นำทาง... ---")
+                    root.after(0, show_technic_mac_page) 
+                    return
+                        
+                # 14. ช่างเชื่อมโลหะ (WELDING)
+                if any(k in text_lower for k in KEYWORDS_WELDING):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ช่างเชื่อมโลหะ' นำทาง... ---")
+                    root.after(0, show_welding_page)
+                    return
+
+                # 15. ทำความเย็นและปรับอากาศ (AIRCOND)
+                if any(k in text_lower for k in KEYWORDS_AIRCOND):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ทำความเย็น/ปรับอากาศ' นำทาง... ---")
+                    root.after(0, show_air_condi_page)
+                    return
+                        
+                # 16. โยธา (CIVIL)
+                if any(k in text_lower for k in KEYWORDS_CIVIL):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ช่างโยธา' นำทาง... ---")
+                    root.after(0, show_civil_page)
+                    return
+
+                # 17. คอมพิวเตอร์เทคนิค (COMPUTER_TECH)
+                if any(k in text_lower for k in KEYWORDS_COMPUTER_TECH):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'คอมพิวเตอร์เทคนิค' นำทาง... ---")
+                    root.after(0, show_computer_tech_page)
+                    return
+
+                # 18. สารสนเทศ (IT) (Fallback สำหรับคำสั่ง IT/สารสนเทศที่ไม่เจาะจงกลโรงงาน)
+                if any(k in text_lower for k in KEYWORDS_IT):
+                    # ถ้าพูดแค่ IT/สารสนเทศ ให้ชี้ไปที่ตึกรวมกลโรงงาน/สารสนเทศ
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'สารสนเทศ/IT' นำทางไปยังหน้าแผนกกลโรงงาน/สารสนเทศ ---")
+                    root.after(0, show_factory_it_page) 
+                    return
+                        
+                # 19. วิชาพื้นฐาน (BASIC SUBJECTS)
+                if any(k in text_lower for k in KEYWORDS_BASIC_SUBJECTS):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'วิชาพื้นฐาน' นำทาง... ---")
+                    root.after(0, show_basic_subjects_page) 
+                    return
+                        
+                # 20. ศูนย์ส่งเสริม
+                if any(k in text_lower for k in KEYWORDS_SOUTHERN_CENTER):
+                    print_status("--- [SYSTEM]: ตรวจพบคำสั่ง: 'ศูนย์ส่งเสริม' นำทาง... ---")
+                    root.after(0, show_southern_center_page) 
+                    return
+            
             except sr.WaitTimeoutError:
                 print_status("--- [MIC ERROR]: ไม่ได้รับเสียงภายใน 7 วินาที ---")
             except sr.UnknownValueError:
