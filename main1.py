@@ -125,7 +125,7 @@ PETROLEUM_DEPT_IMAGE_PATH     = "Picture_slide/ปิโตรเลียม.jp
 RAIL_DEPT_IMAGE_PATH          = "Picture_slide/ระบบราง.jpg"
 SURVEY_DEPT_IMAGE_PATH        = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg"
 WELDING_DEPT_IMAGE_PATH       = "Picture_slide/ช่างเชื่อมโลหะ.jpg"
-SIXTY_YEARS_DEPT_IMAGE_PATH     = os.path.join(IMAGE_SLIDE_FOLDER, NAVIGATION_TRIGGER_IMAGE)
+SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(IMAGE_SLIDE_FOLDER, NAVIGATION_TRIGGER_IMAGE)
 
 
 WAYPOINT_AIRCONDI_VIDEO        = "Tower/Waypoint_Video/To_AIRCONDI.mp4"
