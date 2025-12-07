@@ -153,8 +153,8 @@ TRAVEL_INFO = {
 # ** PATHS AND WAYPOINTS **
 # ***************************************************************
 IMAGE_SLIDE_FOLDER = "Picture_slide" 
-ROOM_IMAGE_FOLDER = "Room_Pictures"
-ROOM_VIDEO_FOLDER = "Room_Waypoint_Video"
+ROOM_IMAGE_FOLDER = "room"
+ROOM_VIDEO_FOLDER = "room"
 IMAGE_SLIDE_HEIGHT = 300 
 SLIDE_GAP = 55 
 SLIDE_FRAME_WIDTH = 5 
@@ -375,54 +375,54 @@ def bind_inactivity_reset():
 # ** NEW: Real-Time Date/Time Clock **
 # ***************************************************************
 
-def update_datetime_clock():
-    """อัปเดตเวลาและวันที่ปัจจุบันแบบ Real-Time บนแถบด้านบน"""
-    global datetime_label
+# def update_datetime_clock():
+#     """อัปเดตเวลาและวันที่ปัจจุบันแบบ Real-Time บนแถบด้านบน"""
+#     global datetime_label
     
-    # หยุดการ Update เก่า (ถ้ามี)
-    if hasattr(root, '_datetime_after_id') and root._datetime_after_id is not None:
-        root.after_cancel(root._datetime_after_id)
+#     # หยุดการ Update เก่า (ถ้ามี)
+#     if hasattr(root, '_datetime_after_id') and root._datetime_after_id is not None:
+#         root.after_cancel(root._datetime_after_id)
         
-    # **NOTE: ลบเงื่อนไข winfo_ismapped() ออก เพื่อให้รันบน top_bar เสมอ**
-    if datetime_label is not None:
-        # รูปแบบ: วันที่ 1 มกราคม 2568 เวลา 10:30 น.
-        current_dt = datetime.now()
+#     # **NOTE: ลบเงื่อนไข winfo_ismapped() ออก เพื่อให้รันบน top_bar เสมอ**
+#     if datetime_label is not None:
+#         # รูปแบบ: วันที่ 1 มกราคม 2568 เวลา 10:30 น.
+#         current_dt = datetime.now()
         
-        # ปรับปีเป็นพุทธศักราช (ปี ค.ศ. + 543)
-        buddhist_year = current_dt.year + 543
+#         # ปรับปีเป็นพุทธศักราช (ปี ค.ศ. + 543)
+#         buddhist_year = current_dt.year + 543
         
-        # FIX: แก้ปัญหา locale bug โดยการสร้างชื่อเดือน/วันด้วยตัวเอง
-        #      เมื่อ locale มีปัญหา (มักเกิดขึ้นใน Windows)
-        try:
-             # ลองใช้ locale ดึงชื่อวัน/เดือนก่อน
-            date_part = current_dt.strftime("วัน%A ที่ %d %B พ.ศ. %Y").replace(str(current_dt.year), str(buddhist_year)).replace(" 0", " ")
-        except UnicodeEncodeError:
-            # ถ้า locale ล้มเหลว (เกิดบั๊กแสดงตัวอักษรซ้ำๆ) ให้กำหนดชื่อเอง
-            thai_months = [
-                "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-            ]
-            thai_days = [
-                "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"
-            ]
-            day_name = thai_days[current_dt.weekday()]
-            month_name = thai_months[current_dt.month - 1]
+#         # FIX: แก้ปัญหา locale bug โดยการสร้างชื่อเดือน/วันด้วยตัวเอง
+#         #      เมื่อ locale มีปัญหา (มักเกิดขึ้นใน Windows)
+#         try:
+#              # ลองใช้ locale ดึงชื่อวัน/เดือนก่อน
+#             date_part = current_dt.strftime("วัน%A ที่ %d %B พ.ศ. %Y").replace(str(current_dt.year), str(buddhist_year)).replace(" 0", " ")
+#         except UnicodeEncodeError:
+#             # ถ้า locale ล้มเหลว (เกิดบั๊กแสดงตัวอักษรซ้ำๆ) ให้กำหนดชื่อเอง
+#             thai_months = [
+#                 "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+#                 "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+#             ]
+#             thai_days = [
+#                 "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"
+#             ]
+#             day_name = thai_days[current_dt.weekday()]
+#             month_name = thai_months[current_dt.month - 1]
             
-            date_part = f"วัน{day_name} ที่ {current_dt.day} {month_name} พ.ศ. {buddhist_year}"
+#             date_part = f"วัน{day_name} ที่ {current_dt.day} {month_name} พ.ศ. {buddhist_year}"
 
 
-        time_str = current_dt.strftime("%H:%M:%S น.")
+#         time_str = current_dt.strftime("%H:%M:%S น.")
         
-        display_text = f"{date_part}\nเวลา {time_str}"
+#         display_text = f"{date_part}\nเวลา {time_str}"
         
-        datetime_label.configure(text=display_text)
+#         datetime_label.configure(text=display_text)
         
-        # ตั้งเวลาให้เรียกตัวเองใหม่ใน 1 วินาที (1000ms)
-        root._datetime_after_id = root.after(1000, update_datetime_clock)
+#         # ตั้งเวลาให้เรียกตัวเองใหม่ใน 1 วินาที (1000ms)
+#         root._datetime_after_id = root.after(1000, update_datetime_clock)
         
-    else:
-        # ถ้า datetime_label ยังไม่ถูกสร้าง ให้หยุด Update
-        root._datetime_after_id = None
+#     else:
+#         # ถ้า datetime_label ยังไม่ถูกสร้าง ให้หยุด Update
+#         root._datetime_after_id = None
 
 
 # ***************************************************************
@@ -1648,7 +1648,7 @@ animate_image_slide()
 show_frame(home_content_frame)
 
 # NEW: เริ่มต้นนาฬิกา
-update_datetime_clock() 
+# update_datetime_clock() 
 
 # Main Loop
 root.mainloop()
