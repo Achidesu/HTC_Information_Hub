@@ -373,7 +373,6 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video):
              dept_img = Image.open(dept_image_path)
              dept_img_resized = dept_img.resize((DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT), Image.LANCZOS)
              dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, dark_image=dept_img_resized, size=(DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT))
-             
              ctk.CTkLabel(electronics_content_frame, 
                           image=dept_ctk_image, 
                           text="").pack(pady=(20, 10))

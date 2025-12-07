@@ -413,7 +413,7 @@ def update_datetime_clock():
 
         time_str = current_dt.strftime("%H:%M:%S")
         
-        display_text = f"{date_part}\nเวลา {time_str}"
+        display_text = f"{date_part}\nเวลา {time_str} น."
         
         datetime_label.configure(text=display_text)
         
