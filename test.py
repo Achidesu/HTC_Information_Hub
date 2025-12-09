@@ -395,7 +395,8 @@ def update_datetime_clock():
         #      เมื่อ locale มีปัญหา (มักเกิดขึ้นใน Windows)
         try:
              # ลองใช้ locale ดึงชื่อวัน/เดือนก่อน
-            date_part = current_dt.strftime("วัน%A ที่ %d %B พ.ศ. %Y").replace(str(current_dt.year), str(buddhist_year)).replace(" 0", " ")
+            date_part = current_dt.strftime("วัน %A ที่ %d เดือน %B พ.ศ. %Y").replace(str(current_dt.year), str(buddhist_year)).replace(" 0", " ")
+            
         except UnicodeEncodeError:
             # ถ้า locale ล้มเหลว (เกิดบั๊กแสดงตัวอักษรซ้ำๆ) ให้กำหนดชื่อเอง
             thai_months = [
