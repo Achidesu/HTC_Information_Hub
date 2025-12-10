@@ -77,7 +77,7 @@ KEYWORDS_60YEARS = ["ตึก 60 ปี", "60 ปี"]
 KEYWORDS_TUK11 = ["ตึก 11"]
 
 # ***************************************************************
-# ** Global Keyword Lists สำหรับ Rooms **
+# ** Global Keyword Lists สำหรับ Rooms (ยังคงใช้สำหรับ Voice Search) **
 # ***************************************************************
 # อ้างอิงจากไฟล์รูปภาพที่ส่งมา และ Path/Videos ที่กำหนดไว้
 KEYWORDS_COUNSELING = ["ห้องแนะแนว", "งานแนะแนว"] 
@@ -456,10 +456,12 @@ def show_frame(frame_to_show):
         should_show_credit = True
         
     elif frame_to_show == electronics_content_frame:
+        # ในหน้าแผนก/ห้องย่อย (Guided Page) จะแสดง Survey และ Credit Bar
         should_show_survey = True
         should_show_credit = True
         
     elif frame_to_show == navigation_content_frame:
+        # ในหน้าแผนผัง (Full Map) จะไม่แสดง Slide/Survey/Credit Bar
         pass 
 
     # ทำการ pack/pack_forget ตามสถานะที่กำหนด
@@ -1144,7 +1146,7 @@ NAV_MAPPING = {
     "แมคคา_พลังงาน.jpg": show_mechatronics_energy_page, # รวม 2 แผนก
     "ตึก11.jpg": show_airline_logistics_page, # รวม 2 แผนก (การบิน/โลจิสติกส์)
     
-    # ห้อง/งาน (ส่วนใหญ่เป็น Room_Pictures)
+    # ห้อง/งาน (ส่วนนี้จะไม่ถูกโหลดใน Marquee แต่ใช้สำหรับ Voice Search)
     "งานประสานงานผู้จบ.jpg": show_graduate_page,
     "งานทวิภาคี.jpg": show_dual_vocational_page,
     "งานแนะแนว.jpg": show_counseling_page,
@@ -1205,15 +1207,29 @@ def on_slide_click(event):
 # --- ฟังก์ชันสำหรับรูปภาพสไลด์ (Image Marquee) ---
 # -----------------------------------------------------------------
 def load_slide_images():
-    """โหลดรูปภาพทั้งหมดจากโฟลเดอร์ที่กำหนด (รวมถึง Room_Pictures)"""
+    """
+    [MODIFIED] โหลดรูปภาพทั้งหมดจากโฟลเดอร์ที่กำหนด (เฉพาะแผนกวิชาเท่านั้น)
+    ห้อง/งานอำนวยการจะถูกกรองออกไป 
+    """
     global slide_images, slide_photo_images, SLIDE_FRAME_WIDTH, SLIDE_FRAME_COLOR, IMAGE_SLIDE_HEIGHT
     slide_images = []
     slide_photo_images = []
     
-    # โฟลเดอร์ที่ต้องการโหลดรูปภาพ
-    folders_to_load = [IMAGE_SLIDE_FOLDER, ROOM_IMAGE_FOLDER] 
+    # --- [MODIFIED] โฟลเดอร์ที่ต้องการโหลดรูปภาพ: เหลือเพียง IMAGE_SLIDE_FOLDER เท่านั้น ---
+    # เราไม่ต้องการโหลดรูปภาพจาก ROOM_IMAGE_FOLDER อีกต่อไป
+    folders_to_load = [IMAGE_SLIDE_FOLDER] 
     
-    image_list_map = {} # เก็บเพื่อตรวจสอบซ้ำ
+    # --- [NEW] รายการชื่อไฟล์รูปภาพของ 'แผนกวิชา' ที่อนุญาตให้แสดงบนสไลด์เท่านั้น ---
+    #         (อ้างอิงจาก NAV_MAPPING เฉพาะ Key ที่เป็นแผนก)
+    allowed_dept_files = [
+        "60 ปี.jpg", "ก่อสร้าง.jpg", "ช่างไฟฟ้า.jpg", "อิเล็กทรอนิกส์.jpg", 
+        "ปิโตรเลียม.jpg", "ระบบราง.jpg", "เทคนิคพื้นฐาน.jpg", "ช่างเชื่อมโลหะ.jpg", 
+        "โยธา.jpg", "ตกแต่งภายใน.jpg", "ตึกส้ม.jpg", "ทำความเย็น.jpg", 
+        "ช่างยนต์.jpg", "สถาปัตยกรรม_สำรวจ.jpg", "สารสนเทศ_กลโรงงาน.jpg", 
+        "แมคคา_พลังงาน.jpg", "ตึก11.jpg"
+    ]
+    
+    image_list_map = {} 
     valid_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp')
 
     for folder in folders_to_load:
@@ -1225,7 +1241,10 @@ def load_slide_images():
         image_files.sort()
         
         for filename in image_files:
-            # ป้องกันการโหลดไฟล์ชื่อซ้ำ (ถ้ามีในทั้งสองโฟลเดอร์)
+            # --- [MODIFIED] ตรวจสอบว่าไฟล์นี้เป็นไฟล์ของ 'แผนกวิชา' ที่อนุญาตหรือไม่ ---
+            if filename not in allowed_dept_files:
+                continue # ข้ามรูปภาพที่ไม่ใช่แผนกวิชา (เช่น รูปห้อง/งานอำนวยการ)
+            
             if filename in image_list_map: continue 
             
             try:
@@ -1477,7 +1496,7 @@ def listen_for_speech():
                 if any(k in text_lower for k in KEYWORDS_BASIC_SUBJECTS): root.after(0, show_basic_subjects_page); return
                 if any(k in text_lower for k in KEYWORDS_SOUTHERN_CENTER): root.after(0, show_southern_center_page); return
                     
-                # --- ห้อง/งาน (UPDATED) ---
+                # --- ห้อง/งาน (UPDATED: Voice Only) ---
                 if any(k in text_lower for k in KEYWORDS_GRADUATE): root.after(0, show_graduate_page); return
                 if any(k in text_lower for k in KEYWORDS_DUAL_VOCATIONAL): root.after(0, show_dual_vocational_page); return
                 if any(k in text_lower for k in KEYWORDS_COUNSELING): root.after(0, show_counseling_page); return
@@ -1633,7 +1652,7 @@ except Exception as e:
 # ** Initialization and Main Loop **
 # ***************************************************************
 
-# เริ่มต้นโหลดรูปภาพสไลด์ (รวมถึง Room_Pictures)
+# เริ่มต้นโหลดรูปภาพสไลด์ (เฉพาะแผนกวิชา)
 load_slide_images()
 
 # เริ่มต้นแสดงสไลด์ชุดแรก
