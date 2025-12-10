@@ -30,8 +30,8 @@ root = ctk.CTk()
 root.title("HTC Smart Hub")
 # ปรับขนาดหน้าจอให้ใหญ่ขึ้นสำหรับตู้ Kiosk (1080x1920)
 # ถ้าเป็นการรันบนคอมพิวเตอร์ทั่วไป อาจจะต้องลดขนาด
-#root.attributes("-fullscreen", True)
-#root.overrideredirect(True)
+root.attributes("-fullscreen", True)
+root.overrideredirect(True)
 root.geometry("1080x1920+0+0") 
 root.configure(fg_color="white")
 root.bind("<Escape>", lambda e: root.destroy())
@@ -598,6 +598,8 @@ def load_home_video():
 
         if os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
             # Store player to prevent garbage collection
+            # Old: size=(900, 500)
+            # New:
             video_container.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(900, 500))
             video_container.player.play()
             print_status(f"Home Video loaded: {VIDEO_PATH}")
@@ -722,6 +724,8 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
         try:
             video_label.pack(expand=True)
             # ลดขนาดวิดีโอลงเล็กน้อย (800x450) เพื่อความเสถียรบน Pi และประหยัดพื้นที่
+            # Old: size=(800, 450)
+            # New: Try roughly 60% of that size. The label will stretch it back up.
             map_container_frame.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(800, 450))
             map_container_frame.player.play()
             print_status(f"Video loaded: {VIDEO_PATH}")
@@ -1578,16 +1582,16 @@ def listen_for_speech():
             
             # 2. SET STATUS TO LISTENING: เปลี่ยนสี Aura เป็นเขียวทันทีที่พร้อม
             mic_status = "LISTENING"
-            print_status("--- [MIC]: 🟢 พูดได้เลย! (Listening...) ---")
+            print_status("--- [MIC]: พูดได้เลย! (Listening...) ---")
             
             try:
                 # 3. OPTIMIZED LISTENING:
                 # timeout=3: ถ้าไม่พูดภายใน 3 วิ ให้ตัดจบ (ไม่ต้องรอนาน)
                 # phrase_time_limit=5: ให้เวลาพูดคำสั่งสั้นๆ ไม่เกิน 5 วิ
-                audio = r.listen(source, timeout=3, phrase_time_limit=5) 
+                audio = r.listen(source, timeout=5, phrase_time_limit=5) 
                 
                 mic_status = "PROCESSING" # เปลี่ยนสถานะเป็นกำลังประมวลผล
-                print_status("--- [MIC]: ⏳ กำลังประมวลผล... ---")
+                print_status("--- [MIC]: กำลังประมวลผล... ---")
                 
                 text = r.recognize_google(audio, language=LANGUAGE) 
                 
@@ -1751,14 +1755,14 @@ try:
             base_color_hex = ["#00FF00", "#32CD32", "#008000"] # Green
             speed = 5.0
             border_width = 6
-            mic_text_label.configure(text="🎙️ พูดได้เลย!", text_color="#00AA00")
+            mic_text_label.configure(text="พูดได้เลย!", text_color="#00AA00")
             
         elif mic_status == "PROCESSING":
             # State: Processing
             base_color_hex = ["#FFD700", "#FFA500", "#FF4500"] # Orange
             speed = 3.0
             border_width = 4
-            mic_text_label.configure(text="⏳ กำลังค้นหา...", text_color="#FF8C00")
+            mic_text_label.configure(text="กำลังประมวลผล...", text_color="#FF8C00")
             
         elif mic_status == "CALIBRATING":
             # State: Calibrating (Brief moment)
@@ -1800,7 +1804,7 @@ try:
         for i, circle in enumerate(aura_circles):
             mic_canvas.itemconfig(circle, outline=colors_animated[i], width=border_width)
 
-        root.after(20, animate_aura)
+        root.after(50, animate_aura)
 
     # Start Animation
     animate_aura()
