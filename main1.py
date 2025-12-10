@@ -802,7 +802,7 @@ def show_civil_page():
     
 def show_computer_tech_page():
     ORANGE_BACKGROUND = "#FF8C00"
-    show_guided_page(title="แผนกคอมพิวเตอร์เทคนิค", header_bg_color=ORANGE_BACKGROUND,
+    show_guided_page(title="แผนกเทคนิคคอมพิวเตอร์", header_bg_color=ORANGE_BACKGROUND,
                      dept_image_path=COMPUTER_TECH_DEPT_IMAGE_PATH, waypoint_video=WAYPOINT_COMPUTER_TECH_VIDEO,
                      travel_key="COMPUTER_TECH")
 
