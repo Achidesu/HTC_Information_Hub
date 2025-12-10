@@ -30,8 +30,10 @@ root = ctk.CTk()
 root.title("HTC Smart Hub")
 # ปรับขนาดหน้าจอให้ใหญ่ขึ้นสำหรับตู้ Kiosk (1080x1920)
 # ถ้าเป็นการรันบนคอมพิวเตอร์ทั่วไป อาจจะต้องลดขนาด
-root.geometry("1080x1920") 
+root.attributes("-fullscreen", True)
+root.geometry("1080x1920+0+0") 
 root.configure(fg_color="white")
+
 
 # ***************************************************************
 # ** Global Variables สำหรับควบคุมสถานะและ UI **
@@ -499,6 +501,24 @@ def show_frame(frame_to_show):
     except:
         pass
 
+
+def load_home_video():
+    try:
+        VIDEO_PATH = "Tower/Start_Point/E1.mp4" 
+
+        if os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
+            # Store player to prevent garbage collection
+            video_container.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(900, 500))
+            video_container.player.play()
+            print_status(f"Home Video loaded: {VIDEO_PATH}")
+        else:
+            video_label.pack_forget()
+            ctk.CTkLabel(video_container, 
+                         text=f"Video not found: {VIDEO_PATH}", 
+                         text_color="red", 
+                         font=("Kanit", 24)).pack(expand=True)
+    except Exception as e:
+        print_status(f"Error loading home video: {e}")
 
 # -----------------------------------------------------------------
 # --- NEW/MODIFIED: ฟังก์ชันควบคุมหน้าต่างนำทางแบบมีเส้นทาง (Guided Page) ---
@@ -1663,7 +1683,7 @@ if slide_images:
 # เริ่มต้น Animation Marquee
 animate_image_slide()
 
-
+root.after(500, load_home_video)
 # แสดงเฟรมเริ่มต้น (Home)
 show_frame(home_content_frame)
 
