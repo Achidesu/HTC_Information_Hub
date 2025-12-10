@@ -31,9 +31,10 @@ root.title("HTC Smart Hub")
 # ปรับขนาดหน้าจอให้ใหญ่ขึ้นสำหรับตู้ Kiosk (1080x1920)
 # ถ้าเป็นการรันบนคอมพิวเตอร์ทั่วไป อาจจะต้องลดขนาด
 root.attributes("-fullscreen", True)
+root.overrideredirect(True)
 root.geometry("1080x1920+0+0") 
 root.configure(fg_color="white")
-
+root.bind("<Escape>", lambda e: root.destroy())
 
 # ***************************************************************
 # ** Global Variables สำหรับควบคุมสถานะและ UI **
@@ -199,7 +200,7 @@ WAYPOINT_AIRCONDI_VIDEO        = "Tower/Waypoint_Video/To_AIRCONDI.mp4"
 WAYPOINT_AIRLINE_VIDEO         = "Tower/Waypoint_Video/To_AIRLINE.mp4"
 WAYPOINT_ARCHITECT_VIDEO       = "Tower/Waypoint_Video/To_ARCHITECT.mp4"
 WAYPOINT_AUTO_VIDEO            = "Tower/Waypoint_Video/To_AUTO.mp4"
-WAYPOINT_BASIC_TECH_VIDEO      = "Tower/Waypoint_Video/To_BASIC_TECH.mp4"
+WAYPOINT_BASIC_TECH_VIDEO      = "Tower/Waypoint_Video/To_BASIC.mp4"
 WAYPOINT_CIVIL_VIDEO           = "Tower/Waypoint_Video/To_CIVIL.mp4"
 WAYPOINT_COMPUTER_TECH_VIDEO   = "Tower/Waypoint_Video/To_COMPUTER_TECH.mp4"
 WAYPOINT_CONSTRUCTION_VIDEO    = "Tower/Waypoint_Video/To_CONSTRUCTION.mp4"
@@ -527,11 +528,7 @@ def load_home_video():
 def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, travel_key):
     """
     แสดงเนื้อหาแผนก/กิจกรรมแบบมีเส้นทางนำทาง
-    :param title: หัวข้อที่จะแสดงบน Header
-    :param header_bg_color: สีพื้นหลังของ Header
-    :param dept_image_path: Path รูปภาพที่จะแสดงใต้ Header
-    :param waypoint_video: Path ของวิดีโอ Waypoint
-    :param travel_key: Key สำหรับดึงข้อมูลระยะทางและเวลาจาก TRAVEL_INFO
+    FIX: ย้ายปุ่มกลับหน้าหลักไปไว้ด้านล่างสุด (Pack First) เพื่อกันไม่ให้ตกขอบจอ
     """
     global DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT
     
@@ -543,109 +540,15 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
     distance_m, time_min = TRAVEL_INFO.get(travel_key, DEFAULT_TRAVEL)
 
     # ***************************************************
-    # ** สร้างเนื้อหาสำหรับหน้าแผนก **
+    # ** 1. BUTTON SECTION (Create First, Pack Bottom) **
     # ***************************************************
+    # สร้าง Frame สำหรับปุ่มก่อน และสั่ง pack(side="bottom")
+    # วิธีนี้จะการันตีว่าปุ่มจะมีที่อยู่ด้านล่างเสมอ ไม่ว่าวิดีโอจะใหญ่แค่ไหน
     
-    # 1. Header 
-    header_frame = ctk.CTkFrame(electronics_content_frame, height=150, fg_color=header_bg_color)
-    header_frame.pack(side="top", fill="x")
-    
-    # หัวข้อสีขาว
-    ctk.CTkLabel(header_frame, 
-                 text=title, # ใช้ Title ที่ส่งเข้ามา
-                 font=("Kanit", 36, "bold"),
-                 text_color="white").pack(pady=(50, 20), padx=20)
-                 
-    # 1.5 แสดงระยะทาง/เวลา (ใต้ Header)
-    ctk.CTkLabel(electronics_content_frame,
-                 text=f"ระยะทางโดยประมาณ: {distance_m} เมตร | เวลาเดินเท้า: ประมาณ {time_min:.1f} นาที",
-                 font=("Kanit", 22, "bold"),
-                 text_color="#006400").pack(pady=(10, 5))
-                 
-    # 2. รูปภาพแผนก (จาก Path ที่กำหนด)
-    try:
-         if dept_image_path and os.path.exists(dept_image_path):
-             dept_img = Image.open(dept_image_path)
-             # FIX: เพิ่มการจัดการขนาดรูปภาพ
-             dept_img_resized = dept_img.resize((DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT), Image.LANCZOS)
-             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, dark_image=dept_img_resized, size=(DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT))
-             
-             ctk.CTkLabel(electronics_content_frame, 
-                          image=dept_ctk_image, 
-                          text="").pack(pady=(10, 5))
-         else:
-             ctk.CTkLabel(electronics_content_frame, 
-                      text=f"[ไม่พบรูปภาพ: {os.path.basename(dept_image_path) if dept_image_path else 'N/A'}]", 
-                      font=("Kanit", 24),
-                      text_color="red").pack(pady=(20, 10))
-    except Exception as e:
-         print_status(f"ไม่พบรูปภาพแผนก: {e}")
-         ctk.CTkLabel(electronics_content_frame, 
-                      text=f"[พื้นที่สำหรับรูปภาพ: Error - {e}]", 
-                      font=("Kanit", 24),
-                      text_color="red").pack(pady=(20, 10))
+    button_footer = ctk.CTkFrame(electronics_content_frame, fg_color="white", height=100)
+    button_footer.pack(side="bottom", fill="x", pady=(0, 20)) # เว้นระยะล่าง 20
 
-
-    # 3. กรอบสำหรับข้อความนำทาง
-    guide_frame = ctk.CTkFrame(electronics_content_frame, fg_color="transparent")
-    guide_frame.pack(pady=(10, 5))
-        
-    # ข้อความนำทาง (สีม่วงเข้ม)
-    ctk.CTkLabel(guide_frame, 
-                 text="โปรดเดินตามเส้นทางที่กำหนดในวิดีโอนี้", 
-                 font=("Kanit", 22, "bold"), 
-                 text_color="#8000FF").pack(side="left")
-
-
-    # 4. แผนผังการเดิน (Map Image) พร้อมเส้นประ
-    map_container_frame = ctk.CTkFrame(
-        electronics_content_frame, 
-        fg_color="white", 
-        width=900,
-        height=500
-    )
-    map_container_frame.pack(pady=10)
-
-    # --- VIDEO FRAME (ใช้ tk.Label) ---
-    video_label = tk.Label(map_container_frame, bg="white", borderwidth=0)
-    
-    VIDEO_PATH = waypoint_video
-
-    # ** FIX: ตรวจสอบ VIDEO_PATH ก่อนเล่น/แสดงข้อความ **
-    if VIDEO_PATH and os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
-        try:
-            video_label.pack(expand=True)
-            # ตรวจสอบและควบคุมขนาดให้เหมาะสมกับ Label 900x500
-            # Note: The player must be stored as an attribute of the label/frame to prevent garbage collection
-            map_container_frame.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(900, 500))
-            map_container_frame.player.play()
-            print_status(f"Video loaded: {VIDEO_PATH}")
-        except Exception as e:
-             # แสดงข้อความ Error หากโหลดวิดีโอไม่ได้
-             video_label.pack_forget()
-             ctk.CTkLabel(map_container_frame, 
-                          text=f"Waypoint Video Error! {VIDEO_PATH}\n[{e}]",
-                          font=("Kanit",18),
-                          text_color="red").pack(pady=20)
-             print_status(f"Video load error! : [ {VIDEO_PATH} ] - {e}")
-    else:
-        # แสดงข้อความ Not Found
-        ctk.CTkLabel(map_container_frame, 
-                     text=f"Waypoint Video Not Found! PATH : [ {VIDEO_PATH} ]",
-                     font=("Kanit",18),
-                     text_color="red").pack(pady=20)
-        print_status(f"Video not found! : [ {VIDEO_PATH} ]")
-
-    # =============================================================================
-    
-    # ข้อความใต้แผนผัง
-    ctk.CTkLabel(electronics_content_frame, 
-             text=f"เส้นทางนำทาง: จากจุดเริ่มต้น (Kiosk) ไปยัง {title}", 
-             font=("Kanit", 18),
-             text_color="#00AA00").pack(pady=(5, 10))
-    
-    # 5. ปุ่มกลับสู่หน้าหลัก
-    ctk.CTkButton(electronics_content_frame, 
+    ctk.CTkButton(button_footer, 
                   text="❮ กลับสู่หน้าหลัก", 
                   command=go_to_main_screen, 
                   font=("Kanit", 28, "bold"),
@@ -653,13 +556,89 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
                   hover_color="#008000",
                   width=250,
                   height=70,
-                  corner_radius=15).pack(pady=(20, 40))
+                  corner_radius=15).pack(anchor="center")
+
+    # ***************************************************
+    # ** 2. CONTENT SECTION (Pack Top) **
+    # ***************************************************
+    # สร้าง Container สำหรับเนื้อหาที่เหลือ (Header, Image, Video)
+    content_container = ctk.CTkFrame(electronics_content_frame, fg_color="white")
+    content_container.pack(side="top", fill="both", expand=True)
+
+    # --- Header ---
+    header_frame = ctk.CTkFrame(content_container, height=150, fg_color=header_bg_color)
+    header_frame.pack(side="top", fill="x")
+    
+    ctk.CTkLabel(header_frame, 
+                 text=title, 
+                 font=("Kanit", 36, "bold"),
+                 text_color="white").pack(pady=(40, 20), padx=20)
+                 
+    # --- Distance Info ---
+    ctk.CTkLabel(content_container,
+                 text=f"ระยะทางโดยประมาณ: {distance_m} เมตร | เวลาเดินเท้า: ประมาณ {time_min:.1f} นาที",
+                 font=("Kanit", 22, "bold"),
+                 text_color="#006400").pack(pady=(10, 5))
+                 
+    # --- Dept Image ---
+    try:
+         if dept_image_path and os.path.exists(dept_image_path):
+             dept_img = Image.open(dept_image_path)
+             # ปรับขนาดรูปภาพให้เล็กลงเล็กน้อยถ้าจำเป็น เพื่อประหยัดพื้นที่บน Pi
+             dept_img_resized = dept_img.resize((DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT), Image.LANCZOS)
+             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, dark_image=dept_img_resized, size=(DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT))
+             
+             ctk.CTkLabel(content_container, image=dept_ctk_image, text="").pack(pady=(10, 5))
+         else:
+             # กรณีไม่รูป ให้ใส่ Spacer หรือข้อความเล็กๆ แทน
+             ctk.CTkLabel(content_container, text="", height=10).pack()
+    except Exception as e:
+         print_status(f"ไม่พบรูปภาพแผนก: {e}")
+
+    # --- Guide Text ---
+    guide_frame = ctk.CTkFrame(content_container, fg_color="transparent")
+    guide_frame.pack(pady=(5, 5))
+    ctk.CTkLabel(guide_frame, 
+                 text="โปรดเดินตามเส้นทางที่กำหนดในวิดีโอนี้", 
+                 font=("Kanit", 22, "bold"), 
+                 text_color="#8000FF").pack(side="left")
+
+    # --- Video Map Container ---
+    # ใช้ expand=True เพื่อให้ส่วนนี้ยืดหยุ่น ถ้าหน้าจอไม่พอ มันจะหดตัวลงเอง
+    map_container_frame = ctk.CTkFrame(content_container, fg_color="white")
+    map_container_frame.pack(pady=5, fill="both", expand=True)
+
+    video_label = tk.Label(map_container_frame, bg="white", borderwidth=0)
+    
+    VIDEO_PATH = waypoint_video
+
+    if VIDEO_PATH and os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
+        try:
+            video_label.pack(expand=True)
+            # ลดขนาดวิดีโอลงเล็กน้อย (800x450) เพื่อความเสถียรบน Pi และประหยัดพื้นที่
+            map_container_frame.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(800, 450))
+            map_container_frame.player.play()
+            print_status(f"Video loaded: {VIDEO_PATH}")
+        except Exception as e:
+             video_label.pack_forget()
+             ctk.CTkLabel(map_container_frame, text="Video Error").pack(pady=20)
+    else:
+        ctk.CTkLabel(map_container_frame, 
+                     text=f"Video Not Found",
+                     font=("Kanit",18),
+                     text_color="red").pack(pady=20)
+    
+    # --- Final Text ---
+    ctk.CTkLabel(content_container, 
+             text=f"เส้นทางนำทาง: จากจุดเริ่มต้น (Kiosk) ไปยัง {title}", 
+             font=("Kanit", 18),
+             text_color="#00AA00").pack(pady=(0, 10))
                   
     # แสดงเฟรมนี้
     show_frame(electronics_content_frame) 
     
-    # NEW: เริ่ม Timer ทันทีที่เข้าหน้าแผนก
-    bind_inactivity_reset() 
+    # เริ่ม Timer
+    bind_inactivity_reset()
 
 # =============================================================================
 # === HOME SCREEN CONTENT (Banner Image + Video) ===
