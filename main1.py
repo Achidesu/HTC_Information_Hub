@@ -30,8 +30,8 @@ root = ctk.CTk()
 root.title("HTC Smart Hub")
 # ปรับขนาดหน้าจอให้ใหญ่ขึ้นสำหรับตู้ Kiosk (1080x1920)
 # ถ้าเป็นการรันบนคอมพิวเตอร์ทั่วไป อาจจะต้องลดขนาด
-root.attributes("-fullscreen", True)
-root.overrideredirect(True)
+#root.attributes("-fullscreen", True)
+#root.overrideredirect(True)
 root.geometry("1080x1920+0+0") 
 root.configure(fg_color="white")
 root.bind("<Escape>", lambda e: root.destroy())
@@ -52,52 +52,141 @@ datetime_label = None # สำหรับแสดงเวลา/วันท�
 electronics_window = None 
 
 # ***************************************************************
-# ** Global Keyword Lists สำหรับ Speech Recognition **
+# ** EXPANDED: Global Keyword Lists (เพิ่มคำค้นหาให้ครอบคลุมมากขึ้น) **
 # ***************************************************************
-KEYWORDS_ELECTRONICS = ["อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "อิเล็กทรอนิก"] 
-KEYWORDS_CONSTRUCTION = ["ช่างก่อสร้าง", "ก่อสร้าง"]
-KEYWORDS_CIVIL = ["ช่างโยธา", "โยธา"]
-KEYWORDS_FURNITURE = ["ช่างเฟอร์นิเจอร์", "ตกแต่งภายใน", "เฟอร์นิเจอร์"]
-KEYWORDS_SURVEY = ["ช่างสำรวจ", "สำรวจ"]
-KEYWORDS_ARCHITECT = ["สถาปัตยกรรม", "สถาปัตย์"]
-KEYWORDS_AUTO = ["ช่างยนต์", "ยนต์"]
-KEYWORDS_FACTORY = ["ช่างกลโรงงาน", "กลโรงงาน"]
-KEYWORDS_WELDING = ["ช่างเชื่อมโลหะ", "เชื่อมโลหะ", "เชื่อม"]
-KEYWORDS_BASICTECH = ["ช่างเทคนิคพื้นฐาน", "เทคนิคพื้นฐาน", "พื้นฐานช่าง"]
-KEYWORDS_ELECTRIC = ["ช่างไฟฟ้า", "ไฟฟ้า", "ไฟฟ้ากำลัง"]
-KEYWORDS_AIRCOND = ["เครื่องทำความเย็น", "ปรับอากาศ", "แอร์", "ระบบความเย็น"]
-KEYWORDS_IT = ["เทคโนโลยีสารสนเทศ", "ไอที", "สารสนเทศ", "it", "คอมพิวเตอร์"]
-KEYWORDS_PETROLEUM = ["เทคโนโลยีปิโตรเลียม", "ปิโตรเลียม"]
-KEYWORDS_ENERGY = ["เทคนิคพลังงาน", "พลังงาน"]
-KEYWORDS_LOGISTICS = ["โลจิสติกส์", "ซัพพลายเชน", "logistics"]
-KEYWORDS_RAIL = ["ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง", "ระบบราง", "รถไฟ"]
-KEYWORDS_MECHATRONICS = ["เมคคาทรอนิกส์", "หุ่นยนต์", "เมคคา", "หุ่นยนต์", "แม็กคา", "แม็คคา", "แมคคา","แมกคา","แม็กคา", "mechatronics"]
-KEYWORDS_AIRLINE = ["แผนกการบิน", "การบิน", "aviation"]
-KEYWORDS_COMPUTER_TECH = ["เทคโนโลยีคอมพิวเตอร์", "เทคโนโลยีคอม", "คอมพิวเตอร์", "คอมพิว", "ตึกส้ม"]
-KEYWORDS_BASIC_SUBJECTS = ["วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ"]
-KEYWORDS_SOUTHERN_CENTER = ["ศูนย์ส่งเสริม", "อาชีวศึกษาภาคใต้", "ส่งเสริม"]
-KEYWORDS_60YEARS = ["ตึก 60 ปี", "60 ปี"]
-KEYWORDS_TUK11 = ["ตึก 11"]
 
-# ***************************************************************
-# ** Global Keyword Lists สำหรับ Rooms (ยังคงใช้สำหรับ Voice Search) **
-# ***************************************************************
-# อ้างอิงจากไฟล์รูปภาพที่ส่งมา และ Path/Videos ที่กำหนดไว้
-KEYWORDS_COUNSELING = ["ห้องแนะแนว", "งานแนะแนว"] 
-KEYWORDS_CURRICULUM = ["ห้องพัฒนาหลักสูตร", "งานพัฒนาหลักสูตร", "หลักสูตร"]
-KEYWORDS_DISCIPLINARY = ["ห้องวินัย", "งานวินัย"]
-KEYWORDS_EVALUATION = ["ห้องประเมิน", "งานประเมิน"]
-KEYWORDS_EVENT = ["ห้องกิจกรรม", "งานกิจกรรม"]
-KEYWORDS_FINANCE = ["ห้องการเงิน", "งานการเงิน"]
-KEYWORDS_PRODUCTION = ["ห้องผลิตและพัฒนากำลังคน", "งานผลิตและพัฒนากำลังคน", "กำลังคน"]
-KEYWORDS_PUBLIC_RELATIONS = ["ห้องประชาสัมพันธ์", "งานประชาสัมพันธ์", "ประชาสัมพันธ์"]
-KEYWORDS_REGISTRATION = ["ห้องทะเบียน", "งานทะเบียน"]
-KEYWORDS_PROCUREMENT = ["ห้องพัสดุ", "งานพัสดุ"]
-KEYWORDS_ACADEMIC = ["ห้องวิชาการ", "งานวิชาการ"]
-KEYWORDS_GOVERNANCE = ["ห้องงานปกครอง", "งานปกครอง"]
-KEYWORDS_ASSESSMENT = ["ห้องงานวัดผล", "งานวัดผล", "วัดผล"]
-KEYWORDS_GRADUATE = ["งานประสานงานผู้จบ", "งานผู้จบ", "ห้องผู้จบ", "ประสานงานผู้จบ"]
-KEYWORDS_DUAL_VOCATIONAL = ["งานทวิภาคี", "ห้องทวิภาคี", "ทวิภาคี"]
+# --- คำสั่งทั่วไป (General Commands) ---
+# คำสั่งกลับหน้าหลัก
+KEYWORDS_HOME = [
+    "กลับหน้าหลัก", "หน้าหลัก", "กลับบ้าน", "หน้าแรก", "เมนูหลัก", "เริ่มต้นใหม่", 
+    "home", "main menu", "back", "start over", "กลับ"
+]
+
+# --- แผนกวิชา (Departments) ---
+KEYWORDS_ELECTRONICS = [
+    "อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "ช่างอิเล็ก", "ตึกอิเล็ก", 
+    "electronic", "electronics"
+]
+KEYWORDS_CONSTRUCTION = [
+    "ช่างก่อสร้าง", "ก่อสร้าง", "ตึกก่อสร้าง", "แผนกก่อสร้าง", "construction"
+]
+KEYWORDS_CIVIL = [
+    "ช่างโยธา", "โยธา", "แผนกโยธา", "ตึกโยธา", "civil"
+]
+KEYWORDS_FURNITURE = [
+    "ช่างเฟอร์นิเจอร์", "ตกแต่งภายใน", "เฟอร์นิเจอร์", "ออกแบบภายใน", "อินทีเรีย", 
+    "furniture", "interior"
+]
+KEYWORDS_SURVEY = [
+    "ช่างสำรวจ", "สำรวจ", "แผนกสำรวจ", "ตึกสำรวจ", "survey"
+]
+KEYWORDS_ARCHITECT = [
+    "สถาปัตยกรรม", "สถาปัตย์", "สถาปัต", "แผนกสถาปัตย์", "ตึกสถาปัตย์", "architect", "architecture"
+]
+KEYWORDS_AUTO = [
+    "ช่างยนต์", "ยนต์", "ยานยนต์", "เครื่องยนต์", "แผนกช่างยนต์", "ตึกช่างยนต์", 
+    "auto", "mechanic", "automotive"
+]
+KEYWORDS_FACTORY = [
+    "ช่างกลโรงงาน", "กลโรงงาน", "โรงงาน", "ช่างกล", "แผนกกลโรงงาน", "machine", "factory"
+]
+KEYWORDS_WELDING = [
+    "ช่างเชื่อมโลหะ", "เชื่อมโลหะ", "เชื่อม", "ช่างเชื่อม", "แผนกเชื่อม", "welding"
+]
+KEYWORDS_BASICTECH = [
+    "ช่างเทคนิคพื้นฐาน", "เทคนิคพื้นฐาน", "พื้นฐานช่าง", "ตึกพื้นฐาน", "basic tech"
+]
+KEYWORDS_ELECTRIC = [
+    "ช่างไฟฟ้า", "ไฟฟ้า", "ไฟฟ้ากำลัง", "ไฟ", "แผนกไฟฟ้า", "ตึกไฟฟ้า", "electric", "electrical"
+]
+KEYWORDS_AIRCOND = [
+    "เครื่องทำความเย็น", "ปรับอากาศ", "แอร์", "ช่างแอร์", "ระบบความเย็น", "ทำความเย็น", 
+    "air condition", "refrigeration"
+]
+KEYWORDS_IT = [
+    "เทคโนโลยีสารสนเทศ", "ไอที", "สารสนเทศ", "ข้อมูล", "it", "information technology"
+]
+KEYWORDS_PETROLEUM = [
+    "เทคโนโลยีปิโตรเลียม", "ปิโตรเลียม", "ปิโตร", "น้ำมัน", "แท่นขุดเจาะ", "petroleum"
+]
+KEYWORDS_ENERGY = [
+    "เทคนิคพลังงาน", "พลังงาน", "ทดแทน", "โซลาร์เซลล์", "energy"
+]
+KEYWORDS_LOGISTICS = [
+    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics"
+]
+KEYWORDS_RAIL = [
+    "ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง", "ระบบราง", "รถไฟ", "ช่างรถไฟ", "rail", "railway"
+]
+KEYWORDS_MECHATRONICS = [
+    "เมคคาทรอนิกส์", "เมคคา", "แม็กคา", "แมคคา", "หุ่นยนต์", "robot", "mechatronics"
+]
+KEYWORDS_AIRLINE = [
+    "แผนกการบิน", "การบิน", "ธุรกิจการบิน", "แอร์ไลน์", "สนามบิน", "aviation", "airline"
+]
+KEYWORDS_COMPUTER_TECH = [
+    "เทคโนโลยีคอมพิวเตอร์", "เทคโนโลยีคอม", "คอมพิวเตอร์", "คอมพิว", "ตึกส้ม", "ช่างคอม", 
+    "computer tech", "hardware"
+]
+KEYWORDS_BASIC_SUBJECTS = [
+    "วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ", "คณิตศาสตร์", "ภาษาไทย", "ภาษาอังกฤษ", "วิทย์", "สังคม"
+]
+KEYWORDS_SOUTHERN_CENTER = [
+    "ศูนย์ส่งเสริม", "อาชีวศึกษาภาคใต้", "ส่งเสริม", "ภาคใต้"
+]
+KEYWORDS_60YEARS = [
+    "ตึก 60 ปี", "60 ปี", "อาคาร 60 ปี", "อาคารเฉลิมพระเกียรติ"
+]
+KEYWORDS_TUK11 = [
+    "ตึก 11", "อาคาร 11", "ตึกใหม่"
+]
+
+# --- ห้อง/งานอำนวยการ (Offices & Rooms) - เพิ่มคำกริยาที่คนชอบใช้ ---
+KEYWORDS_COUNSELING = [
+    "ห้องแนะแนว", "งานแนะแนว", "แนะแนว", "ปรึกษาปัญหา", "กยศ", "ทุนการศึกษา", "กู้เรียน"
+] 
+KEYWORDS_CURRICULUM = [
+    "ห้องพัฒนาหลักสูตร", "งานพัฒนาหลักสูตร", "หลักสูตร", "การเรียนการสอน", "แผนการเรียน"
+]
+KEYWORDS_DISCIPLINARY = [
+    "ห้องวินัย", "งานวินัย", "ฝ่ายปกครอง", "คะแนนความประพฤติ", "ตัดคะแนน", "วินัย"
+]
+KEYWORDS_EVALUATION = [
+    "ห้องประเมิน", "งานประเมิน", "ประเมินผล"
+]
+KEYWORDS_EVENT = [
+    "ห้องกิจกรรม", "งานกิจกรรม", "กิจกรรม", "เข้าแถว", "ชมรม", "ลูกเสือ"
+]
+KEYWORDS_FINANCE = [
+    "ห้องการเงิน", "งานการเงิน", "การเงิน", "จ่ายเงิน", "ชำระเงิน", "ค่าเทอม", "จ่ายค่าเทอม", "ใบเสร็จ"
+]
+KEYWORDS_PRODUCTION = [
+    "ห้องผลิตและพัฒนากำลังคน", "งานผลิต", "พัฒนากำลังคน", "กำลังคน"
+]
+KEYWORDS_PUBLIC_RELATIONS = [
+    "ห้องประชาสัมพันธ์", "งานประชาสัมพันธ์", "ประชาสัมพันธ์", "ประกาศ", "ข่าวสาร"
+]
+KEYWORDS_REGISTRATION = [
+    "ห้องทะเบียน", "งานทะเบียน", "ทะเบียน", "ลงทะเบียน", "แก้เกรด", "รีเกรด", "เพิ่มถอน", "ขอใบเกรด", "ใบรับรอง"
+]
+KEYWORDS_PROCUREMENT = [
+    "ห้องพัสดุ", "งานพัสดุ", "พัสดุ", "จัดซื้อ", "เบิกของ"
+]
+KEYWORDS_ACADEMIC = [
+    "ห้องวิชาการ", "งานวิชาการ", "วิชาการ", "ตารางเรียน", "ตารางสอน", "สอบ"
+]
+KEYWORDS_GOVERNANCE = [
+    "ห้องงานปกครอง", "งานปกครอง", "ปกครอง", "หัวหน้าตึก", "สารวัตรนักเรียน"
+]
+KEYWORDS_ASSESSMENT = [
+    "ห้องงานวัดผล", "งานวัดผล", "วัดผล", "สอบแก้ตัว", "สอบซ่อม", "เกรดออก"
+]
+KEYWORDS_GRADUATE = [
+    "งานประสานงานผู้จบ", "งานผู้จบ", "ห้องผู้จบ", "คนจบ", "รับวุฒิ", "รับประกาศนียบัตร", "จบการศึกษา"
+]
+KEYWORDS_DUAL_VOCATIONAL = [
+    "งานทวิภาคี", "ห้องทวิภาคี", "ทวิภาคี", "ฝึกงาน", "ฝึกอาชีพ", "สถานประกอบการ"
+]
 
 
 # ***************************************************************
@@ -581,16 +670,33 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
                  text_color="#006400").pack(pady=(10, 5))
                  
     # --- Dept Image ---
+    # --- Dept Image (Fixed Aspect Ratio) ---
     try:
          if dept_image_path and os.path.exists(dept_image_path):
              dept_img = Image.open(dept_image_path)
-             # ปรับขนาดรูปภาพให้เล็กลงเล็กน้อยถ้าจำเป็น เพื่อประหยัดพื้นที่บน Pi
-             dept_img_resized = dept_img.resize((DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT), Image.LANCZOS)
-             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, dark_image=dept_img_resized, size=(DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT))
+             
+             # Calculate aspect ratio to fit within 950x400 without stretching
+             target_width = DEPT_IMAGE_WIDTH  # 950
+             target_height = DEPT_IMAGE_HEIGHT # 400
+             
+             # 1. Resize based on width first
+             w_percent = (target_width / float(dept_img.size[0]))
+             h_size = int((float(dept_img.size[1]) * float(w_percent)))
+             
+             # 2. If height is too tall, resize based on height instead
+             if h_size > target_height:
+                 h_percent = (target_height / float(dept_img.size[1]))
+                 w_size = int((float(dept_img.size[0]) * float(h_percent)))
+                 dept_img_resized = dept_img.resize((w_size, target_height), Image.LANCZOS)
+             else:
+                 dept_img_resized = dept_img.resize((target_width, h_size), Image.LANCZOS)
+
+             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, 
+                                           dark_image=dept_img_resized, 
+                                           size=dept_img_resized.size)
              
              ctk.CTkLabel(content_container, image=dept_ctk_image, text="").pack(pady=(10, 5))
          else:
-             # กรณีไม่รูป ให้ใส่ Spacer หรือข้อความเล็กๆ แทน
              ctk.CTkLabel(content_container, text="", height=10).pack()
     except Exception as e:
          print_status(f"ไม่พบรูปภาพแผนก: {e}")
@@ -673,23 +779,6 @@ video_container.pack(side="top", expand=True, fill="both", padx=20, pady=(0, 20)
 
 video_label = tk.Label(video_container, bg="white", borderwidth=0)
 video_label.pack(expand=True)
-
-try:
-    VIDEO_PATH = "Tower/Start_Point/E1.mp4" 
-
-    if os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
-        # Store player to prevent garbage collection
-        video_container.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(900, 500))
-        video_container.player.play()
-        print_status(f"Video loaded: {VIDEO_PATH}")
-    else:
-        video_label.pack_forget()
-        ctk.CTkLabel(video_container, 
-                     text=f"Video not found or invalid format: {VIDEO_PATH}", 
-                     text_color="red", 
-                     font=("Kanit", 24)).pack(expand=True)
-except Exception as e:
-    print_status(f"Error loading video: {e}")
 
 # =============================================================================
 
@@ -1362,10 +1451,45 @@ bottom_label = ctk.CTkLabel(
 )
 bottom_label.pack(pady=5)
 
-# --- 3. ข้อความเลื่อนด้านล่าง (Text Marquee) ---
+# ***************************************************************
+# ** FIXED: Credit Text Typing Animation **
+# ***************************************************************
+
+# --- 3. ข้อความด้านล่าง (Typewriter Effect) ---
 credit_frame = ctk.CTkFrame(root, height=40, fg_color="#5B0094", corner_radius=0)
 credit_frame.pack(side="bottom", fill="x")
-# (โค้ดสำหรับ Text Marquee ถูกตัดออก)
+
+# Create a label centered in the frame
+credit_label = ctk.CTkLabel(
+    credit_frame, 
+    text="",  # Start empty
+    font=("Kanit", 24, "bold"), 
+    text_color="white"
+)
+credit_label.pack(pady=5)
+
+# The full text to display
+FULL_CREDIT_TEXT = "จัดทำโดยนักศึกษาแผนกเทคโนโลยีคอมพิวเตอร์"
+
+def animate_typing_text(index=0):
+    """Function to type text one character at a time"""
+    try:
+        if not credit_label.winfo_exists(): return
+    except: return
+    
+    # 1. Add the next character
+    current_text = FULL_CREDIT_TEXT[:index]
+    credit_label.configure(text=current_text)
+    
+    if index < len(FULL_CREDIT_TEXT):
+        # If not finished, type next letter in 100ms
+        root.after(100, lambda: animate_typing_text(index + 1))
+    else:
+        # If finished, wait 3 seconds (3000ms) then restart
+        root.after(3000, lambda: animate_typing_text(0))
+
+# Start the animation
+animate_typing_text(0)
 
 # --- 2. ส่วนสำรวจและ QR Code ---
 survey_frame = ctk.CTkFrame(root, height=180, fg_color="#EFEFEF", corner_radius=0)
@@ -1430,46 +1554,55 @@ image_slide_canvas.bind("<ButtonRelease-1>", on_slide_click)
 
 
 # ***************************************************************
-# ** Speech Recognition Functions (ทำงานใน Thread แยก) **
+# ** IMPROVED: Speech Recognition (Faster & More Sensitive) **
 # ***************************************************************
 
+# Global variable to control Aura color
+mic_status = "IDLE" # Options: IDLE, CALIBRATING, LISTENING, PROCESSING
+
 def listen_for_speech():
-    """ฟังก์ชันหลักในการรับเสียงจากไมค์และแปลงเป็นข้อความ พร้อมแก้ปัญหาค้าง"""
-    global is_listening
+    """ฟังก์ชันรับเสียงที่ปรับปรุงให้ทำงานไวขึ้นและแม่นยำขึ้น"""
+    global is_listening, mic_status
     r = sr.Recognizer()
     LANGUAGE = "th-TH" 
 
     is_listening = True 
-    print_status("--- [MIC STATUS]: โปรดพูดตอนนี้ (Listening...) ---")
+    mic_status = "CALIBRATING" # Update status for animation
+    print_status("--- [MIC]: Calibrating noise... (Wait) ---")
     
     try: 
         with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=0.8) 
+            # 1. FASTER CALIBRATION: ลดเวลาปรับเสียงรบกวนเหลือ 0.1 วินาที (จากเดิม 0.8)
+            # เพื่อให้ผู้ใช้พูดได้ทันทีโดยไม่ต้องรอ
+            r.adjust_for_ambient_noise(source, duration=0.1) 
+            
+            # 2. SET STATUS TO LISTENING: เปลี่ยนสี Aura เป็นเขียวทันทีที่พร้อม
+            mic_status = "LISTENING"
+            print_status("--- [MIC]: 🟢 พูดได้เลย! (Listening...) ---")
             
             try:
-                # ลด Timeout ลงเล็กน้อยเพื่อให้ไม่ค้างนานเกินไป
-                audio = r.listen(source, timeout=5, phrase_time_limit=10) 
-                print_status("--- [MIC STATUS]: ได้รับเสียงแล้ว กำลังประมวลผล... ---")
+                # 3. OPTIMIZED LISTENING:
+                # timeout=3: ถ้าไม่พูดภายใน 3 วิ ให้ตัดจบ (ไม่ต้องรอนาน)
+                # phrase_time_limit=5: ให้เวลาพูดคำสั่งสั้นๆ ไม่เกิน 5 วิ
+                audio = r.listen(source, timeout=3, phrase_time_limit=5) 
+                
+                mic_status = "PROCESSING" # เปลี่ยนสถานะเป็นกำลังประมวลผล
+                print_status("--- [MIC]: ⏳ กำลังประมวลผล... ---")
                 
                 text = r.recognize_google(audio, language=LANGUAGE) 
                 
-                print("\n*** [RECOGNIZED TEXT] ***")
-                print(f"ผลลัพธ์: {text}")
-                print("***************************\n")
+                print(f"\n*** [RESULT]: '{text}' ***\n")
                 
                 text_lower = text.lower()
                 
-                # =================================================================
-                # --- MODIFIED: ตรวจสอบคำสั่งทั้งหมด (ครอบคลุมแผนกและห้องใหม่) ---
-                # =================================================================
+                # --- COMMAND MAPPING ---
                 
-                # 0. ตรวจสอบคำสั่งกลับหน้าหลัก
-                for keyword in ["กลับหน้าหลัก", "กลับบ้าน", "หน้าแรก", "ไปหน้าหลัก"]:
-                    if keyword in text_lower:
-                        print_status(f"--- [SYSTEM]: ตรวจพบคำสั่ง: '{keyword}' นำทางกลับหน้าหลัก ---")
-                        root.after(0, go_to_main_screen)
-                        return
-                        
+                # 0. ตรวจสอบคำสั่งกลับหน้าหลัก (Using the new global list)
+                if any(k in text_lower for k in KEYWORDS_HOME):
+                    print_status(f"--- [SYSTEM]: ตรวจพบคำสั่งกลับหน้าหลัก ---")
+                    root.after(0, go_to_main_screen)
+                    return
+
                 # --- แผนกวิชา ---
                 if any(k in text_lower for k in KEYWORDS_ELECTRONICS): root.after(0, show_electronics_page); return
                 if any(k in text_lower for k in KEYWORDS_CONSTRUCTION): root.after(0, show_construction_page); return 
@@ -1479,13 +1612,9 @@ def listen_for_speech():
                 if any(k in text_lower for k in KEYWORDS_PETROLEUM): root.after(0, show_petroleum_page); return
                 if any(k in text_lower for k in KEYWORDS_RAIL): root.after(0, show_rail_page); return
                 if any(k in text_lower for k in KEYWORDS_BASICTECH): root.after(0, show_basic_tech_page); return
-                # สถาปัตยกรรม/ช่างสำรวจ
                 if any(k in text_lower for k in KEYWORDS_ARCHITECT + KEYWORDS_SURVEY): root.after(0, show_arch_survey_page); return
-                # กลโรงงาน (รวมสารสนเทศ/IT)
                 if any(k in text_lower for k in KEYWORDS_FACTORY + KEYWORDS_IT): root.after(0, show_factory_it_page); return
-                # แมคคาทรอนิค/พลังงาน
                 if any(k in text_lower for k in KEYWORDS_MECHATRONICS + KEYWORDS_ENERGY): root.after(0, show_mechatronics_energy_page); return
-                # การบิน/โลจิสติกส์/ตึก 11
                 if any(k in text_lower for k in KEYWORDS_AIRLINE + KEYWORDS_LOGISTICS + KEYWORDS_TUK11): root.after(0, show_airline_logistics_page); return
                 if any(k in text_lower for k in KEYWORDS_AUTO): root.after(0, show_technic_mac_page); return
                 if any(k in text_lower for k in KEYWORDS_WELDING): root.after(0, show_welding_page); return
@@ -1494,8 +1623,8 @@ def listen_for_speech():
                 if any(k in text_lower for k in KEYWORDS_COMPUTER_TECH): root.after(0, show_computer_tech_page); return
                 if any(k in text_lower for k in KEYWORDS_BASIC_SUBJECTS): root.after(0, show_basic_subjects_page); return
                 if any(k in text_lower for k in KEYWORDS_SOUTHERN_CENTER): root.after(0, show_southern_center_page); return
-                    
-                # --- ห้อง/งาน (UPDATED: Voice Only) ---
+                
+                # --- ห้อง/งาน ---
                 if any(k in text_lower for k in KEYWORDS_GRADUATE): root.after(0, show_graduate_page); return
                 if any(k in text_lower for k in KEYWORDS_DUAL_VOCATIONAL): root.after(0, show_dual_vocational_page); return
                 if any(k in text_lower for k in KEYWORDS_COUNSELING): root.after(0, show_counseling_page); return
@@ -1512,20 +1641,21 @@ def listen_for_speech():
                 if any(k in text_lower for k in KEYWORDS_GOVERNANCE): root.after(0, show_governance_page); return
                 if any(k in text_lower for k in KEYWORDS_ASSESSMENT): root.after(0, show_assessment_page); return
 
-            
+                # ถ้าไม่ตรงกับเงื่อนไขใดๆ
+                print_status(f"--- [MIC]: ไม่พบคำสั่งสำหรับ '{text}' ---")
+
             except sr.WaitTimeoutError:
-                print_status("--- [MIC ERROR]: ไม่ได้รับเสียงภายใน 5 วินาที ---")
+                print_status("--- [MIC]: หมดเวลา (ไม่ได้พูด) ---")
             except sr.UnknownValueError:
-                print_status("--- [MIC ERROR]: ไม่สามารถเข้าใจคำพูด (UnknownValueError) ---")
-            except sr.RequestError as e:
-                print_status(f"--- [MIC ERROR]: ไม่สามารถเชื่อมต่อกับ Google Speech (ตรวจสอบอินเทอร์เน็ต); {e} ---")
+                print_status("--- [MIC]: ฟังไม่เข้าใจ (ลองใหม่อีกครั้ง) ---")
+            except sr.RequestError:
+                print_status("--- [MIC]: อินเทอร์เน็ตมีปัญหา ---")
             except Exception as e:
-                print_status(f"--- [MIC ERROR]: เกิดข้อผิดพลาดในการประมวลผล: {e} ---") 
+                print_status(f"--- [MIC ERROR]: {e} ---")
             
     finally:
         is_listening = False
-        print_status("--- [MIC STATUS]: การฟังเสร็จสิ้น (IDLE) ---")
-
+        mic_status = "IDLE"
 
         
 def start_listening_thread(event=None):
@@ -1540,13 +1670,28 @@ def start_listening_thread(event=None):
         print_status("--- [SYSTEM]: ระบบกำลังฟังอยู่... ---")
 
 
+# ***************************************************************
+# ** FIXED: Microphone UI (Text BELOW logo) **
+# ***************************************************************
+
 try:
-    # 1. Create the Frame
+    # --- 1. Create Status Notification Label (MOVED BELOW) ---
+    # Mic Frame is at y=725 and height=180, so it ends at y=905.
+    # We place the text at y=925 to be under the mic.
+    mic_text_label = ctk.CTkLabel(
+        root, 
+        text="กดเพื่อสั่งงานด้วยเสียง", 
+        font=("Kanit", 22, "bold"), 
+        text_color="gray"
+    )
+    # Center x=110 (Mic x=20 + half width 90), y=925 (Below mic)
+    mic_text_label.place(x=110, y=925, anchor="center") 
+
+    # --- 2. Create the Mic Frame ---
     mic_frame = tk.Frame(root, bg="white", width=180, height=180)
-    # วางไว้ที่ตำแหน่งที่เหมาะสม (725 คือตำแหน่งที่ไม่ทับกับส่วนกลาง)
     mic_frame.place(x=20, y=725) 
 
-    # 2. Create Canvas
+    # --- 3. Create Canvas ---
     mic_canvas = tk.Canvas(
         mic_frame,
         width=180,
@@ -1557,11 +1702,11 @@ try:
     )
     mic_canvas.pack()
     
-    # 3. Bind Click Events
+    # --- 4. Bind Click Events ---
     mic_canvas.bind("<Button-1>", start_listening_thread) 
     mic_frame.bind("<Button-1>", start_listening_thread)
 
-    # 4. Load Image Safely
+    # --- 5. Load Image Safely ---
     MIC_IMAGE_PATH = "microphone/microphone.png" 
     
     if os.path.exists(MIC_IMAGE_PATH):
@@ -1572,7 +1717,7 @@ try:
         mic_image = Image.new('RGBA', (90, 90), (200, 200, 200, 0))
         mic_photo = ImageTk.PhotoImage(mic_image)
 
-    # 5. Create Aura Circles
+    # --- 6. Create Aura Circles ---
     aura_circles = []
     colors = ["#E0B0FF", "#C77DFF", "#9D4EDD"]
     radii = [80, 60, 40]
@@ -1588,28 +1733,48 @@ try:
         )
         aura_circles.append(circle) 
 
-    # 6. Place Microphone Icon in Center
+    # --- 7. Place Microphone Icon ---
     mic_canvas.create_image(90, 90, image=mic_photo, tags="mic")
     mic_canvas.image = mic_photo 
 
-    # 7. Aura Animation Function
+    # --- 8. Aura Animation & Text Update Function ---
     def animate_aura():
-        global is_listening, alpha_value, direction, mic_canvas, aura_circles
+        global is_listening, alpha_value, direction, mic_canvas, aura_circles, mic_status
         
         try:
             if not mic_canvas.winfo_exists(): return
         except: return
 
-        if is_listening:
-            base_color_hex = ["#FFD700", "#FFA500", "#FF4500"] 
-            speed = 4.0
-            border_width = 5
+        # === UPDATE TEXT & COLOR BASED ON STATUS ===
+        if mic_status == "LISTENING":
+            # State: Listening
+            base_color_hex = ["#00FF00", "#32CD32", "#008000"] # Green
+            speed = 5.0
+            border_width = 6
+            mic_text_label.configure(text="🎙️ พูดได้เลย!", text_color="#00AA00")
+            
+        elif mic_status == "PROCESSING":
+            # State: Processing
+            base_color_hex = ["#FFD700", "#FFA500", "#FF4500"] # Orange
+            speed = 3.0
+            border_width = 4
+            mic_text_label.configure(text="⏳ กำลังค้นหา...", text_color="#FF8C00")
+            
+        elif mic_status == "CALIBRATING":
+            # State: Calibrating (Brief moment)
+            base_color_hex = ["#FFD700", "#FFA500", "#FF4500"]
+            speed = 3.0
+            border_width = 4
+            mic_text_label.configure(text="...", text_color="gray")
+            
         else:
-            base_color_hex = ["#E0B0FF", "#C77DFF", "#9D4EDD"] 
+            # State: Idle
+            base_color_hex = ["#E0B0FF", "#C77DFF", "#9D4EDD"] # Purple
             speed = 1.5
             border_width = 3
+            mic_text_label.configure(text="กดเพื่อสั่งงานด้วยเสียง", text_color="gray")
         
-        # Update Alpha/Pulse
+        # === AURA PULSE ANIMATION ===
         alpha_value[0] += direction[0] * speed
         if alpha_value[0] >= 100:
             alpha_value[0] = 100
@@ -1620,21 +1785,18 @@ try:
 
         intensity = alpha_value[0] / 100.0
         
-        # Calculate colors
         colors_animated = []
         for hex_color in base_color_hex:
             r_base = int(hex_color[1:3], 16)
             g_base = int(hex_color[3:5], 16)
             b_base = int(hex_color[5:7], 16)
             
-            # Pulse logic
             r_final = int(r_base * (0.6 + 0.4 * intensity)) 
             g_final = int(g_base * (0.6 + 0.4 * intensity))
             b_final = int(b_base * (0.6 + 0.4 * intensity))
             
             colors_animated.append(f"#{r_final:02x}{g_final:02x}{b_final:02x}")
 
-        # Update Canvas
         for i, circle in enumerate(aura_circles):
             mic_canvas.itemconfig(circle, outline=colors_animated[i], width=border_width)
 
@@ -1646,7 +1808,7 @@ try:
 
 except Exception as e:
     print_status(f"Error creating Microphone UI: {e}")
-
+    
 # ***************************************************************
 # ** Initialization and Main Loop **
 # ***************************************************************
