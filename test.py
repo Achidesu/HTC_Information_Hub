@@ -12,6 +12,8 @@ import random
 from gtts import gTTS
 import pygame
 
+from main1 import ASSESSMENT_IMAGE_PATH, GOVERNANCE_IMAGE_PATH, WAYPOINT_ASSESSMENT_VIDEO, WAYPOINT_GOVERNANCE_VIDEO
+
 # Initialize audio mixer
 try:
     pygame.mixer.init()
@@ -425,53 +427,60 @@ def get_room_path(folder, filename):
 #         และ Path ที่ใช้ในโค้ดเก่าอาจไม่ตรงกับ Path จริงบนระบบของคุณ 
 #         (ใช้ Path เดิมที่กำหนดไว้ในโค้ดต้นฉบับ แต่ยืนยันว่าใช้ os.path.join)
 
+# GRADUATE - งานประสานงานและส่งเสริมผู้จบ
 WAYPOINT_GRADUATE_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_GraduateCoordinationCenter.mp4")
-GRADUATE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานประสานงานผู้จบ.jpg")
+GRADUATE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "ศูนย์ประสานงานบัณฑิตศึกษา.jpg") 
 
+# COUNSELING - ห้องแนะแนว
 WAYPOINT_COUNSELING_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_counseling_room.mp4")
-COUNSELING_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานแนะแนว.jpg")
+COUNSELING_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานแนะแนวและการจัดหางาน.jpg") 
 
+# CURRICULUM - ห้องพัฒนาหลักสูตร
 WAYPOINT_CURRICULUM_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_Curriculumdevelopmentroom.mp4")
-CURRICULUM_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานพัฒนาหลักสูตร.jpg")
+CURRICULUM_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "ห้องงานพัฒนาหลักสูตร.jpg") 
 
+# DISCIPLINARY - ห้องวินัย / งานปกครอง
 WAYPOINT_DISCIPLINARY_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_disciplinary_office.mp4")
-DISCIPLINARY_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวินัย_ตึก2.jpg")
+DISCIPLINARY_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานปกครองและงานครูที่ปรึกษา.jpg") 
 
+# DUAL_VOCATIONAL - งานทวิภาคี
 WAYPOINT_DUAL_VOCATIONAL_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_Dual VocationalEducation_Room.mp4")
-DUAL_VOCATIONAL_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานทวิภาคี.jpg")
+DUAL_VOCATIONAL_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "ห้องงานอาชีวศึกษาระบบทวิภาคี.jpg") 
 
+# EVALUATION - ห้องประเมิน
 WAYPOINT_EVALUATION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_evaluation_room.mp4")
-EVALUATION_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานประเมิน.jpg")
+EVALUATION_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผลและประเมินผล.webp") 
 
+# EVENT - ห้องกิจกรรม
 WAYPOINT_EVENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_eventroom.mp4")
-EVENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานกิจกรรม.jpg")
+EVENT_IMAGE_PATH     = "" # ไม่พบไฟล์ที่ตรงกับ 'งานกิจกรรม.jpg' ในรายการ
 
+# FINANCE - ห้องการเงิน
 WAYPOINT_FINANCE_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_Finance room.mp4")
-FINANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานการเงิน.jpg")
+FINANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานการเงิน.jpg") 
 
+# PUBLIC_RELATIONS - ห้องประชาสัมพันธ์
 WAYPOINT_PUBLIC_RELATIONS_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_public_relations_room.mp4")
-PUBLIC_RELATIONS_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานประชาสัมพันธ์.jpg")
+PUBLIC_RELATIONS_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "ประชาสัมพันธ์.jpg") 
 
-# FIX: แก้ไขชื่อไฟล์วิดีโอสำหรับห้องทะเบียนให้ถูกต้องตามรูปแบบ Path ที่เคยใช้ในโค้ดเก่า
-# ชื่อไฟล์เดิม: To_registeroion.mp4 (อาจสะกดผิด)
-# เปลี่ยนเป็น: To_registeroion.mp4 (คงชื่อเดิมไว้ตามที่เคยระบุในโค้ด)
+# REGISTRATION - ห้องทะเบียน
 WAYPOINT_REGISTRATION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_registeroion.mp4")
-REGISTRATION_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานทะเบียน.jpg")
+REGISTRATION_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานทะเบียน.jpg") 
 
-WAYPOINT_PROCUREMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "งานพัสดุ.mp4")
-PROCUREMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานพัสดุ.jpg")
+# PROCUREMENT - ห้องพัสดุ
+# ไม่มีวิดีโอชื่อ "งานพัสดุ.mp4" ในรูปภาพที่แนบมา
+WAYPOINT_PROCUREMENT_VIDEO = "" # (ลบ Path วิดีโอออก)
+PROCUREMENT_IMAGE_PATH     = "" # ไม่พบไฟล์ที่ตรงกับ 'งานพัสดุ.jpg' ในรายการ
 
-WAYPOINT_ACADEMIC_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "งานวิชาการ.mp4")
-ACADEMIC_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวิชาการ.jpg")
+# ACADEMIC - ห้องวิชาการ
+# ไม่มีวิดีโอชื่อ "งานวิชาการ.mp4" ในรูปภาพที่แนบมา
+WAYPOINT_ACADEMIC_VIDEO = "" # (ลบ Path วิดีโอออก)
+ACADEMIC_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวิชาการ.jpg") 
 
-WAYPOINT_GOVERNANCE_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "งานปกครอง.mp4")
-GOVERNANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานปกครอง.jpg")
-
-WAYPOINT_ASSESSMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "งานวัดผลตึก2-1.mp4") 
-ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผลตึก2-1.jpg")
-
-WAYPOINT_PRODUCTION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_Production and Manpower Development Coordination...mp4")
-PRODUCTION_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานผลิตและพัฒนากำลังคน.jpg")
+# PRODUCTION - ห้องผลิตและพัฒนากำลังคน
+# ไม่มีวิดีโอที่ตรงกันในรูปภาพที่แนบมา
+WAYPOINT_PRODUCTION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER,"To_GraduateCoordinationCenter.mp4" )
+PRODUCTION_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "ศูนย์ประสานงานผลิตและพัฒนากำลังคน.jpg") 
 
 
 # --- NEW: PATHS สำหรับจุดบริการใหม่ (ใช้ String ว่างเปล่ารอคุณมาใส่ Path) ---
