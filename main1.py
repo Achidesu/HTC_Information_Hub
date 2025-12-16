@@ -192,9 +192,7 @@ KEYWORDS_REGISTRATION = [
 ]
 KEYWORDS_PROCUREMENT = [
     "ห้องพัสดุ", "งานพัสดุ", "พัสดุ", "จัดซื้อ", "เบิกของ", "procurement", "supplies"
-]
-KEYWORDS_ACADEMIC = [
-    "ห้องวิชาการ", "งานวิชาการ", "วิชาการ", "ตารางเรียน", "ตารางสอน", "สอบ", "academic", "exam", "schedule"
+
 ]
 KEYWORDS_GOVERNANCE = [
     "ห้องงานปกครอง", "งานปกครอง", "ปกครอง", "หัวหน้าตึก", "สารวัตรนักเรียน", "governance"
@@ -275,7 +273,7 @@ KEYWORDS_STUDENT_AFFAIRS_VICE_DIRECTOR = [
     "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน", "รองกิจการนักเรียน", "รองกิจการ", "vice director student affairs"
 ]
 KEYWORDS_ACADEMIC_VICE_DIRECTOR = [
-    "รองผู้อำนวยการฝ่ายวิชาการ", "รองวิชาการ", "vice director academic"
+    "รองผู้อำนวยการฝ่ายวิชาการ", "รองวิชาการ", "vice director academic", "วิชาการ", "ห้องวิชาการ", "ฝ่ายวิชาการ"
 ]
 KEYWORDS_RESOURCE_VICE_DIRECTOR = [
     "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", "รองบริหารทรัพยากร", "vice director resource","ทรัพยากร"
@@ -1195,11 +1193,6 @@ def show_registration_page():
                      dept_image_path=REGISTRATION_IMAGE_PATH, waypoint_video=WAYPOINT_REGISTRATION_VIDEO,
                      travel_key="REGISTRATION")
 
-def show_academic_page():
-    show_guided_page(title="ห้องวิชาการ", header_bg_color=ROOM_BACKGROUND_COLOR, 
-                     dept_image_path=ACADEMIC_IMAGE_PATH, waypoint_video=WAYPOINT_ACADEMIC_VIDEO,
-                     travel_key="ACADEMIC")
-
 def show_governance_page():
     show_guided_page(title="ห้องงานปกครอง", header_bg_color=ROOM_BACKGROUND_COLOR, 
                      dept_image_path=GOVERNANCE_IMAGE_PATH, waypoint_video=WAYPOINT_GOVERNANCE_VIDEO,
@@ -1587,7 +1580,7 @@ NAV_MAPPING = {
     "ศูนย์ประสานงานผลิตและพัฒนากำลังคน.jpg": show_production_page,
     "ประชาสัมพันธ์.jpg": show_public_relations_page,
     "งานทะเบียน.jpg": show_registration_page,
-    "งานวิชาการ.jpg": show_academic_page,
+    
     
     # NEW: จุดบริการเพิ่มเติม (ตรวจสอบว่าชื่อไฟล์ตรงกับในโฟลเดอร์ room)
     "ร้านค้าสวัสดิการ.jpg": show_coop_shop_page, 
@@ -2006,7 +1999,6 @@ def listen_for_speech():
                 if any(k in text_lower for k in KEYWORDS_PRODUCTION): root.after(0, show_production_page); return
                 if any(k in text_lower for k in KEYWORDS_PUBLIC_RELATIONS): root.after(0, show_public_relations_page); return
                 if any(k in text_lower for k in KEYWORDS_REGISTRATION): root.after(0, show_registration_page); return
-                if any(k in text_lower for k in KEYWORDS_ACADEMIC): root.after(0, show_academic_page); return
                 if any(k in text_lower for k in KEYWORDS_GOVERNANCE): root.after(0, show_governance_page); return
                 if any(k in text_lower for k in KEYWORDS_ASSESSMENT): root.after(0, show_assessment_page); return
                 
