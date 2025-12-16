@@ -403,7 +403,7 @@ MECHATRONICS_DEPT_IMAGE_PATH  = "Picture_slide/แมคคา_พลังง�
 PETROLEUM_DEPT_IMAGE_PATH     = "Picture_slide/ปิโตรเลียม.jpg"
 RAIL_DEPT_IMAGE_PATH          = "Picture_slide/ระบบราง.jpg"
 SURVEY_DEPT_IMAGE_PATH        = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg"
-SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(IMAGE_SLIDE_FOLDER, "อาคาร60ปี.jpg")#ยังไม่ลอง
+SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(ADDON_IMAGE_FOLDER, "อาคาร60ปี.jpg")#ยังไม่ลอง
 WELDING_DEPT_IMAGE_PATH       = os.path.join(IMAGE_SLIDE_FOLDER, "ช่างเชื่อมโลหะ.jpg")
 
 # --- WAYPOINT VIDEOS (Dept) ---
@@ -567,7 +567,7 @@ GENERAL_ADMIN_IMAGE_PATH            = get_addon_path(ADDON_IMAGE_FOLDER, "งา
 
 # งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการและประกอบธุรกิจ
 WAYPOINT_INFO_DATA_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Info_Data.mp4") 
-INFO_DATA_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการ.jpg")  #ยังไม่ลอง
+INFO_DATA_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "ศูนย์ข้อมูลสารสนเทศ.jpg")  #ยังไม่ลอง
 
 # อาคารวิทยฐานะ
 WAYPOINT_ACADEMIC_TOWER_VIDEO       = get_addon_path(ADDON_VIDEO_FOLDER, "To_Academic_Tower.mp4") 
