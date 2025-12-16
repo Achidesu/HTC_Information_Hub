@@ -496,7 +496,7 @@ GOVERNANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานปกค
 
 # ASSESSMENT - ห้องงานวัดผล 
 WAYPOINT_ASSESSMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_evaluation_room.mp4")
-ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผลและประเมินผล.jpg") 
+ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผล.webp") 
 
 # PRODUCTION - ห้องผลิตและพัฒนากำลังคน 
 WAYPOINT_PRODUCTION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER,"To_Production_Manpower.mp4" ) 
