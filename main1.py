@@ -72,7 +72,7 @@ electronics_window = None
 
 # --- คำสั่งทั่วไป (General Commands) ---
 KEYWORDS_HOME = [
-    "กลับหน้าหลัก", "หน้าหลัก", "กลับบ้าน", "หน้าแรก", "เมนูหลัก", "เริ่มต้นใหม่", 
+    "กลับหน้าหลัก", "หน้าหลัก", "กลับหน้าแรก", "หน้าแรก", "เมนูหลัก", "เริ่มต้นใหม่", 
     "home", "main menu", "back", "start over", "กลับ", "ยกเลิก", "รีเซ็ต"
 ]
 
@@ -127,7 +127,7 @@ KEYWORDS_ENERGY = [
     "เทคนิคพลังงาน", "พลังงาน", "ทดแทน", "โซลาร์เซลล์", "energy", "solar", "power plant"
 ]
 KEYWORDS_LOGISTICS = [
-    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics", "shipping", "supply chain"
+    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics", "shipping", "supply chain","โลจิส"
 ]
 KEYWORDS_RAIL = [
     "ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง", "ระบบราง", "รถไฟ", "ช่างรถไฟ", "rail", "railway", "train"
@@ -153,7 +153,7 @@ KEYWORDS_60YEARS = [
     "ตึก 60 ปี", "60 ปี", "อาคาร 60 ปี", "อาคารเฉลิมพระเกียรติ", "60th anniversary building"
 ]
 KEYWORDS_TUK11 = [
-    "ตึก 11", "อาคาร 11", "ตึกใหม่", "building 11", "การบิน", "โลจิสติกส์" 
+    "ตึก 11", "อาคาร 11", "ตึกใหม่", "building 11", "ตึกหน้าแผนกอิเล็กทรอนิกส์"
 ]
 # [NEW] เพิ่มอาคาร 10
 KEYWORDS_TUK10 = [
@@ -220,14 +220,15 @@ KEYWORDS_CANTEEN2 = [
     "โรงอาหาร 2", "โรงอาหารสอง", "โรงอาหาร2", "แคนทีน 2", "กินข้าว 2"
 ]
 KEYWORDS_BUILDING2 = [
-    "อาคาร 2", "ตึก 2", "building 2", "admin building"
+    "อาคาร 2", "ตึก 2", "building 2", 
 ]
 KEYWORDS_BUILDING3 = [
-    "อาคาร 3", "ตึก 3", "building 3", "library building" # อาคาร 3 มักเป็นตึกห้องสมุด
+    "อาคาร 3", "ตึก 3", "building 3", 
 ]
 KEYWORDS_LIBRARY = [
-    "ห้องสมุด", "อ่านหนังสือ", "ยืมหนังสือ", "library", "book", "reading room"
+    "ห้องสมุด", "อ่านหนังสือ", "ยืมหนังสือ", "library", "book", "reading room", "อาคาร60พรรษามหาราชินี", "อาคาร60พรรษา"
 ]
+
 KEYWORDS_GYM = [
     "โรงยิม", "ยิม", "ออกกำลังกาย", "gym", "sport hall"
 ]
@@ -277,7 +278,7 @@ KEYWORDS_ACADEMIC_VICE_DIRECTOR = [
     "รองผู้อำนวยการฝ่ายวิชาการ", "รองวิชาการ", "vice director academic"
 ]
 KEYWORDS_RESOURCE_VICE_DIRECTOR = [
-    "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", "รองบริหารทรัพยากร", "vice director resource"
+    "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", "รองบริหารทรัพยากร", "vice director resource","ทรัพยากร"
 ]
 
 
@@ -402,7 +403,7 @@ MECHATRONICS_DEPT_IMAGE_PATH  = "Picture_slide/แมคคา_พลังง�
 PETROLEUM_DEPT_IMAGE_PATH     = "Picture_slide/ปิโตรเลียม.jpg"
 RAIL_DEPT_IMAGE_PATH          = "Picture_slide/ระบบราง.jpg"
 SURVEY_DEPT_IMAGE_PATH        = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg"
-SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(IMAGE_SLIDE_FOLDER, "อาคาร60ปี.jpg")
+SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(IMAGE_SLIDE_FOLDER, "อาคาร60ปี.jpg")#ยังไม่ลอง
 WELDING_DEPT_IMAGE_PATH       = os.path.join(IMAGE_SLIDE_FOLDER, "ช่างเชื่อมโลหะ.jpg")
 
 # --- WAYPOINT VIDEOS (Dept) ---
@@ -428,7 +429,7 @@ WAYPOINT_SURVEY_VIDEO          = "Tower/Waypoint_Video/To_SURVEY.mp4"
 WAYPOINT_WELDING_VIDEO         = "Tower/Waypoint_Video/To_WELDING.mp4"
 WAYPOINT_BASIC_SUBJECTS_VIDEO = "" 
 WAYPOINT_SOUTHERN_CENTER_VIDEO = "" 
-WAYPOINT_60YEARS_VIDEO = "To_60yearold_building.mp4" 
+WAYPOINT_60YEARS_VIDEO = os.path.join(ADDON_VIDEO_FOLDER, "To_60yearold_building.mp4")
 # [NEW] อาคาร 10
 WAYPOINT_TUK10_VIDEO = os.path.join(ADDON_VIDEO_FOLDER,"To_Building_10.mp4")
 TUK10_IMAGE_PATH     = os.path.join(ADDON_IMAGE_FOLDER, "อาคาร10.jpg") 
@@ -545,7 +546,7 @@ WAYPOINT_CENTRAL_PROCUREMENT_VIDEO  = get_addon_path(ADDON_VIDEO_FOLDER, "To_Cen
 CENTRAL_PROCUREMENT_IMAGE_PATH      = get_addon_path(ADDON_IMAGE_FOLDER, "ห้องพัสดุกลาง.jpg") 
 
 # โรงจอดรถ
-WAYPOINT_PARKING_VIDEO              = get_addon_path(ADDON_VIDEO_FOLDER, "To_Parking_Lot.mp4")
+WAYPOINT_PARKING_VIDEO              = get_addon_path(ADDON_VIDEO_FOLDER, "To_Parking_Lot.mp4") 
 PARKING_IMAGE_PATH                  = get_addon_path(ADDON_IMAGE_FOLDER, "โรงจอดรถ.jpg") 
 
 # สนามฟุตบอล
@@ -566,7 +567,7 @@ GENERAL_ADMIN_IMAGE_PATH            = get_addon_path(ADDON_IMAGE_FOLDER, "งา
 
 # งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการและประกอบธุรกิจ
 WAYPOINT_INFO_DATA_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Info_Data.mp4") 
-INFO_DATA_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการ.jpg")  
+INFO_DATA_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการ.jpg")  #ยังไม่ลอง
 
 # อาคารวิทยฐานะ
 WAYPOINT_ACADEMIC_TOWER_VIDEO       = get_addon_path(ADDON_VIDEO_FOLDER, "To_Academic_Tower.mp4") 
@@ -582,15 +583,15 @@ ACCOUNTING_PLANNING_COOP_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "งา
 
 # รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ (ตึกอำนวยการชั้น 2)
 WAYPOINT_PLANNING_COOP_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Planning.mp4") 
-PLANNING_COOP_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ.jpg") 
+PLANNING_COOP_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ.jpg") #ยังไม่ลอง
 
 # รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน นักศึกษา (ตึกอำนวยการชั้น 2)
 WAYPOINT_STUDENT_AFFAIRS_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Student_Affairs.mp4") 
-STUDENT_AFFAIRS_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน นักศึกษา.jpg") 
+STUDENT_AFFAIRS_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน นักศึกษา.jpg") #ยังไม่ลอง
 
 # รองผู้อำนวยการฝ่ายวิชาการ (ตึกอำนวยการชั้น 2)
 WAYPOINT_ACADEMIC_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Academic_Affairs.mp4") 
-ACADEMIC_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายวิชาการ.jpg") 
+ACADEMIC_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายวิชาการ.jpg") #ยังไม่ลอง
 
 # รองผู้อำนวยการฝ่ายบริหารทรัพยากร (ตึกอำนวยการชั้น 2)
 WAYPOINT_RESOURCE_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Resource_Management.mp4") 
@@ -1032,7 +1033,7 @@ def show_electrical_page():
 
 def show_interior_decoration_page():
     BROWN_BACKGROUND = "#A52A2A" 
-    show_guided_page(title="แผนกวิชาตกแต่งภายใน", header_bg_color=BROWN_BACKGROUND, 
+    show_guided_page(title="แผนกวิชาเฟอร์นิเจอร์และเครื่องตกแต่งภายใน", header_bg_color=BROWN_BACKGROUND, 
                      dept_image_path=FURNITURE_DEPT_IMAGE_PATH, waypoint_video=WAYPOINT_FURNITURE_VIDEO,
                      travel_key="FURNITURE")
 # [NEW] อาคาร 11 (เดิม)
