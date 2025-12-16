@@ -522,7 +522,7 @@ WAYPOINT_BUILDING2_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Bui
 BUILDING2_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "อาคาร2.jpg") 
 
 # อาคาร 3
-WAYPOINT_BUILDING3_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Building3.mp4") 
+WAYPOINT_BUILDING3_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Building_3.mp4") 
 BUILDING3_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "อาคาร3.jpg") 
 
 # ห้องสมุด 
