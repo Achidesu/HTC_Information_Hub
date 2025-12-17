@@ -494,7 +494,7 @@ GOVERNANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานปกค
 
 # ASSESSMENT - ห้องงานวัดผล 
 WAYPOINT_ASSESSMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_evaluation_room.mp4")
-ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผล.webp") 
+ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผล.jpg") 
 
 # PRODUCTION - ห้องผลิตและพัฒนากำลังคน 
 WAYPOINT_PRODUCTION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER,"To_Production_Manpower.mp4" ) 
@@ -810,7 +810,7 @@ def show_frame(frame_to_show):
 
 def load_home_video():
     try:
-        VIDEO_PATH = "Tower/Start_Point/E1.mp4" 
+        VIDEO_PATH = "Tower/Start_Point/E1.mp4"
 
         if os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
             # Store player to prevent garbage collection
