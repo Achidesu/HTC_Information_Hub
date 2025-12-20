@@ -18,6 +18,29 @@ GOVERNANCE_IMAGE_PATH = ""
 WAYPOINT_ASSESSMENT_VIDEO = ""
 WAYPOINT_GOVERNANCE_VIDEO = ""
 
+from gtts import gTTS
+import os
+
+def speak_thai(text):
+    """ฟังก์ชันสำหรับสร้างเสียงพูดและเล่นเสียง"""
+    def run_speak():
+        try:
+            tts = gTTS(text=text, lang='th')
+            filename = "temp_voice.mp3"
+            tts.save(filename)
+            pygame.mixer.music.load(filename)
+            pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+            pygame.mixer.music.unload() # คืนไฟล์เพื่อให้ระบบลบได้
+            if os.path.exists(filename):
+                os.remove(filename)
+        except Exception as e:
+            print(f"Speak Error: {e}")
+            
+    # รันใน Thread เพื่อไม่ให้ UI ค้าง
+    threading.Thread(target=run_speak, daemon=True).start()
+
 # Initialize audio mixer
 try:
     pygame.mixer.init()
@@ -72,7 +95,7 @@ electronics_window = None
 
 # --- คำสั่งทั่วไป (General Commands) ---
 KEYWORDS_HOME = [
-    "กลับหน้าหลัก", "หน้าหลัก", "กลับบ้าน", "หน้าแรก", "เมนูหลัก", "เริ่มต้นใหม่", 
+    "กลับหน้าหลัก", "หน้าหลัก", "กลับหน้าแรก", "หน้าแรก", "เมนูหลัก", "เริ่มต้นใหม่", 
     "home", "main menu", "back", "start over", "กลับ", "ยกเลิก", "รีเซ็ต"
 ]
 
@@ -127,7 +150,7 @@ KEYWORDS_ENERGY = [
     "เทคนิคพลังงาน", "พลังงาน", "ทดแทน", "โซลาร์เซลล์", "energy", "solar", "power plant"
 ]
 KEYWORDS_LOGISTICS = [
-    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics", "shipping", "supply chain"
+    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics", "shipping", "supply chain","โลจิส"
 ]
 KEYWORDS_RAIL = [
     "ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง", "ระบบราง", "รถไฟ", "ช่างรถไฟ", "rail", "railway", "train"
@@ -153,11 +176,11 @@ KEYWORDS_60YEARS = [
     "ตึก 60 ปี", "60 ปี", "อาคาร 60 ปี", "อาคารเฉลิมพระเกียรติ", "60th anniversary building"
 ]
 KEYWORDS_TUK11 = [
-    "ตึก 11", "อาคาร 11", "ตึกใหม่", "building 11", "การบิน", "โลจิสติกส์" 
+    "ตึก 11", "อาคาร 11", "ตึกใหม่", "building 11", "ตึกหน้าแผนกอิเล็กทรอนิกส์"
 ]
 # [NEW] เพิ่มอาคาร 10
 KEYWORDS_TUK10 = [
-    "ตึก 10", "อาคาร 10", "อาคารสิบ", "building 10", "ตึกใหม่ล่าสุด"
+    "ตึก 10", "อาคาร 10", "อาคารสิบ", "building 10",
 ]
 
 
@@ -192,9 +215,7 @@ KEYWORDS_REGISTRATION = [
 ]
 KEYWORDS_PROCUREMENT = [
     "ห้องพัสดุ", "งานพัสดุ", "พัสดุ", "จัดซื้อ", "เบิกของ", "procurement", "supplies"
-]
-KEYWORDS_ACADEMIC = [
-    "ห้องวิชาการ", "งานวิชาการ", "วิชาการ", "ตารางเรียน", "ตารางสอน", "สอบ", "academic", "exam", "schedule"
+
 ]
 KEYWORDS_GOVERNANCE = [
     "ห้องงานปกครอง", "งานปกครอง", "ปกครอง", "หัวหน้าตึก", "สารวัตรนักเรียน", "governance"
@@ -220,14 +241,15 @@ KEYWORDS_CANTEEN2 = [
     "โรงอาหาร 2", "โรงอาหารสอง", "โรงอาหาร2", "แคนทีน 2", "กินข้าว 2"
 ]
 KEYWORDS_BUILDING2 = [
-    "อาคาร 2", "ตึก 2", "building 2", "admin building"
+    "อาคาร 2", "ตึก 2", "building 2", 
 ]
 KEYWORDS_BUILDING3 = [
-    "อาคาร 3", "ตึก 3", "building 3", "library building" # อาคาร 3 มักเป็นตึกห้องสมุด
+    "อาคาร 3", "ตึก 3", "building 3", 
 ]
 KEYWORDS_LIBRARY = [
-    "ห้องสมุด", "อ่านหนังสือ", "ยืมหนังสือ", "library", "book", "reading room"
+    "ห้องสมุด", "อ่านหนังสือ", "ยืมหนังสือ", "library", "book", "reading room", "อาคาร60พรรษามหาราชินี", "อาคาร60พรรษา"
 ]
+
 KEYWORDS_GYM = [
     "โรงยิม", "ยิม", "ออกกำลังกาย", "gym", "sport hall"
 ]
@@ -250,7 +272,7 @@ KEYWORDS_TENNIS = [
     "สนามเทนนิส", "เทนนิส", "tennis court"
 ]
 KEYWORDS_FIXIT = [
-    "ศูนย์ซ่อมสร้างชุมชน", "ซ่อมสร้างชุมชน", "fixit center", "ซ่อมเครื่องใช้"
+    "ศูนย์ซ่อมสร้างชุมชน", "ซ่อมสร้างชุมชน", "fixit center", "ซ่อมเครื่องใช้","ศูนย์ซ่อม"
 ]
 KEYWORDS_GENERAL_ADMIN = [
     "งานบริหารทั่วไป", "ธุรการ", "งานทั่วไป", "general admin"
@@ -259,13 +281,13 @@ KEYWORDS_INFO_DATA = [
     "งานศูนย์ข้อมูลสารสนเทศ", "ศูนย์ข้อมูล", "งานส่งเสริมผลิตผล", "งานประกอบธุรกิจ", "information center", "business promotion"
 ]
 KEYWORDS_ACADEMIC_TOWER = [
-    "อาคารวิทยฐานะ", "วิทยฐานะ", "academic tower"
+    "อาคารวิทยฐานะ", "วิทยฐานะ", "academic tower","สถานีวิทยุ"
 ]
 KEYWORDS_HR = [
     "งานบุคลากร", "บุคลากร", "ฝ่ายบุคคล", "hr", "human resources"
 ]
 KEYWORDS_ACCOUNTING_PLANNING_COOP = [
-    "งานการบัญชี", "งานการวางแผน", "งานงบประมาณ", "งานความร่วมมือ", "accounting", "planning", "budget", "cooperation"
+    "งานการบัญชี", "งานการวางแผน", "งานงบประมาณ", "งานความร่วมมือ", "accounting", "planning", "budget", "cooperation","งานบัญชี","งานวางแผน","งานงบประมาณ"
 ]
 KEYWORDS_PLANNING_COOP_VICE_DIRECTOR = [
     "รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ", "รองแผนงาน", "รองความร่วมมือ", "vice director planning"
@@ -274,10 +296,10 @@ KEYWORDS_STUDENT_AFFAIRS_VICE_DIRECTOR = [
     "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน", "รองกิจการนักเรียน", "รองกิจการ", "vice director student affairs"
 ]
 KEYWORDS_ACADEMIC_VICE_DIRECTOR = [
-    "รองผู้อำนวยการฝ่ายวิชาการ", "รองวิชาการ", "vice director academic"
+    "รองผู้อำนวยการฝ่ายวิชาการ", "รองวิชาการ", "vice director academic", "วิชาการ", "ห้องวิชาการ", "ฝ่ายวิชาการ"
 ]
 KEYWORDS_RESOURCE_VICE_DIRECTOR = [
-    "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", "รองบริหารทรัพยากร", "vice director resource"
+    "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", "รองบริหารทรัพยากร", "vice director resource","ทรัพยากร"
 ]
 
 
@@ -402,7 +424,7 @@ MECHATRONICS_DEPT_IMAGE_PATH  = "Picture_slide/แมคคา_พลังง�
 PETROLEUM_DEPT_IMAGE_PATH     = "Picture_slide/ปิโตรเลียม.jpg"
 RAIL_DEPT_IMAGE_PATH          = "Picture_slide/ระบบราง.jpg"
 SURVEY_DEPT_IMAGE_PATH        = "Picture_slide/สถาปัตยกรรม_สำรวจ.jpg"
-SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(IMAGE_SLIDE_FOLDER, "60 ปี.jpg")
+SIXTY_YEARS_DEPT_IMAGE_PATH   = os.path.join(ADDON_IMAGE_FOLDER, "อาคาร60ปี.jpg")#ยังไม่ลอง
 WELDING_DEPT_IMAGE_PATH       = os.path.join(IMAGE_SLIDE_FOLDER, "ช่างเชื่อมโลหะ.jpg")
 
 # --- WAYPOINT VIDEOS (Dept) ---
@@ -428,10 +450,10 @@ WAYPOINT_SURVEY_VIDEO          = "Tower/Waypoint_Video/To_SURVEY.mp4"
 WAYPOINT_WELDING_VIDEO         = "Tower/Waypoint_Video/To_WELDING.mp4"
 WAYPOINT_BASIC_SUBJECTS_VIDEO = "" 
 WAYPOINT_SOUTHERN_CENTER_VIDEO = "" 
-WAYPOINT_60YEARS_VIDEO = "" 
+WAYPOINT_60YEARS_VIDEO = os.path.join(ADDON_VIDEO_FOLDER, "To_60yearold_building.mp4")
 # [NEW] อาคาร 10
-WAYPOINT_TUK10_VIDEO = os.path.join("Tower", "Waypoint_Video", "To_Building_10.mp4")
-TUK10_IMAGE_PATH     = os.path.join(IMAGE_SLIDE_FOLDER, "อาคาร10.jpg") 
+WAYPOINT_TUK10_VIDEO = os.path.join(ADDON_VIDEO_FOLDER,"To_Building_10.mp4")
+TUK10_IMAGE_PATH     = os.path.join(ADDON_IMAGE_FOLDER, "อาคาร10.jpg") 
 
 # --- ROOM PATHS & VIDEOS ---
 def get_room_path(folder, filename):
@@ -495,7 +517,7 @@ GOVERNANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานปกค
 
 # ASSESSMENT - ห้องงานวัดผล 
 WAYPOINT_ASSESSMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_evaluation_room.mp4")
-ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผลและประเมินผล.jpg") 
+ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผล.webp") 
 
 # PRODUCTION - ห้องผลิตและพัฒนากำลังคน 
 WAYPOINT_PRODUCTION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER,"To_Production_Manpower.mp4" ) 
@@ -509,19 +531,19 @@ WAYPOINT_COOP_SHOP_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Coo
 COOP_SHOP_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "ร้านค้าสวัสดิการ.jpg") 
 
 # โรงอาหาร 1
-WAYPOINT_CANTEEN1_VIDEO             = get_addon_path(ADDON_VIDEO_FOLDER, "To_Canteen1.mp4") 
+WAYPOINT_CANTEEN1_VIDEO             = get_addon_path(ADDON_VIDEO_FOLDER, "To_Canteen_1.mp4") 
 CANTEEN1_IMAGE_PATH                 = get_addon_path(ADDON_IMAGE_FOLDER, "โรงอาหาร1.jpg") 
 
 # โรงอาหาร 2
-WAYPOINT_CANTEEN2_VIDEO             = get_addon_path(ADDON_VIDEO_FOLDER, "To_Canteen2.mp4") 
+WAYPOINT_CANTEEN2_VIDEO             = get_addon_path(ADDON_VIDEO_FOLDER, "To_Canteen_2.mp4") 
 CANTEEN2_IMAGE_PATH                 = get_addon_path(ADDON_IMAGE_FOLDER, "โรงอาหาร2.jpg") 
 
 # อาคาร 2
-WAYPOINT_BUILDING2_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Building2.mp4") 
+WAYPOINT_BUILDING2_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Building_2.mp4") 
 BUILDING2_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "อาคาร2.jpg") 
 
 # อาคาร 3
-WAYPOINT_BUILDING3_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Building3.mp4") 
+WAYPOINT_BUILDING3_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Building_3.mp4") 
 BUILDING3_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "อาคาร3.jpg") 
 
 # ห้องสมุด 
@@ -545,7 +567,7 @@ WAYPOINT_CENTRAL_PROCUREMENT_VIDEO  = get_addon_path(ADDON_VIDEO_FOLDER, "To_Cen
 CENTRAL_PROCUREMENT_IMAGE_PATH      = get_addon_path(ADDON_IMAGE_FOLDER, "ห้องพัสดุกลาง.jpg") 
 
 # โรงจอดรถ
-WAYPOINT_PARKING_VIDEO              = get_addon_path(ADDON_VIDEO_FOLDER, "To_Parking_Lot.mp4")
+WAYPOINT_PARKING_VIDEO              = get_addon_path(ADDON_VIDEO_FOLDER, "To_Parking_Lot.mp4") 
 PARKING_IMAGE_PATH                  = get_addon_path(ADDON_IMAGE_FOLDER, "โรงจอดรถ.jpg") 
 
 # สนามฟุตบอล
@@ -558,7 +580,7 @@ TENNIS_IMAGE_PATH                   = get_addon_path(ADDON_IMAGE_FOLDER, "สน
 
 # ศูนย์ซ่อมสร้างชุมชน และ Fixit center
 WAYPOINT_FIXIT_VIDEO                = get_addon_path(ADDON_VIDEO_FOLDER, "To_Fixit_Center.mp4") 
-FIXIT_IMAGE_PATH                    = get_addon_path(ADDON_IMAGE_FOLDER, "ศูนย์ซ่อมสร้างชุมชนและ Fixit center.jpg") 
+FIXIT_IMAGE_PATH                    = get_addon_path(ADDON_IMAGE_FOLDER, "ศูนย์ซ่อมสร้างชุมชนและFixitcenter.jpg") 
 
 # งานบริหารทั่วไป
 WAYPOINT_GENERAL_ADMIN_VIDEO        = get_addon_path(ADDON_VIDEO_FOLDER, "To_General_Administration.mp4")
@@ -566,7 +588,7 @@ GENERAL_ADMIN_IMAGE_PATH            = get_addon_path(ADDON_IMAGE_FOLDER, "งา
 
 # งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการและประกอบธุรกิจ
 WAYPOINT_INFO_DATA_VIDEO            = get_addon_path(ADDON_VIDEO_FOLDER, "To_Info_Data.mp4") 
-INFO_DATA_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "งานศูนย์ข้อมูลสารสนเทศและงานส่งเสริมผลิตผลการ.jpg")  
+INFO_DATA_IMAGE_PATH                = get_addon_path(ADDON_IMAGE_FOLDER, "ศูนย์ข้อมูลสารสนเทศ.jpg")  #ยังไม่ลอง
 
 # อาคารวิทยฐานะ
 WAYPOINT_ACADEMIC_TOWER_VIDEO       = get_addon_path(ADDON_VIDEO_FOLDER, "To_Academic_Tower.mp4") 
@@ -582,15 +604,15 @@ ACCOUNTING_PLANNING_COOP_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "งา
 
 # รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ (ตึกอำนวยการชั้น 2)
 WAYPOINT_PLANNING_COOP_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Planning.mp4") 
-PLANNING_COOP_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ.jpg") 
+PLANNING_COOP_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ.jpg") #ยังไม่ลอง
 
 # รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน นักศึกษา (ตึกอำนวยการชั้น 2)
 WAYPOINT_STUDENT_AFFAIRS_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Student_Affairs.mp4") 
-STUDENT_AFFAIRS_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน นักศึกษา.jpg") 
+STUDENT_AFFAIRS_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียน นักศึกษา.jpg") #ยังไม่ลอง
 
 # รองผู้อำนวยการฝ่ายวิชาการ (ตึกอำนวยการชั้น 2)
 WAYPOINT_ACADEMIC_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Academic_Affairs.mp4") 
-ACADEMIC_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายวิชาการ.jpg") 
+ACADEMIC_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายวิชาการ.jpg") #ยังไม่ลอง
 
 # รองผู้อำนวยการฝ่ายบริหารทรัพยากร (ตึกอำนวยการชั้น 2)
 WAYPOINT_RESOURCE_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Resource_Management.mp4") 
@@ -836,6 +858,7 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
     """
     [OPTIMIZED] แสดงหน้าแผนก + เสียงนำทาง + ลดภาระ CPU สำหรับ Raspberry Pi 4
     """
+    
     global DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT
     
     # Clear old content
@@ -962,9 +985,14 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
              text=f"ปลายทาง: {title}", 
              font=("Kanit", 18),
              text_color="#00AA00").pack(pady=(0, 10))
-                  
+    
+
+    voice_text = f"ขณะนี้อยู่ที่ {title} ระยะทาง {distance_m} เมตร ใช้เวลาเดินประมาณ {time_min} นาที"
+    speak_thai(voice_text)
+    
     show_frame(electronics_content_frame) 
     bind_inactivity_reset()
+
 
 # =============================================================================
 # === HOME SCREEN CONTENT (Banner Image + Video) ===
@@ -1014,7 +1042,7 @@ def show_electronics_page():
 
 def show_60_years_page():
     GOLD_BACKGROUND = "#FFD700" 
-    show_guided_page(title="60 ปี วิทยาลัยเทคนิคหาดใหญ่", header_bg_color=GOLD_BACKGROUND, 
+    show_guided_page(title="อาคาร 60 ปี ", header_bg_color=GOLD_BACKGROUND, 
                      dept_image_path=SIXTY_YEARS_DEPT_IMAGE_PATH, waypoint_video=WAYPOINT_60YEARS_VIDEO, 
                      travel_key="60YEARS")
 
@@ -1032,13 +1060,13 @@ def show_electrical_page():
 
 def show_interior_decoration_page():
     BROWN_BACKGROUND = "#A52A2A" 
-    show_guided_page(title="แผนกวิชาตกแต่งภายใน", header_bg_color=BROWN_BACKGROUND, 
+    show_guided_page(title="แผนกวิชาเฟอร์นิเจอร์และเครื่องตกแต่งภายใน", header_bg_color=BROWN_BACKGROUND, 
                      dept_image_path=FURNITURE_DEPT_IMAGE_PATH, waypoint_video=WAYPOINT_FURNITURE_VIDEO,
                      travel_key="FURNITURE")
 # [NEW] อาคาร 11 (เดิม)
 def show_tuk11_page():
     PURPLE_BACKGROUND = "#8A2BE2" 
-    show_guided_page(title="ตึก 11 (การบินและโลจิสติกส์)", header_bg_color=PURPLE_BACKGROUND, 
+    show_guided_page(title="อาคาร 11", header_bg_color=PURPLE_BACKGROUND, 
                      dept_image_path=AIRLINE_DEPT_IMAGE_PATH, waypoint_video=WAYPOINT_AIRLINE_VIDEO,
                      travel_key="TUK11")
 # [NEW] อาคาร 10
@@ -1194,16 +1222,6 @@ def show_registration_page():
                      dept_image_path=REGISTRATION_IMAGE_PATH, waypoint_video=WAYPOINT_REGISTRATION_VIDEO,
                      travel_key="REGISTRATION")
 
-def show_procurement_page():
-    show_guided_page(title="ห้องพัสดุ", header_bg_color=ROOM_BACKGROUND_COLOR, 
-                     dept_image_path=PROCUREMENT_IMAGE_PATH, waypoint_video=WAYPOINT_PROCUREMENT_VIDEO,
-                     travel_key="PROCUREMENT")
-
-def show_academic_page():
-    show_guided_page(title="ห้องวิชาการ", header_bg_color=ROOM_BACKGROUND_COLOR, 
-                     dept_image_path=ACADEMIC_IMAGE_PATH, waypoint_video=WAYPOINT_ACADEMIC_VIDEO,
-                     travel_key="ACADEMIC")
-
 def show_governance_page():
     show_guided_page(title="ห้องงานปกครอง", header_bg_color=ROOM_BACKGROUND_COLOR, 
                      dept_image_path=GOVERNANCE_IMAGE_PATH, waypoint_video=WAYPOINT_GOVERNANCE_VIDEO,
@@ -1241,7 +1259,7 @@ def show_building3_page():
                      travel_key="BUILDING3")
 
 def show_library_page():
-    show_guided_page(title="ห้องสมุด (อาคาร 3)", header_bg_color=POI_BACKGROUND_COLOR, 
+    show_guided_page(title="ห้องสมุด ", header_bg_color=POI_BACKGROUND_COLOR, 
                      dept_image_path=LIBRARY_IMAGE_PATH, waypoint_video=WAYPOINT_LIBRARY_VIDEO,
                      travel_key="LIBRARY")
 
@@ -1591,8 +1609,7 @@ NAV_MAPPING = {
     "ศูนย์ประสานงานผลิตและพัฒนากำลังคน.jpg": show_production_page,
     "ประชาสัมพันธ์.jpg": show_public_relations_page,
     "งานทะเบียน.jpg": show_registration_page,
-    "งานพัสดุ.jpg": show_procurement_page,
-    "งานวิชาการ.jpg": show_academic_page,
+    
     
     # NEW: จุดบริการเพิ่มเติม (ตรวจสอบว่าชื่อไฟล์ตรงกับในโฟลเดอร์ room)
     "ร้านค้าสวัสดิการ.jpg": show_coop_shop_page, 
@@ -2011,8 +2028,6 @@ def listen_for_speech():
                 if any(k in text_lower for k in KEYWORDS_PRODUCTION): root.after(0, show_production_page); return
                 if any(k in text_lower for k in KEYWORDS_PUBLIC_RELATIONS): root.after(0, show_public_relations_page); return
                 if any(k in text_lower for k in KEYWORDS_REGISTRATION): root.after(0, show_registration_page); return
-                if any(k in text_lower for k in KEYWORDS_PROCUREMENT): root.after(0, show_procurement_page); return
-                if any(k in text_lower for k in KEYWORDS_ACADEMIC): root.after(0, show_academic_page); return
                 if any(k in text_lower for k in KEYWORDS_GOVERNANCE): root.after(0, show_governance_page); return
                 if any(k in text_lower for k in KEYWORDS_ASSESSMENT): root.after(0, show_assessment_page); return
                 
@@ -2044,6 +2059,10 @@ def listen_for_speech():
                 # ถ้าไม่ตรงกับเงื่อนไขใดๆ
                 print_status(f"--- [MIC]: ไม่พบคำสั่งสำหรับ '{text}' ---")
 
+
+            except sr.UnknownValueError:
+                print_status("--- [MIC]: ฟังไม่เข้าใจ (ลองใหม่อีกครั้ง) ---")
+                speak_thai("กรุณาพูดใหม่อีกครั้ง")
             except sr.WaitTimeoutError:
                 print_status("--- [MIC]: หมดเวลา (ไม่ได้พูด) ---")
             except sr.UnknownValueError:
@@ -2058,18 +2077,28 @@ def listen_for_speech():
         mic_status = "IDLE"
 
         
+# def start_listening_thread(event=None):
+   # """Start the listening process in a separate thread to prevent freezing"""
+    #global is_listening
+   # if not is_listening:
+        # NEW: หยุด Timer Inactivity ชั่วคราวเมื่อเริ่มฟัง
+       # unbind_inactivity_reset()
+      #  Thread_Mic = threading.Thread(target=listen_for_speech)
+     #   Thread_Mic.start()
+   # else:
+      #  print_status("--- [SYSTEM]: ระบบกำลังฟังอยู่... ---")  (โค้ดเก่า)
+
 def start_listening_thread(event=None):
-    """Start the listening process in a separate thread to prevent freezing"""
     global is_listening
     if not is_listening:
-        # NEW: หยุด Timer Inactivity ชั่วคราวเมื่อเริ่มฟัง
+        # --- เพิ่มบรรทัดนี้ ---
+        speak_thai("กรุณาพูดชื่อแผนกหรือจุดอำนวยการที่ท่านต้องการ")
+        # ------------------
         unbind_inactivity_reset()
         Thread_Mic = threading.Thread(target=listen_for_speech)
         Thread_Mic.start()
     else:
         print_status("--- [SYSTEM]: ระบบกำลังฟังอยู่... ---")
-
-
 # ***************************************************************
 # ** FIXED: Microphone UI (Text BELOW logo) **
 # ***************************************************************
