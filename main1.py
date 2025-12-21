@@ -856,144 +856,82 @@ def load_home_video():
 
 def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, travel_key):
     """
-    [OPTIMIZED] แสดงหน้าแผนก + เสียงนำทาง + ลดภาระ CPU สำหรับ Raspberry Pi 4
+    [UPDATED] ปรับปรุงสัดส่วน: ขยายวิดีโอแผนที่ให้ใหญ่ขึ้น และขยับรูปภาพด้านล่างลงมา
     """
-    
     global DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT
     
-    # Clear old content
     for widget in electronics_content_frame.winfo_children():
         widget.destroy()
 
     distance_m, time_min = TRAVEL_INFO.get(travel_key, DEFAULT_TRAVEL)
 
-    # --- Button Section (Bottom) ---
-    button_footer = ctk.CTkFrame(electronics_content_frame, fg_color="white", height=100)
-    button_footer.pack(side="bottom", fill="x", pady=(0, 20))
-
-    ctk.CTkButton(button_footer, 
-                  text="❮ กลับสู่หน้าหลัก", 
-                  command=go_to_main_screen, 
-                  font=("Kanit", 28, "bold"),
-                  fg_color="#00C000",
-                  hover_color="#008000",
-                  width=250,
-                  height=70,
-                  corner_radius=15).pack(anchor="center")
-
-    # --- Content Container ---
+    # --- ส่วนคอนเทนเนอร์หลัก ---
     content_container = ctk.CTkFrame(electronics_content_frame, fg_color="white")
     content_container.pack(side="top", fill="both", expand=True)
 
     # --- Header ---
-    header_frame = ctk.CTkFrame(content_container, height=150, fg_color=header_bg_color)
+    header_frame = ctk.CTkFrame(content_container, height=120, fg_color=header_bg_color)
     header_frame.pack(side="top", fill="x")
     
-    ctk.CTkLabel(header_frame, 
-                 text=title, 
-                 font=("Kanit", 36, "bold"),
-                 text_color="white").pack(pady=(40, 20), padx=20)
-                 
-    # --- Distance Info ---
-    ctk.CTkLabel(content_container,
-                 text=f"ระยะทาง: {distance_m} ม. | เวลาเดิน: {time_min:.1f} นาที",
-                 font=("Kanit", 22, "bold"),
+    ctk.CTkLabel(header_frame, text=title, font=("Kanit", 42, "bold"), text_color="white").pack(pady=(20, 10))
+    
+    # แสดงข้อมูลระยะทางและเวลา
+    ctk.CTkLabel(content_container, 
+                 text=f"📍 ระยะทาง: {distance_m} เมตร  |  ⏱️ เวลาเดินประมาณ: {time_min:.1f} นาที",
+                 font=("Kanit", 24, "bold"), 
                  text_color="#006400").pack(pady=(10, 5))
-                 
-    # --- Dept Image (Optimized Resize) ---
+
+    # --- 1. ส่วนวิดีโอนำทาง (ขยายเพิ่มขนาด) ---
+    ctk.CTkLabel(content_container, text="🎬 วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack()
+
+    map_container_frame = ctk.CTkFrame(content_container, fg_color="white")
+    map_container_frame.pack(pady=5, padx=20, fill="x") 
+
+    video_label_guide = tk.Label(map_container_frame, bg="white", borderwidth=0)
+    video_label_guide.pack(expand=True)
+    
+    if waypoint_video and os.path.exists(waypoint_video):
+        try:
+            # ขยายขนาดวิดีโอแผนที่ให้ใหญ่ขึ้นเป็น 900x500 เพื่อความชัดเจน
+            map_container_frame.player = tkvideo(waypoint_video, video_label_guide, loop=1, size=(900, 500))
+            map_container_frame.player.play()
+        except Exception as e:
+             print_status(f"Video Error: {e}")
+
+    # --- 2. ส่วนรูปภาพสถานที่ (ขยับระยะห่างลงมา) ---
+    # เพิ่ม pady ด้านบน (40) เพื่อขยับรูปภาพลงมาให้ไม่เบียดกับวิดีโอ
+    ctk.CTkLabel(content_container, text="📸 ภาพประกอบสถานที่", font=("Kanit", 20, "bold"), text_color="#B418A9").pack(pady=(40, 0))
+
     try:
          if dept_image_path and os.path.exists(dept_image_path):
              dept_img = Image.open(dept_image_path)
              
-             target_width = DEPT_IMAGE_WIDTH  # 950
-             target_height = DEPT_IMAGE_HEIGHT # 400
+             # คำนวณเพื่อรักษา Aspect Ratio ไม่ให้รูปยืด
+             original_width, original_height = dept_img.size
+             target_width = 750 # ปรับขนาดรูปให้พอดีกับวิดีโอที่ขยายขึ้น
+             target_height = int((target_width / original_width) * original_height)
              
-             w_percent = (target_width / float(dept_img.size[0]))
-             h_size = int((float(dept_img.size[1]) * float(w_percent)))
-             
-             if h_size > target_height:
-                 h_percent = (target_height / float(dept_img.size[1]))
-                 w_size = int((float(dept_img.size[0]) * float(h_percent)))
-                 # OPTIMIZATION: Use BILINEAR (Fast) instead of LANCZOS (Slow)
-                 dept_img_resized = dept_img.resize((w_size, target_height), Image.BILINEAR)
-             else:
-                 # OPTIMIZATION: Use BILINEAR (Fast)
-                 dept_img_resized = dept_img.resize((target_width, h_size), Image.BILINEAR)
+             # ควบคุมความสูงไม่ให้เกินหน้าจอ
+             if target_height > 320:
+                 target_height = 320
+                 target_width = int((target_height / original_height) * original_width)
 
-             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, 
-                                           dark_image=dept_img_resized, 
-                                           size=dept_img_resized.size)
-             
-             ctk.CTkLabel(content_container, image=dept_ctk_image, text="").pack(pady=(10, 5))
-         else:
-             # Placeholder for missing image
-             print_status(f"*** ERROR: Image NOT Found or Path Empty: {dept_image_path} ***")
-             ctk.CTkLabel(content_container, 
-                          text=f"ภาพประกอบสำหรับ {title} (กรุณาเพิ่มไฟล์: {dept_image_path})", 
-                          height=DEPT_IMAGE_HEIGHT, 
-                          width=DEPT_IMAGE_WIDTH,
-                          fg_color="#D3D3D3",
-                          text_color="#696969",
-                          font=("Kanit", 20)).pack(pady=(10, 5))
+             dept_img_resized = dept_img.resize((target_width, target_height), Image.LANCZOS)
+             dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, size=(target_width, target_height))
+             ctk.CTkLabel(content_container, image=dept_ctk_image, text="").pack(pady=(10, 20))
     except Exception as e:
-         print_status(f"*** ERROR: ไม่พบรูปภาพแผนก: {dept_image_path} | Error: {e} ***")
-         ctk.CTkLabel(content_container, 
-                      text=f"ภาพประกอบสำหรับ {title} (Error: {dept_image_path})", 
-                      height=DEPT_IMAGE_HEIGHT, 
-                      width=DEPT_IMAGE_WIDTH,
-                      fg_color="#D3D3D3",
-                      text_color="red",
-                      font=("Kanit", 20)).pack(pady=(10, 5))
+         print_status(f"Image Error: {e}")
 
+    # --- ส่วนล่าง: ปุ่มกลับหน้าหลัก ---
+    button_footer = ctk.CTkFrame(electronics_content_frame, fg_color="white")
+    button_footer.pack(side="bottom", fill="x", pady=20)
+    ctk.CTkButton(button_footer, text="❮ กลับสู่หน้าหลัก", command=go_to_main_screen, 
+                  font=("Kanit", 28, "bold"), fg_color="#00C000", width=250, height=70, corner_radius=15).pack()
 
-    # --- Guide Text ---
-    guide_frame = ctk.CTkFrame(content_container, fg_color="transparent")
-    guide_frame.pack(pady=(5, 5))
-    ctk.CTkLabel(guide_frame, 
-                 text="👇 เดินตามวิดีโอแนะนำเส้นทางด้านล่าง", 
-                 font=("Kanit", 22, "bold"), 
-                 text_color="#8000FF").pack(side="left")
-
-    # --- Video Map Container ---
-    map_container_frame = ctk.CTkFrame(content_container, fg_color="white")
-    map_container_frame.pack(pady=5, fill="both", expand=True)
-
-    video_label = tk.Label(map_container_frame, bg="white", borderwidth=0)
-    
-    VIDEO_PATH = waypoint_video
-
-    if VIDEO_PATH and os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
-        try:
-            video_label.pack(expand=True)
-            # OPTIMIZATION: Reduce video processing size to 640x360 (360p)
-            map_container_frame.player = tkvideo(VIDEO_PATH, video_label, loop=1, size=(640, 360))
-            map_container_frame.player.play()
-            print_status(f"Video loaded: {VIDEO_PATH}")
-        except Exception as e:
-             print_status(f"*** ERROR: Video Playback Error: {VIDEO_PATH} | Error: {e} ***")
-             video_label.pack_forget()
-             ctk.CTkLabel(map_container_frame, text="Video Playback Error").pack(pady=20)
-    else:
-        print_status(f"*** ERROR: Video Not Found or Path Empty: {VIDEO_PATH} ***")
-        ctk.CTkLabel(map_container_frame, 
-                     text=f"Video Not Found (กรุณาเพิ่มไฟล์: {VIDEO_PATH})",
-                     font=("Kanit",18),
-                     text_color="red").pack(pady=20)
-    
-    # --- Final Text ---
-    ctk.CTkLabel(content_container, 
-             text=f"ปลายทาง: {title}", 
-             font=("Kanit", 18),
-             text_color="#00AA00").pack(pady=(0, 10))
-    
-
-    voice_text = f"ขณะนี้อยู่ที่ {title} ระยะทาง {distance_m} เมตร ใช้เวลาเดินประมาณ {time_min} นาที"
+    voice_text = f"ระบบกำลังนำทางไปยัง {title} ระยะทาง {distance_m} เมตร ใช้เวลาเดินประมาณ {time_min} นาที"
     speak_thai(voice_text)
-    
     show_frame(electronics_content_frame) 
     bind_inactivity_reset()
-
-
 # =============================================================================
 # === HOME SCREEN CONTENT (Banner Image + Video) ===
 # =============================================================================
@@ -1372,15 +1310,20 @@ popup_timer_id = None
 current_popup = None
 popup_timer_id = None
 
+# --- 1. ปรับปรุงฟังก์ชันปิด (ให้รองรับการเช็ค widget เพื่อไม่ให้ปิดตอนกำลังลาก) ---
+# --- 1. ปรับปรุงฟังก์ชันปิด (ให้รองรับการเช็ค widget เพื่อไม่ให้ปิดตอนกำลังลาก) ---
 def close_building_popup(event=None):
     """ฟังก์ชันสำหรับปิด Popup และยกเลิกเวลานับถอยหลัง"""
     global current_popup, popup_timer_id
     if current_popup is not None:
         try:
-            # ตรวจสอบก่อนปิดว่าคลิกโดนตัว Popup เองหรือไม่ 
-            # ถ้าคลิกที่ว่าง (home_content_frame) ค่อยปิด
-            if event and event.widget != home_content_frame:
-                return 
+            # ถ้าเป็นการคลิกจาก Event (เช่น คลิกพื้นที่ว่าง)
+            if event and hasattr(event, "widget"):
+                # ตรวจสอบว่า widget ที่คลิกเป็นส่วนหนึ่งของ popup หรือไม่
+                # ถ้าคลิกโดนตัว popup หรือลูกๆ ของมัน ไม่ต้องปิด (เพื่อให้ลากได้)
+                clicked_w = event.widget
+                if clicked_w == current_popup or str(clicked_w).startswith(str(current_popup)):
+                    return
                 
             current_popup.destroy()
             current_popup = None
@@ -1390,39 +1333,75 @@ def close_building_popup(event=None):
         except:
             pass
 
+# --- 2. ฟังก์ชันช่วยสำหรับการลาก (Drag and Drop) ---
+def start_popup_drag(event):
+    current_popup._drag_start_x = event.x
+    current_popup._drag_start_y = event.y
+
+def do_popup_drag(event):
+    x = current_popup.winfo_x() - current_popup._drag_start_x + event.x
+    y = current_popup.winfo_y() - current_popup._drag_start_y + event.y
+    current_popup.place(x=x, y=y)
+
+# --- 3. ฟังก์ชันสร้าง Popup แบบขยายขนาด, มีปุ่มปิดสีแดง และลากได้ ---
 def show_building_popup(name, travel_key, x, y):
-    """ฟังก์ชันสร้างเฟรมข้อมูลอาคาร (ปิดอัตโนมัติ 1 นาที / คลิกที่ว่างเพื่อปิด)"""
+    """ฟังก์ชันสร้างเฟรมข้อมูลอาคาร (ลากได้ + ปุ่มปิดวงกลมสีแดงชัดเจน)"""
     global current_popup, popup_timer_id
     
-    close_building_popup() # ปิดอันเก่าก่อน
-    
-    # พิกัดตำแหน่งแสดงผลด้านขวา
-    x_pos = 780 
-    y_pos = 1100 
+    close_building_popup() 
 
-    # สร้าง Popup Frame (ไม่มีปุ่มกากบาท)
-    popup = ctk.CTkFrame(home_content_frame, corner_radius=15, fg_color="white", 
-                         border_width=3, border_color="#8000FF", width=280)
+    popup_width = 380 
+    # ตั้งค่าเริ่มต้นตำแหน่งที่แสดง (แสดงใกล้ๆ จุดที่คลิกหรือตำแหน่งที่เหมาะสม)
+    x_pos = 650 
+    y_pos = 1000 
+
+    popup = ctk.CTkFrame(home_content_frame, corner_radius=25, fg_color="white", 
+                         border_width=4, border_color="#8000FF", width=popup_width)
     popup.place(x=x_pos, y=y_pos)
     current_popup = popup 
 
-    # แสดงชื่อสถานที่ (ปรับ font ให้เล็กลงเล็กน้อยเพื่อรองรับชื่อยาวๆ)
-    ctk_name = ctk.CTkLabel(popup, text=name, font=("Kanit", 17, "bold"), 
-                            text_color="#8000FF", wraplength=240)
-    ctk_name.pack(pady=(20, 5), padx=20)
+    # --- ทำให้เฟรมลากได้ ---
+    popup.bind("<Button-1>", start_popup_drag)
+    popup.bind("<B1-Motion>", do_popup_drag)
 
+    # --- ปุ่มกากบาทปิด (วงกลมสีแดงเด่นชัด) ---
+    btn_close = ctk.CTkButton(popup, 
+                              text="✕", 
+                              width=45, 
+                              height=45, 
+                              corner_radius=22, 
+                              fg_color="#FF0000", 
+                              text_color="white", 
+                              hover_color="#CC0000", 
+                              font=("Arial", 22, "bold"),
+                              command=close_building_popup)
+    btn_close.place(relx=1.0, rely=0.0, x=-10, y=10, anchor="ne")
+
+    # --- ส่วนแสดงชื่อสถานที่ ---
+    ctk_name = ctk.CTkLabel(popup, text=name, font=("Kanit", 22, "bold"), 
+                            text_color="#8000FF", wraplength=300)
+    ctk_name.pack(pady=(65, 10), padx=30)
+    # ทำให้ Label ลากได้ด้วย
+    ctk_name.bind("<Button-1>", start_popup_drag)
+    ctk_name.bind("<B1-Motion>", do_popup_drag)
+
+    # --- ส่วนข้อมูลระยะทางและปุ่มนำทาง ---
     if travel_key == "REGISTRATION":
-        ctk.CTkLabel(popup, text="คือจุดที่คุณอยู่\n(จุดตั้งตู้ HTC Smart Hub)", 
-                     font=("Kanit", 16), text_color="#006400").pack(pady=10, padx=20)
+        ctk.CTkLabel(popup, text="📍 คุณอยู่ที่นี่\n(จุดตั้งตู้ HTC Smart Hub)", 
+                     font=("Kanit", 18), text_color="#006400").pack(pady=20, padx=30)
     else:
         distance_m, time_min = TRAVEL_INFO.get(travel_key, DEFAULT_TRAVEL)
-        ctk.CTkLabel(popup, text=f"ระยะทาง: {distance_m} ม.\nเวลาเดิน: {time_min} นาที", 
-                     font=("Kanit", 15), text_color="black").pack(pady=5, padx=20)
+        info_text = f"📏 ระยะทาง: {distance_m} เมตร\n⏱️ เวลาเดิน: {time_min} นาที"
         
-        # ปุ่มนำทาง
-        def navigate_from_popup():
-            close_building_popup()
-            nav_map = {
+        info_label = ctk.CTkLabel(popup, text=info_text, font=("Kanit", 18), text_color="#333333")
+        info_label.pack(pady=10, padx=30)
+        info_label.bind("<Button-1>", start_popup_drag)
+        info_label.bind("<B1-Motion>", do_popup_drag)
+        
+
+        def navigate_and_close():
+            # ดึงฟังก์ชันนำทางจาก Mapping เดิมที่คุณมี
+            nav_func = {
                 "ELECTRIC": show_electrical_page, "ARCHITECT": show_arch_survey_page,
                 "FACTORY": show_factory_it_page, "RAIL": show_rail_page,
                 "AUTO": show_technic_mac_page, "WELDING": show_welding_page,
@@ -1438,13 +1417,26 @@ def show_building_popup(name, travel_key, x, y):
                 "MEETING_ROOM": show_meeting_room_page, "ACADEMIC_TOWER": show_academic_tower_page,
                 "PARKING": show_parking_page, "FOOTBALL": show_football_page,
                 "TENNIS": show_tennis_page, "FIXIT": show_fixit_page
-            }
-            if travel_key in nav_map: nav_map[travel_key]()
+            }.get(travel_key)
+            
+            close_building_popup()
+            if nav_func: nav_func()
 
-        ctk.CTkButton(popup, text="ดูเส้นทางนำทาง", height=40, width=180, 
-                      fg_color="#8000FF", font=("Kanit", 16, "bold"),
-                      command=navigate_from_popup).pack(pady=(10, 20))
-    popup_timer_id = root.after(10000, close_building_popup)
+      # ปรับขนาดปุ่มให้น้อยลง (จากเดิม width 280 -> 240, height 55 -> 45)
+        btn_nav = ctk.CTkButton(popup, 
+                                text="🚀 เริ่มการนำทาง", 
+                                height=45,          # ลดความสูงปุ่ม
+                                width=210,          # ลดความกว้างปุ่ม
+                                fg_color="#8000FF", 
+                                hover_color="#5B0094",
+                                font=("Kanit", 18, "bold"), # ลดขนาดฟอนต์ลงเล็กน้อยจาก 20 -> 18
+                                corner_radius=12,   # ปรับความโค้งให้รับกับขนาดปุ่มที่เล็กลง
+                                command=navigate_and_close)
+        
+        # ปรับ pady (ระยะห่าง) ให้ปุ่มอยู่ตำแหน่งที่พอดีกับขอบล่างของเฟรม
+        btn_nav.pack(side="bottom", pady=(0, 35))
+    # รีเซ็ต Timer ทุกครั้งที่ขยับหรือคลิก (ถ้าต้องการให้มันเปิดค้างไว้นานขึ้น)
+    popup_timer_id = root.after(60000, close_building_popup) # เพิ่มเป็น 1 นาที
 
 # --- แก้ไขพิกัดและชื่อสถานที่ให้ตรงตามเมนูใหม่ ---
 def on_map_click(event):
@@ -2546,4 +2538,3 @@ btn_side_menu.bind("<B1-Motion>", lambda e: do_drag(e, btn_side_menu))
 update_datetime_clock()
 # Main Loop
 root.mainloop()
-#อัพใหม่  :)
