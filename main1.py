@@ -1356,104 +1356,167 @@ def show_resource_vice_director_page():
  # ฟังก์ชันปุ่มนำทาง (เรียกใช้ฟังก์ชันเดิมในระบบ)
  # 
  # 
+current_popup = None  # ตัวแปร Global สำหรับเก็บ Popup ที่กำลังแสดงอยู่
+
+dcurrent_popup = None  # ตัวแปร Global สำหรับเก็บเฟรมปัจจุบัน
+
+current_popup = None  # ตัวแปร Global สำหรับเก็บเฟรมปัจจุบัน
+
+current_popup = None  # ตัวแปร Global สำหรับเก็บเฟรมปัจจุบัน
+
+current_popup = None
+popup_timer_id = None
+
+# --- ตัวแปร Global สำหรับจัดการ Popup และเวลานับถอยหลัง ---
+# --- ตัวแปร Global สำหรับจัดการ Popup และเวลานับถอยหลัง ---
+current_popup = None
+popup_timer_id = None
+
+def close_building_popup(event=None):
+    """ฟังก์ชันสำหรับปิด Popup และยกเลิกเวลานับถอยหลัง"""
+    global current_popup, popup_timer_id
+    if current_popup is not None:
+        try:
+            # ตรวจสอบก่อนปิดว่าคลิกโดนตัว Popup เองหรือไม่ 
+            # ถ้าคลิกที่ว่าง (home_content_frame) ค่อยปิด
+            if event and event.widget != home_content_frame:
+                return 
+                
+            current_popup.destroy()
+            current_popup = None
+            if popup_timer_id is not None:
+                root.after_cancel(popup_timer_id)
+                popup_timer_id = None
+        except:
+            pass
+
 def show_building_popup(name, travel_key, x, y):
-    """ฟังก์ชันสร้างหน้าต่างข้อมูลที่แถบด้านขวา พร้อมรูปตึกอำนวยการ"""
-    distance_m, time_min = TRAVEL_INFO.get(travel_key, DEFAULT_TRAVEL)
+    """ฟังก์ชันสร้างเฟรมข้อมูลอาคาร (ปิดอัตโนมัติ 1 นาที / คลิกที่ว่างเพื่อปิด)"""
+    global current_popup, popup_timer_id
     
-    # พิกัดสำหรับแสดงผลที่แถบด้านขวาของแผนที่
+    close_building_popup() # ปิดอันเก่าก่อน
+    
+    # พิกัดตำแหน่งแสดงผลด้านขวา
     x_pos = 780 
     y_pos = 1100 
 
+    # สร้าง Popup Frame (ไม่มีปุ่มกากบาท)
     popup = ctk.CTkFrame(home_content_frame, corner_radius=15, fg_color="white", 
                          border_width=3, border_color="#8000FF", width=280)
     popup.place(x=x_pos, y=y_pos)
+    current_popup = popup 
 
-    # --- ส่วนการแสดงรูปภาพตึกอำนวยการ ---
-    try:
-        img_path = os.path.join("Tower", "ตึกอำนวยการ.jpg")
-        if os.path.exists(img_path):
-            raw_img = Image.open(img_path)
-            # ปรับขนาดรูปให้พอดีกับเฟรมด้านข้าง
-            resized_img = raw_img.resize((240, 150), Image.BILINEAR)
-            ctk_img = ctk.CTkImage(light_image=resized_img, dark_image=resized_img, size=(240, 150))
-            img_label = ctk.CTkLabel(popup, image=ctk_img, text="")
-            img_label.pack(pady=(15, 0), padx=20)
-    except Exception as e:
-        print(f"Error loading popup image: {e}")
+    # แสดงชื่อสถานที่ (ปรับ font ให้เล็กลงเล็กน้อยเพื่อรองรับชื่อยาวๆ)
+    ctk_name = ctk.CTkLabel(popup, text=name, font=("Kanit", 17, "bold"), 
+                            text_color="#8000FF", wraplength=240)
+    ctk_name.pack(pady=(20, 5), padx=20)
 
-    # ส่วนแสดงชื่อและรายละเอียด
-    ctk.CTkLabel(popup, text=name, font=("Kanit", 20, "bold"), text_color="#8000FF", wraplength=250).pack(pady=(10,0), padx=20)
-    ctk.CTkLabel(popup, text=f"ระยะทาง: {distance_m} ม.\nเวลาเดิน: {time_min} นาที", 
-                 font=("Kanit", 16), text_color="black").pack(pady=10, padx=20)
-    
-    def navigate_from_popup():
-        popup.destroy()
-        # เรียกใช้ฟังก์ชันนำทางที่มีอยู่
-        nav_map = {
-            "REGISTRATION": show_registration_page, "ELECTRIC": show_electrical_page,
-            "ARCHITECT": show_arch_survey_page, "FACTORY": show_factory_it_page,
-            "RAIL": show_rail_page, "AUTO": show_technic_mac_page,
-            "WELDING": show_welding_page, "MECHATRONICS": show_mechatronics_energy_page,
-            "PETROLEUM": show_petroleum_page, "BASICTECH": show_basic_tech_page,
-            "AIRCOND": show_air_condi_page, "ELECTRONICS": show_electronics_page,
-            "FURNITURE": show_interior_decoration_page, "AIRLINE": show_airline_logistics_page,
-            "COMPUTER_TECH": show_computer_tech_page, "COOP_SHOP": show_coop_shop_page,
-            "CANTEEN2": show_canteen2_page, "CANTEEN1": show_canteen1_page,
-            "BUILDING2": show_building2_page, "BUILDING3": show_building3_page,
-            "LIBRARY": show_library_page, "GYM": show_gym_page,
-            "SOUTHERN_CENTER": show_southern_center_page, "GENERAL_ADMIN": show_general_admin_page,
-            "FUTSAL": show_futsal_page, "MEETING_ROOM": show_meeting_room_page,
-            "ACADEMIC_TOWER": show_academic_tower_page, "PARKING": show_parking_page,
-            "FOOTBALL": show_football_page, "TENNIS": show_tennis_page,
-            "FIXIT": show_fixit_page
-        }
-        if travel_key in nav_map:
-            nav_map[travel_key]()
+    if travel_key == "REGISTRATION":
+        ctk.CTkLabel(popup, text="คือจุดที่คุณอยู่\n(จุดตั้งตู้ HTC Smart Hub)", 
+                     font=("Kanit", 16), text_color="#006400").pack(pady=10, padx=20)
+    else:
+        distance_m, time_min = TRAVEL_INFO.get(travel_key, DEFAULT_TRAVEL)
+        ctk.CTkLabel(popup, text=f"ระยะทาง: {distance_m} ม.\nเวลาเดิน: {time_min} นาที", 
+                     font=("Kanit", 15), text_color="black").pack(pady=5, padx=20)
+        
+        # ปุ่มนำทาง
+        def navigate_from_popup():
+            close_building_popup()
+            nav_map = {
+                "ELECTRIC": show_electrical_page, "ARCHITECT": show_arch_survey_page,
+                "FACTORY": show_factory_it_page, "RAIL": show_rail_page,
+                "AUTO": show_technic_mac_page, "WELDING": show_welding_page,
+                "MECHATRONICS": show_mechatronics_energy_page, "PETROLEUM": show_petroleum_page,
+                "BASICTECH": show_basic_tech_page, "AIRCOND": show_air_condi_page,
+                "ELECTRONICS": show_electronics_page, "FURNITURE": show_interior_decoration_page,
+                "AIRLINE": show_airline_logistics_page, "COMPUTER_TECH": show_computer_tech_page,
+                "COOP_SHOP": show_coop_shop_page, "CANTEEN2": show_canteen2_page,
+                "CANTEEN1": show_canteen1_page, "BUILDING2": show_building2_page,
+                "BUILDING3": show_building3_page, "LIBRARY": show_library_page,
+                "GYM": show_gym_page, "SOUTHERN_CENTER": show_southern_center_page,
+                "GENERAL_ADMIN": show_general_admin_page, "FUTSAL": show_futsal_page,
+                "MEETING_ROOM": show_meeting_room_page, "ACADEMIC_TOWER": show_academic_tower_page,
+                "PARKING": show_parking_page, "FOOTBALL": show_football_page,
+                "TENNIS": show_tennis_page, "FIXIT": show_fixit_page
+            }
+            if travel_key in nav_map: nav_map[travel_key]()
 
-    btn_go = ctk.CTkButton(popup, text="ดูเส้นทางนำทาง", height=45, width=200, 
-                           fg_color="#8000FF", hover_color="#5B0094", font=("Kanit", 18, "bold"),
-                           command=navigate_from_popup)
-    btn_go.pack(pady=(10, 20))
+        ctk.CTkButton(popup, text="ดูเส้นทางนำทาง", height=40, width=180, 
+                      fg_color="#8000FF", font=("Kanit", 16, "bold"),
+                      command=navigate_from_popup).pack(pady=(10, 20))
+    popup_timer_id = root.after(10000, close_building_popup)
 
-    root.after(8000, lambda: popup.destroy() if popup.winfo_exists() else None)
+# --- แก้ไขพิกัดและชื่อสถานที่ให้ตรงตามเมนูใหม่ ---
 def on_map_click(event):
-    """พิกัดจริง 1-31 ตามลำดับที่คุณ Log ไว้ล่าสุด"""
     x, y = event.x, event.y
-    print(f"Clicked at: x={x}, y={y}") 
     r = 25 
 
-    if abs(x - 428) < r and abs(y - 364) < r: show_building_popup("ตึกอำนวยการ", "REGISTRATION", x, y) # 1
-    elif abs(x - 648) < r and abs(y - 258) < r: show_building_popup("ไฟฟ้า / ก่อสร้าง / โยธา", "ELECTRIC", x, y) # 2
-    elif abs(x - 647) < r and abs(y - 426) < r: show_building_popup("สำรวจ / สถาปัตย์", "ARCHITECT", x, y) # 3
-    elif abs(x - 647) < r and abs(y - 125) < r: show_building_popup("ช่างกล / สารสนเทศ", "FACTORY", x, y) # 4
-    elif abs(x - 571) < r and abs(y - 130) < r: show_building_popup("รถไฟรางทาง", "RAIL", x, y) # 5
-    elif abs(x - 586) < r and abs(y - 56) < r: show_building_popup("ช่างยนต์", "AUTO", x, y) # 6
-    elif abs(x - 513) < r and abs(y - 174) < r: show_building_popup("ช่างเชื่อมโลหะ", "WELDING", x, y) # 7
-    elif abs(x - 518) < r and abs(y - 340) < r: show_building_popup("เมคคา / เทคนิคพลังงาน", "MECHATRONICS", x, y) # 8
-    elif abs(x - 437) < r and abs(y - 55) < r: show_building_popup("ปิโตรเลียม", "PETROLEUM", x, y) # 9
-    elif abs(x - 574) < r and abs(y - 246) < r: show_building_popup("เทคนิคพื้นฐาน", "BASICTECH", x, y) # 10
-    elif abs(x - 551) < r and abs(y - 313) < r: show_building_popup("ช่างแอร์", "AIRCOND", x, y) # 11
-    elif abs(x - 650) < r and abs(y - 366) < r: show_building_popup("อิเล็กทรอนิกส์", "ELECTRONICS", x, y) # 12
-    elif abs(x - 573) < r and abs(y - 193) < r: show_building_popup("เฟอร์นิเจอร์และตกแต่งภายใน", "FURNITURE", x, y) # 13
-    elif abs(x - 580) < r and abs(y - 349) < r: show_building_popup("โลจิสติกส์ / การบิน", "AIRLINE", x, y) # 14
-    elif abs(x - 535) < r and abs(y - 426) < r: show_building_popup("เทคนิคคอมพิวเตอร์", "COMPUTER_TECH", x, y) # 15
-    elif abs(x - 649) < r and abs(y - 461) < r: show_building_popup("สหกรณ์", "COOP_SHOP", x, y) # 16
-    elif abs(x - 450) < r and abs(y - 124) < r: show_building_popup("โรงอาหารใหม่", "CANTEEN2", x, y) # 17
-    elif abs(x - 353) < r and abs(y - 171) < r: show_building_popup("โรงอาหารเก่า", "CANTEEN1", x, y) # 18
-    elif abs(x - 490) < r and abs(y - 358) < r: show_building_popup("อาคาร 2", "BUILDING2", x, y) # 19
-    elif abs(x - 549) < r and abs(y - 383) < r: show_building_popup("อาคาร 3", "BUILDING3", x, y) # 20
-    elif abs(x - 443) < r and abs(y - 292) < r: show_building_popup("ห้องสมุด", "LIBRARY", x, y) # 21
-    elif abs(x - 318) < r and abs(y - 212) < r: show_building_popup("โรงยิม", "GYM", x, y) # 22
-    elif abs(x - 338) < r and abs(y - 102) < r: show_building_popup("ศูนย์ส่งเสริมและพัฒนาอาชีวะ", "SOUTHERN_CENTER", x, y) # 23
-    elif abs(x - 449) < r and abs(y - 403) < r: show_building_popup("งานบริหารทั่วไป", "GENERAL_ADMIN", x, y) # 24
-    elif abs(x - 454) < r and abs(y - 208) < r: show_building_popup("สนามฟุตซอล", "FUTSAL", x, y) # 25
-    elif abs(x - 398) < r and abs(y - 200) < r: show_building_popup("หอประชุม", "MEETING_ROOM", x, y) # 26
-    elif abs(x - 492) < r and abs(y - 288) < r: show_building_popup("อาคารวิทยฐานะ", "ACADEMIC_TOWER", x, y) # 27
-    elif abs(x - 336) < r and abs(y - 421) < r: show_building_popup("โรงจอดรถ", "PARKING", x, y) # 28
-    elif abs(x - 291) < r and abs(y - 336) < r: show_building_popup("สนามฟุตบอล", "FOOTBALL", x, y) # 29
-    elif abs(x - 388) < r and abs(y - 51) < r: show_building_popup("สนามเทนนิส", "TENNIS", x, y) # 30
-    elif abs(x - 616) < r and abs(y - 481) < r: show_building_popup("ศูนย์ซ่อมสร้างชุมชนและ Fixit center", "FIXIT", x, y) # 31
-# --- ฟังก์ชันควบคุมหน้าต่างนำทางเฉพาะ (Full Screen) ---
+    # อ้างอิงชื่อตามไฟล์ menu.jpg ที่คุณส่งมา
+    if abs(x - 428) < r and abs(y - 364) < r: 
+        show_building_popup("อาคารอำนวยการ", "REGISTRATION", x, y) # 1
+    elif abs(x - 648) < r and abs(y - 258) < r: 
+        show_building_popup("แผนกวิชาช่างไฟฟ้า / ก่อสร้าง / โยธา", "ELECTRIC", x, y) # 2
+    elif abs(x - 647) < r and abs(y - 426) < r: 
+        show_building_popup("แผนกวิชาช่างสำรวจ / สถาปัตยกรรม", "ARCHITECT", x, y) # 3
+    elif abs(x - 647) < r and abs(y - 125) < r: 
+        show_building_popup("แผนกวิชาช่างกลโรงงาน / เทคโนโลยีสารสนเทศ", "FACTORY", x, y) # 4
+    elif abs(x - 571) < r and abs(y - 130) < r: 
+        show_building_popup("แผนกเทคนิคควบคุมและซ่อมบำรุงขนส่งทางราง", "RAIL", x, y) # 5
+    elif abs(x - 586) < r and abs(y - 56) < r: 
+        show_building_popup("แผนกวิชาช่างยนต์", "AUTO", x, y) # 6
+    elif abs(x - 513) < r and abs(y - 174) < r: 
+        show_building_popup("แผนกวิชาช่างเชื่อมโลหะ", "WELDING", x, y) # 7
+    elif abs(x - 518) < r and abs(y - 340) < r: 
+        show_building_popup("แผนกวิชาเมคคาทรอนิกส์และหุ่นยนต์ / เทคนิคพลังงาน", "MECHATRONICS", x, y) # 8
+    elif abs(x - 437) < r and abs(y - 55) < r: 
+        show_building_popup("แผนกวิชาเทคโนโลยีเครื่องมือวัดและควบคุมปิโตรเลียม", "PETROLEUM", x, y) # 9
+    elif abs(x - 574) < r and abs(y - 246) < r: 
+        show_building_popup("แผนกวิชาช่างเทคนิคพื้นฐาน", "BASICTECH", x, y) # 10
+    elif abs(x - 551) < r and abs(y - 313) < r: 
+        show_building_popup("แผนกวิชาเครื่องทำความเย็นและปรับอากาศ", "AIRCOND", x, y) # 11
+    elif abs(x - 650) < r and abs(y - 366) < r: 
+        show_building_popup("แผนกวิชาช่างอิเล็กทรอนิกส์", "ELECTRONICS", x, y) # 12
+    elif abs(x - 573) < r and abs(y - 193) < r: 
+        show_building_popup("แผนกวิชาเฟอร์นิเจอร์และตกแต่งภายใน", "FURNITURE", x, y) # 13
+    elif abs(x - 580) < r and abs(y - 349) < r: 
+        show_building_popup("แผนกวิชาช่างโลจิสติกส์และซัพพลายเชน / ธุรกิจการบิน", "AIRLINE", x, y) # 14
+    elif abs(x - 535) < r and abs(y - 426) < r: 
+        show_building_popup("แผนกวิชาเทคโนโลยีคอมพิวเตอร์", "COMPUTER_TECH", x, y) # 15
+    elif abs(x - 649) < r and abs(y - 461) < r: 
+        show_building_popup("ร้านค้าสวัสดิการ", "COOP_SHOP", x, y) # 16
+    elif abs(x - 450) < r and abs(y - 124) < r: 
+        show_building_popup("โรงอาหาร 2", "CANTEEN2", x, y) # 17
+    elif abs(x - 353) < r and abs(y - 171) < r: 
+        show_building_popup("โรงอาหาร 1", "CANTEEN1", x, y) # 18
+    elif abs(x - 490) < r and abs(y - 358) < r: 
+        show_building_popup("อาคาร 2 อาคารเรียน", "BUILDING2", x, y) # 19
+    elif abs(x - 549) < r and abs(y - 383) < r: 
+        show_building_popup("อาคาร 3 อาคารเรียน", "BUILDING3", x, y) # 20
+    elif abs(x - 443) < r and abs(y - 292) < r: 
+        show_building_popup("ห้องสมุด", "LIBRARY", x, y) # 21
+    elif abs(x - 318) < r and abs(y - 212) < r: 
+        show_building_popup("โรงยิม", "GYM", x, y) # 22
+    elif abs(x - 338) < r and abs(y - 102) < r: 
+        show_building_popup("ศูนย์ส่งเสริมและพัฒนาอาชีวะ", "SOUTHERN_CENTER", x, y) # 23
+    elif abs(x - 449) < r and abs(y - 403) < r: 
+        show_building_popup("งานบริหารทั่วไป", "GENERAL_ADMIN", x, y) # 24
+    elif abs(x - 454) < r and abs(y - 208) < r: 
+        show_building_popup("สนามฟุตซอล", "25", x, y) # 25 (ตรวจสอบชื่อใน menu.jpg อีกครั้ง)
+    elif abs(x - 398) < r and abs(y - 200) < r: 
+        show_building_popup("หอประชุม", "MEETING_ROOM", x, y) # 26
+    elif abs(x - 492) < r and abs(y - 288) < r: 
+        show_building_popup("อาคารวิทยฐานะ", "ACADEMIC_TOWER", x, y) # 27
+    elif abs(x - 336) < r and abs(y - 421) < r: 
+        show_building_popup("โรงจอดรถ", "PARKING", x, y) # 28
+    elif abs(x - 291) < r and abs(y - 336) < r: 
+        show_building_popup("สนามฟุตบอล", "FOOTBALL", x, y) # 29
+    elif abs(x - 388) < r and abs(y - 51) < r: 
+        show_building_popup("สนามเทนนิส", "TENNIS", x, y) # 30
+    elif abs(x - 616) < r and abs(y - 481) < r: 
+        show_building_popup("ศูนย์ซ่อมสร้างชุมชนและ FIXIT CENTER", "FIXIT", x, y) # 31
+
+# ผูกเหตุการณ์คลิกพื้นที่ว่างในหน้าหลักเพื่อปิด Popup
+home_content_frame.bind("<Button-1>", close_building_popup, add="+")
 # -----------------------------------------------------------------
 
 def show_navigation_page():
@@ -2386,7 +2449,100 @@ def load_home_video():
         print_status(f"Error loading home video: {e}")
 # เพิ่มบรรทัดนี้เพื่อเปิดระบบสัมผัสแผนที่
 video_label.bind("<Button-1>", on_map_click)
-# NEW: เริ่มต้นนาฬิกา
+
+# ===============================================================
+# ** UPDATED SIDE MENU: รายชื่ออาคาร (Horizontal, Draggable, Large Frame) **
+# ===============================================================
+
+i# ===============================================================
+# ** UPDATED: รายชื่ออาคาร (Draggable Frame & Draggable Button) **
+# ===============================================================
+
+is_list_open = False
+list_frame_container = None
+
+def toggle_building_list():
+    global is_list_open, list_frame_container
+    if is_list_open:
+        if list_frame_container:
+            list_frame_container.place_forget()
+        is_list_open = False
+    else:
+        show_building_list_frame()
+        is_list_open = True
+
+# --- ฟังก์ชันสำหรับการลาก (ใช้ได้ทั้งปุ่มและเฟรม) ---
+def start_drag(event, widget):
+    widget._drag_start_x = event.x
+    widget._drag_start_y = event.y
+
+def do_drag(event, widget):
+    x = widget.winfo_x() - widget._drag_start_x + event.x
+    y = widget.winfo_y() - widget._drag_start_y + event.y
+    widget.place(x=x, y=y, relx=0, rely=0, anchor="nw")
+
+def show_building_list_frame():
+    global list_frame_container
+    if list_frame_container:
+        list_frame_container.destroy()
+
+    # 1. สร้างเฟรมหลัก
+    list_frame_container = ctk.CTkFrame(home_content_frame, corner_radius=25, 
+                                        fg_color="white", border_width=4, border_color="#8000FF")
+    
+    # วางไว้กลางจอในตอนแรก
+    list_frame_container.place(relx=0.5, rely=0.5, anchor="center")
+
+    # --- ทำให้เฟรมลากได้ ---
+    list_frame_container.bind("<Button-1>", lambda e: start_drag(e, list_frame_container))
+    list_frame_container.bind("<B1-Motion>", lambda e: do_drag(e, list_frame_container))
+
+    # 2. ปุ่มกากบาทปิด
+    btn_close = ctk.CTkButton(list_frame_container, text="✕", width=50, height=50, 
+                              fg_color="#FF0000", text_color="white", font=("Arial", 24, "bold"),
+                              command=toggle_building_list)
+    btn_close.place(relx=1.0, rely=0.0, x=-15, y=15, anchor="ne")
+
+    # 3. การโหลดรูปภาพ menu.jpg
+    img_list_path = os.path.join("Tower", "menu.jpg")
+    try:
+        if os.path.exists(img_list_path):
+            raw_img = Image.open(img_list_path)
+            display_w = 800 
+            ratio = display_w / float(raw_img.size[0])
+            display_h = int(float(raw_img.size[1]) * ratio)
+            
+            resized_img = raw_img.resize((display_w, display_h), Image.LANCZOS)
+            list_img = ctk.CTkImage(light_image=resized_img, dark_image=resized_img, size=(display_w, display_h))
+            
+            label_img = ctk.CTkLabel(list_frame_container, image=list_img, text="")
+            label_img.image = list_img 
+            label_img.pack(pady=(80, 40), padx=40)
+            
+            # ทำให้ตัวรูปภาพลากได้ด้วย (กรณีเมาส์คลิกโดนรูปแทนที่จะเป็นขอบเฟรม)
+            label_img.bind("<Button-1>", lambda e: start_drag(e, list_frame_container))
+            label_img.bind("<B1-Motion>", lambda e: do_drag(e, list_frame_container))
+        else:
+            err_label = ctk.CTkLabel(list_frame_container, text=f"ไม่พบไฟล์: {img_list_path}", text_color="red")
+            err_label.pack(pady=100, padx=50)
+    except Exception as e:
+        print(f"Error: {e}")
+
+# --- 4. สร้างปุ่มเมนูแนวนอนที่ลากได้ ---
+btn_side_menu = ctk.CTkButton(
+    home_content_frame, text="รายชื่ออาคาร", font=("Kanit", 22, "bold"),
+    fg_color="#8000FF", text_color="white", width=160, height=60, corner_radius=15,
+    command=toggle_building_list
+)
+btn_side_menu.place(relx=1.0, rely=0.5, anchor="e", x=-20)
+
+# ผูกเหตุการณ์การลากให้ปุ่ม
+btn_side_menu.bind("<Button-1>", lambda e: start_drag(e, btn_side_menu))
+btn_side_menu.bind("<B1-Motion>", lambda e: do_drag(e, btn_side_menu))
+# ===============================================================
+
+
+
 update_datetime_clock()
 # Main Loop
 root.mainloop()
