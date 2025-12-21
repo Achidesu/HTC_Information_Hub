@@ -905,7 +905,7 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
 
     # --- 2. ส่วนรูปภาพสถานที่ (ขยับระยะห่างลงมา) ---
     # เพิ่ม pady ด้านบน (40) เพื่อขยับรูปภาพลงมาให้ไม่เบียดกับวิดีโอ
-    ctk.CTkLabel(content_container, text="📸 ภาพประกอบสถานที่", font=("Kanit", 20, "bold"), text_color="#B418A9").pack(pady=(40, 0))
+    ctk.CTkLabel(content_container, text="ภาพประกอบสถานที่", font=("Kanit", 20, "bold"), text_color="#B418A9").pack(pady=(40, 0))
 
     try:
          if dept_image_path and os.path.exists(dept_image_path):
