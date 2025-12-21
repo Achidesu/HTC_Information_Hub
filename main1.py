@@ -10,6 +10,7 @@ from datetime import datetime
 import locale
 import random
 import pygame
+from gtts import gTTS
 
 # จำลองการ import จาก main1 (เพื่อให้โค้ดรันได้โดยไม่มี main1.py)
 # NOTE: ค่าเหล่านี้จะถูกกำหนดใหม่ในส่วนของ Path ด้านล่าง
@@ -18,8 +19,7 @@ GOVERNANCE_IMAGE_PATH = ""
 WAYPOINT_ASSESSMENT_VIDEO = ""
 WAYPOINT_GOVERNANCE_VIDEO = ""
 
-from gtts import gTTS
-import os
+
 
 def speak_thai(text):
     """ฟังก์ชันสำหรับสร้างเสียงพูดและเล่นเสียง"""
@@ -877,12 +877,12 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
     
     # แสดงข้อมูลระยะทางและเวลา
     ctk.CTkLabel(content_container, 
-                 text=f"📍 ระยะทาง: {distance_m} เมตร  |  ⏱️ เวลาเดินประมาณ: {time_min:.1f} นาที",
+                 text=f"ระยะทาง: {distance_m} เมตร | เวลาเดินประมาณ: {time_min:.1f} นาที",
                  font=("Kanit", 24, "bold"), 
                  text_color="#006400").pack(pady=(10, 5))
 
     # --- 1. ส่วนวิดีโอนำทาง (ขยายเพิ่มขนาด) ---
-    ctk.CTkLabel(content_container, text="🎬 วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack()
+    ctk.CTkLabel(content_container, text="วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack()
 
     map_container_frame = ctk.CTkFrame(content_container, fg_color="white")
     map_container_frame.pack(pady=5, padx=20, fill="x") 
@@ -1387,11 +1387,11 @@ def show_building_popup(name, travel_key, x, y):
 
     # --- ส่วนข้อมูลระยะทางและปุ่มนำทาง ---
     if travel_key == "REGISTRATION":
-        ctk.CTkLabel(popup, text="📍 คุณอยู่ที่นี่\n(จุดตั้งตู้ HTC Smart Hub)", 
+        ctk.CTkLabel(popup, text="คุณอยู่ที่นี่\n(จุดตั้งตู้ HTC Smart Hub)", 
                      font=("Kanit", 18), text_color="#006400").pack(pady=20, padx=30)
     else:
         distance_m, time_min = TRAVEL_INFO.get(travel_key, DEFAULT_TRAVEL)
-        info_text = f"📏 ระยะทาง: {distance_m} เมตร\n⏱️ เวลาเดิน: {time_min} นาที"
+        info_text = f"ระยะทาง: {distance_m} เมตร\n เวลาเดิน: {time_min} นาที"
         
         info_label = ctk.CTkLabel(popup, text=info_text, font=("Kanit", 18), text_color="#333333")
         info_label.pack(pady=10, padx=30)
@@ -1424,7 +1424,7 @@ def show_building_popup(name, travel_key, x, y):
 
       # ปรับขนาดปุ่มให้น้อยลง (จากเดิม width 280 -> 240, height 55 -> 45)
         btn_nav = ctk.CTkButton(popup, 
-                                text="🚀 เริ่มการนำทาง", 
+                                text="เริ่มการนำทาง", 
                                 height=45,          # ลดความสูงปุ่ม
                                 width=210,          # ลดความกว้างปุ่ม
                                 fg_color="#8000FF", 
