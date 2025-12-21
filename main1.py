@@ -401,8 +401,13 @@ image_slide_canvas = None
 active_slide_items = []
 next_image_x_placement = 1080 
 mic_frame = None 
-DEPT_IMAGE_WIDTH = 950
 DEPT_IMAGE_HEIGHT = 400
+
+# Slide Animation Settings (Optimized for Pi 4)
+# Adjust these to balance smoothness vs CPU usage
+SLIDE_MOVE_PIXELS = 4    # Pixels to move per frame (Lower = smoother but slower)
+# Previous: 50ms (20 FPS) -> New: 33ms (~30 FPS)
+SLIDE_REFRESH_RATE = 33  # Milliseconds between frames
 
 # --- PATHS (Dept) ---
 AIRCONDI_DEPT_IMAGE_PATH      = "Picture_slide/ทำความเย็น.jpg"
@@ -1923,8 +1928,8 @@ def animate_image_slide():
     except:
         return
         
-    # 3. OPTIMIZATION: เพิ่มระยะเคลื่อนที่ต่อครั้ง (จาก -3 เป็น -6)
-    move_distance = -6 
+    # 3. OPTIMIZATION: ใช้ค่าจาก Config เพื่อปรับความลื่นไหล
+    move_distance = -SLIDE_MOVE_PIXELS 
     
     for item in active_slide_items:
         image_slide_canvas.move(item['id'], move_distance, 0)
@@ -1937,8 +1942,8 @@ def animate_image_slide():
     if active_slide_items and active_slide_items[-1]['right_edge'] < 1080 + SLIDE_GAP:
         place_next_slide()
     
-    # 4. OPTIMIZATION: เพิ่มเวลา Delay เป็น 50ms (20 FPS) จากเดิม 25ms
-    root.after(50, animate_image_slide)
+    # 4. OPTIMIZATION: ใช้ค่า Refresh Rate จาก Config
+    root.after(SLIDE_REFRESH_RATE, animate_image_slide)
 
 # -------------------------------------------------------------------
 # --- การสร้าง UI ที่เป็น Fixed (Top Bar และ Bottom Widgets) ---
