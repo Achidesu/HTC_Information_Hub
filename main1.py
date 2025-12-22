@@ -915,12 +915,12 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
              
              # คำนวณเพื่อรักษา Aspect Ratio ไม่ให้รูปยืด
              original_width, original_height = dept_img.size
-             target_width = 750 # ปรับขนาดรูปให้พอดีกับวิดีโอที่ขยายขึ้น
+             target_width = 950 # ปรับขนาดรูปให้พอดีกับวิดีโอที่ขยายขึ้น
              target_height = int((target_width / original_width) * original_height)
              
              # ควบคุมความสูงไม่ให้เกินหน้าจอ
-             if target_height > 320:
-                 target_height = 320
+             if target_height > 450:
+                 target_height = 450
                  target_width = int((target_height / original_height) * original_width)
 
              dept_img_resized = dept_img.resize((target_width, target_height), Image.LANCZOS)
