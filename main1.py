@@ -19,7 +19,7 @@ GOVERNANCE_IMAGE_PATH = ""
 WAYPOINT_ASSESSMENT_VIDEO = ""
 WAYPOINT_GOVERNANCE_VIDEO = ""
 
-
+TEST_MODE = False
 
 def speak_thai(text):
     """ฟังก์ชันสำหรับสร้างเสียงพูดและเล่นเสียง"""
@@ -68,9 +68,12 @@ root = ctk.CTk()
 root.title("HTC Smart Hub")
 # ปรับขนาดหน้าจอให้ใหญ่ขึ้นสำหรับตู้ Kiosk (1080x1920)
 # ถ้าเป็นการรันบนคอมพิวเตอร์ทั่วไป อาจจะต้องลดขนาด
-root.attributes("-fullscreen", True)
-root.overrideredirect(True)
-root.geometry("1080x1920+0+0") 
+if TEST_MODE:
+    root.geometry("1080x1920+0+0")
+else:
+    root.attributes("-fullscreen", True)
+    root.overrideredirect(True)
+    root.geometry("1080x1920+0+0")
 root.configure(fg_color="white")
 root.bind("<Escape>", lambda e: root.destroy())
 
@@ -880,17 +883,11 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
     
     ctk.CTkLabel(header_frame, text=title, font=("Kanit", 42, "bold"), text_color="white").pack(pady=(20, 10))
     
-    # แสดงข้อมูลระยะทางและเวลา
-    ctk.CTkLabel(content_container, 
-                 text=f"ระยะทาง: {distance_m} เมตร | เวลาเดินประมาณ: {time_min:.1f} นาที",
-                 font=("Kanit", 24, "bold"), 
-                 text_color="#006400").pack(pady=(10, 5))
-
     # --- 1. ส่วนวิดีโอนำทาง (ขยายเพิ่มขนาด) ---
-    ctk.CTkLabel(content_container, text="วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack()
+    ctk.CTkLabel(content_container, text="วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack(pady=50)
 
     map_container_frame = ctk.CTkFrame(content_container, fg_color="white")
-    map_container_frame.pack(pady=5, padx=20, fill="x") 
+    map_container_frame.pack(pady=10, padx=20, fill="x")
 
     video_label_guide = tk.Label(map_container_frame, bg="white", borderwidth=0)
     video_label_guide.pack(expand=True)
@@ -902,6 +899,11 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
             map_container_frame.player.play()
         except Exception as e:
              print_status(f"Video Error: {e}")
+    
+    ctk.CTkLabel(content_container, 
+                 text=f"ระยะทาง: {distance_m} เมตร | เวลาเดินประมาณ: {time_min:.1f} นาที",
+                 font=("Kanit", 32, "bold"), 
+                 text_color="#006400").pack(pady=(10, 5))
 
     # --- 2. ส่วนรูปภาพสถานที่ (ขยับระยะห่างลงมา) ---
     # เพิ่ม pady ด้านบน (40) เพื่อขยับรูปภาพลงมาให้ไม่เบียดกับวิดีโอ
@@ -935,7 +937,7 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
 
     voice_text = f"ระบบกำลังนำทางไปยัง {title} ระยะทาง {distance_m} เมตร ใช้เวลาเดินประมาณ {time_min} นาที"
     speak_thai(voice_text)
-    show_frame(electronics_content_frame) 
+    show_frame(electronics_content_frame)
     bind_inactivity_reset()
 # =============================================================================
 # === HOME SCREEN CONTENT (Banner Image + Video) ===
