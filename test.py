@@ -94,6 +94,7 @@ electronics_window = None
 # ***************************************************************
 
 # --- คำสั่งทั่วไป (General Commands) ---
+# --- คำสั่งทั่วไป (General Commands) ---
 KEYWORDS_HOME = [
     "กลับหน้าหลัก", "หน้าหลัก", "กลับหน้าแรก", "หน้าแรก", "เมนูหลัก", "เริ่มต้นใหม่", 
     "home", "main menu", "back", "start over", "กลับ", "ยกเลิก", "รีเซ็ต"
@@ -102,17 +103,17 @@ KEYWORDS_HOME = [
 # --- แผนกวิชา (Departments) ---
 KEYWORDS_ELECTRONICS = [
     "อิเล็กทรอนิกส์", "อิเล็ก", "อีเล็ก", "แผนกอิเล็ก", "ช่างอิเล็ก", "ตึกอิเล็ก", 
-    "วงจร", "electronic", "electronics", "circuit"
+    "วงจร", "electronic", "electronics", "circuit","อาคาร4","คาร4","ตึก4"
 ]
 KEYWORDS_CONSTRUCTION = [
-    "ช่างก่อสร้าง", "ก่อสร้าง", "ตึกก่อสร้าง", "แผนกก่อสร้าง", "construction", "civil works"
+    "ช่างก่อสร้าง", "ก่อสร้าง", "ตึกก่อสร้าง", "แผนกก่อสร้าง", "construction", "civil works","อาคาร5","คาร5","ตึก5"
 ]
 KEYWORDS_CIVIL = [
-    "ช่างโยธา", "โยธา", "แผนกโยธา", "ตึกโยธา", "civil", "civil engineer"
+    "ช่างโยธา", "โยธา", "แผนกโยธา", "ตึกโยธา", "civil", "civil engineer","อาคาร5","คาร5","ตึก5"
 ]
 KEYWORDS_FURNITURE = [
     "ช่างเฟอร์นิเจอร์", "ตกแต่งภายใน", "เฟอร์นิเจอร์", "ออกแบบภายใน", "อินทีเรีย", 
-    "furniture", "interior", "design", "wood work", "งานไม้"
+    "furniture", "interior", "design", "wood work", "งานไม้",
 ]
 KEYWORDS_SURVEY = [
     "ช่างสำรวจ", "สำรวจ", "แผนกสำรวจ", "ตึกสำรวจ", "survey", "land survey"
@@ -134,23 +135,23 @@ KEYWORDS_BASICTECH = [
     "ช่างเทคนิคพื้นฐาน", "เทคนิคพื้นฐาน", "พื้นฐานช่าง", "ตึกพื้นฐาน", "basic tech", "workshop"
 ]
 KEYWORDS_ELECTRIC = [
-    "ช่างไฟฟ้า", "ไฟฟ้า", "ไฟฟ้ากำลัง", "ไฟ", "แผนกไฟฟ้า", "ตึกไฟฟ้า", "electric", "electrical", "power"
+    "ช่างไฟฟ้า", "ไฟฟ้า", "ไฟฟ้ากำลัง", "ไฟ", "แผนกไฟฟ้า", "ตึกไฟฟ้า", "electric", "electrical", "power""อาคาร5","คาร5","ตึก5"
 ]
 KEYWORDS_AIRCOND = [
     "เครื่องทำความเย็น", "ปรับอากาศ", "แอร์", "ช่างแอร์", "ระบบความเย็น", "ทำความเย็น", 
     "air condition", "refrigeration", "cool"
 ]
 KEYWORDS_IT = [
-    "เทคโนโลยีสารสนเทศ", "ไอที", "สารสนเทศ", "ข้อมูล", "it", "information technology", "programmer", "network"
+    "เทคโนโลยีสารสนเทศ", "ไอที", "สารสนเทศ", "it", "information technology", "programmer", "network",
 ]
 KEYWORDS_PETROLEUM = [
     "เทคโนโลยีปิโตรเลียม", "ปิโตรเลียม", "ปิโตร", "น้ำมัน", "แท่นขุดเจาะ", "petroleum", "oil", "gas", "offshore"
 ]
 KEYWORDS_ENERGY = [
-    "เทคนิคพลังงาน", "พลังงาน", "ทดแทน", "โซลาร์เซลล์", "energy", "solar", "power plant"
+    "เทคนิคพลังงาน", "พลังงาน", "ทดแทน", "โซลาร์เซลล์", "energy", "solar", "power plant",
 ]
 KEYWORDS_LOGISTICS = [
-    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics", "shipping", "supply chain","โลจิส"
+    "โลจิสติกส์", "ซัพพลายเชน", "ขนส่ง", "logistics", "shipping", "supply chain","โลจิส",
 ]
 KEYWORDS_RAIL = [
     "ระบบขนส่งทางราง", "ขนส่งทางราง", "ราง", "ระบบราง", "รถไฟ", "ช่างรถไฟ", "rail", "railway", "train"
@@ -163,7 +164,7 @@ KEYWORDS_AIRLINE = [
 ]
 KEYWORDS_COMPUTER_TECH = [
     "เทคโนโลยีคอมพิวเตอร์", "เทคโนโลยีคอม", "คอมพิวเตอร์", "คอมพิว", "ตึกส้ม", "ช่างคอม", 
-    "computer tech", "hardware", "computer"
+    "computer tech", "hardware", "computer","อาคาร7","คาร7","ตึก7","สถาบันการอาชีวศึกษาภาคใต้3","สถาบันอาชีวศึกษา"
 ]
 KEYWORDS_BASIC_SUBJECTS = [
     "วิชาพื้นฐาน", "พื้นฐาน", "วิชาสามัญ", "คณิตศาสตร์", "ภาษาไทย", "ภาษาอังกฤษ", "วิทย์", "สังคม", 
@@ -235,10 +236,10 @@ KEYWORDS_COOP_SHOP = [
     "ร้านค้าสวัสดิการ", "สวัสดิการ", "ร้านค้า", "สหกรณ์", "coop", "shop"
 ]
 KEYWORDS_CANTEEN1 = [
-    "โรงอาหาร 1", "โรงอาหารหนึ่ง", "โรงอาหาร1", "แคนทีน 1", "กินข้าว 1"
+    "โรงอาหาร 1", "โรงอาหารหนึ่ง", "โรงอาหาร1", "แคนทีน 1", "กินข้าว 1","โรงอาหารเก่า"
 ]
 KEYWORDS_CANTEEN2 = [
-    "โรงอาหาร 2", "โรงอาหารสอง", "โรงอาหาร2", "แคนทีน 2", "กินข้าว 2"
+    "โรงอาหาร 2", "โรงอาหารสอง", "โรงอาหาร2", "แคนทีน 2", "กินข้าว 2","โรงอาหารใหม่"
 ]
 KEYWORDS_BUILDING2 = [
     "อาคาร 2", "ตึก 2", "building 2", 
@@ -301,6 +302,12 @@ KEYWORDS_ACADEMIC_VICE_DIRECTOR = [
 KEYWORDS_RESOURCE_VICE_DIRECTOR = [
     "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", "รองบริหารทรัพยากร", "vice director resource","ทรัพยากร"
 ]
+KEYWORDS_INFO_DATA_CENTER = ["ศูนย์ข้อมูลสารสนเทศ", "งานศูนย์ข้อมูล", "สารสนเทศกลาง", "data center","ศูนย์ข้อมูล","งานการค้า","งานผลิตผล","งานประกอบธุระกิจ"
+]
+
+KEYWORDS_GRADUATE_OFFICE  = ["อาชีวบัณฑิต", "สำนักงานอาชีวบัณฑิต", "ปริญญาตรี", "ห้องปริญญาตรี","สำนักงานอาชีว","ศูนย์ประสานงาน","งานบัณฑิตศึกษา"
+]
+
 
 
 # ***************************************************************
@@ -516,8 +523,8 @@ WAYPOINT_GOVERNANCE_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_disciplinary_of
 GOVERNANCE_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานปกครองและงานครูที่ปรึกษา.jpg")
 
 # ASSESSMENT - ห้องงานวัดผล 
-WAYPOINT_ASSESSMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_evaluation_room.mp4")
-ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผล.webp") 
+WAYPOINT_ASSESSMENT_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_counseling_room.mp4")
+ASSESSMENT_IMAGE_PATH     = get_room_path(ROOM_IMAGE_FOLDER, "งานวัดผล.jpg") 
 
 # PRODUCTION - ห้องผลิตและพัฒนากำลังคน 
 WAYPOINT_PRODUCTION_VIDEO = get_room_path(ROOM_VIDEO_FOLDER,"To_Production_Manpower.mp4" ) 
@@ -595,7 +602,7 @@ WAYPOINT_ACADEMIC_TOWER_VIDEO       = get_addon_path(ADDON_VIDEO_FOLDER, "To_Aca
 ACADEMIC_TOWER_IMAGE_PATH           = get_addon_path(ADDON_IMAGE_FOLDER, "อาคารวิทยฐานะ.jpg") 
 
 # งานบุคลากร (ตึกอำนวยการชั้น 2)
-WAYPOINT_HR_VIDEO                   = get_addon_path(ADDON_VIDEO_FOLDER, "To_HR.mp4") 
+WAYPOINT_HR_VIDEO                   = get_addon_path(ADDON_VIDEO_FOLDER, "To_Personnel_Department.mp4")
 HR_IMAGE_PATH                       = get_addon_path(ADDON_IMAGE_FOLDER, "งานบุคลากร.jpg") 
 
 # งานการบัญชี / งานการวางแผนและงบประมาณ / งานความร่วมมือ (ตึกอำนวยการชั้น 2)
@@ -617,6 +624,19 @@ ACADEMIC_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รอ�
 # รองผู้อำนวยการฝ่ายบริหารทรัพยากร (ตึกอำนวยการชั้น 2)
 WAYPOINT_RESOURCE_VICE_DIRECTOR_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_Deputy_Director_Resource_Management.mp4") 
 RESOURCE_VICE_DIRECTOR_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "รองผู้อำนวยการฝ่ายบริหารทรัพยากร.jpg")
+
+WAYPOINT_SOUTHERN_CENTER_VIDEO = get_addon_path(ADDON_VIDEO_FOLDER, "To_zero.mp4")
+SOUTHERN_CENTER_IMAGE_PATH = get_addon_path(ADDON_IMAGE_FOLDER, "ศูนย์ส่งเสริมและพัฒนาอาชีวะศึกษาภาคใต้.jpg")
+
+# เพิ่ม Path สำหรับห้องที่ขอใหม่
+INFO_DATA_CENTER_IMAGE_PATH = get_room_path(ROOM_IMAGE_FOLDER, "งานศูนย์ข้อมูลสารสนเทศ.jpg")
+WAYPOINT_INFO_DATA_CENTER_VIDEO = get_room_path(ROOM_VIDEO_FOLDER, "To_public_relations_room.mp4")
+
+GRADUATE_OFFICE_IMAGE_PATH  = get_room_path(ROOM_IMAGE_FOLDER, "ศูนย์ประสานงานบัณฑิตศึกษา.jpg")
+WAYPOINT_GRADUATE_OFFICE_VIDEO  = get_room_path(ROOM_VIDEO_FOLDER, "To_evaluation_room.mp4")
+
+
+
 # ** Global UI Components **
 image_slide_frame = None
 survey_frame = None
@@ -833,7 +853,7 @@ def show_frame(frame_to_show):
 
 def load_home_video():
     try:
-        VIDEO_PATH = "Tower/Start_Point/E1_1.mp4" 
+        VIDEO_PATH = "Tower/Start_Point/E1_2.mp4" 
 
         if os.path.exists(VIDEO_PATH) and VIDEO_PATH.endswith('.mp4'):
             # Store player to prevent garbage collection
@@ -856,7 +876,8 @@ def load_home_video():
 
 def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, travel_key):
     """
-    [UPDATED] ปรับปรุงสัดส่วน: ขยายวิดีโอแผนที่ให้ใหญ่ขึ้น และขยับรูปภาพด้านล่างลงมา
+    [UPDATED] ปรับปรุงตามรูปแบบรูปภาพ: ตัด Emoji ออก, ย้ายระยะทางไว้ใต้แผนที่ 
+    และจัดวางตำแหน่งวิดีโอ/รูปภาพใหม่
     """
     global DEPT_IMAGE_WIDTH, DEPT_IMAGE_HEIGHT
     
@@ -869,67 +890,79 @@ def show_guided_page(title, header_bg_color, dept_image_path, waypoint_video, tr
     content_container = ctk.CTkFrame(electronics_content_frame, fg_color="white")
     content_container.pack(side="top", fill="both", expand=True)
 
-    # --- Header ---
-    header_frame = ctk.CTkFrame(content_container, height=120, fg_color=header_bg_color)
+    # --- 1. Header (ไม่มี Emoji) ---
+    header_frame = ctk.CTkFrame(content_container, height=100, fg_color=header_bg_color, corner_radius=0)
     header_frame.pack(side="top", fill="x")
     
-    ctk.CTkLabel(header_frame, text=title, font=("Kanit", 42, "bold"), text_color="white").pack(pady=(20, 10))
+    ctk.CTkLabel(header_frame, text=title, font=("Kanit", 42, "bold"), text_color="white").pack(pady=20)
     
-    # แสดงข้อมูลระยะทางและเวลา
-    ctk.CTkLabel(content_container, 
-                 text=f"📍 ระยะทาง: {distance_m} เมตร  |  ⏱️ เวลาเดินประมาณ: {time_min:.1f} นาที",
-                 font=("Kanit", 24, "bold"), 
-                 text_color="#006400").pack(pady=(10, 5))
-
-    # --- 1. ส่วนวิดีโอนำทาง (ขยายเพิ่มขนาด) ---
-    ctk.CTkLabel(content_container, text="🎬 วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack()
+    # --- 2. ส่วนวิดีโอนำทาง / แผนที่ ---
+    ctk.CTkLabel(content_container, text="วิดีโอนำทางไปยังจุดหมาย", font=("Kanit", 22, "bold"), text_color="#8000FF").pack(pady=(15, 5))
 
     map_container_frame = ctk.CTkFrame(content_container, fg_color="white")
-    map_container_frame.pack(pady=5, padx=20, fill="x") 
+    map_container_frame.pack(pady=5, padx=20) 
 
     video_label_guide = tk.Label(map_container_frame, bg="white", borderwidth=0)
     video_label_guide.pack(expand=True)
     
     if waypoint_video and os.path.exists(waypoint_video):
         try:
-            # ขยายขนาดวิดีโอแผนที่ให้ใหญ่ขึ้นเป็น 900x500 เพื่อความชัดเจน
-            map_container_frame.player = tkvideo(waypoint_video, video_label_guide, loop=1, size=(900, 500))
+            # ปรับขนาดวิดีโอให้สมดุล (900x450 หรือตามความเหมาะสมของจอ Kiosk)
+            map_container_frame.player = tkvideo(waypoint_video, video_label_guide, loop=1, size=(850, 480))
             map_container_frame.player.play()
         except Exception as e:
              print_status(f"Video Error: {e}")
 
-    # --- 2. ส่วนรูปภาพสถานที่ (ขยับระยะห่างลงมา) ---
-    # เพิ่ม pady ด้านบน (40) เพื่อขยับรูปภาพลงมาให้ไม่เบียดกับวิดีโอ
-    ctk.CTkLabel(content_container, text="📸 ภาพประกอบสถานที่", font=("Kanit", 20, "bold"), text_color="#B418A9").pack(pady=(40, 0))
+    # --- 3. ข้อมูลระยะทางและเวลา (ย้ายมาไว้ใต้แผนที่ตามรูปตัวอย่าง) ---
+    info_text = f"ระยะทาง: {distance_m} เมตร | เวลาเดินประมาณ: {time_min:.1f} นาที"
+    ctk.CTkLabel(content_container, 
+                 text=info_text,
+                 font=("Kanit", 26, "bold"), 
+                 text_color="#006400").pack(pady=10)
+
+    ctk.CTkLabel(content_container, text="ภาพประกอบสถานที่", font=("Kanit", 20, "bold"), text_color="#B418A9").pack(pady=(30, 0)) # เพิ่มระยะห่างด้านบนเป็น 30
 
     try:
          if dept_image_path and os.path.exists(dept_image_path):
              dept_img = Image.open(dept_image_path)
              
-             # คำนวณเพื่อรักษา Aspect Ratio ไม่ให้รูปยืด
+             # --- แก้ไขปัญหารูปยืดโดยใช้การคำนวณ Aspect Ratio ---
+             target_width = 850 
              original_width, original_height = dept_img.size
-             target_width = 750 # ปรับขนาดรูปให้พอดีกับวิดีโอที่ขยายขึ้น
-             target_height = int((target_width / original_width) * original_height)
+             aspect_ratio = original_height / original_width
+             target_height = int(target_width * aspect_ratio) # คำนวณความสูงตามสัดส่วนจริง
              
-             # ควบคุมความสูงไม่ให้เกินหน้าจอ
-             if target_height > 320:
-                 target_height = 320
-                 target_width = int((target_height / original_height) * original_width)
+             # ควบคุมความสูงสูงสุดไม่ให้เกิน 400 เพื่อไม่ให้เบียดปุ่มด้านล่าง
+             if target_height > 400:
+                 target_height = 400
+                 target_width = int(target_height / aspect_ratio)
 
              dept_img_resized = dept_img.resize((target_width, target_height), Image.LANCZOS)
              dept_ctk_image = ctk.CTkImage(light_image=dept_img_resized, size=(target_width, target_height))
-             ctk.CTkLabel(content_container, image=dept_ctk_image, text="").pack(pady=(10, 20))
+             
+             # แสดงรูปภาพพร้อมขยับลงมา (pady เพิ่มระยะห่างบน/ล่าง)
+             ctk.CTkLabel(content_container, image=dept_ctk_image, text="").pack(pady=(20, 15)) 
     except Exception as e:
          print_status(f"Image Error: {e}")
 
-    # --- ส่วนล่าง: ปุ่มกลับหน้าหลัก ---
+    # --- 5. ปุ่มกลับหน้าหลัก (ปรับแต่งสีและขนาดตามรูป) ---
     button_footer = ctk.CTkFrame(electronics_content_frame, fg_color="white")
-    button_footer.pack(side="bottom", fill="x", pady=20)
-    ctk.CTkButton(button_footer, text="❮ กลับสู่หน้าหลัก", command=go_to_main_screen, 
-                  font=("Kanit", 28, "bold"), fg_color="#00C000", width=250, height=70, corner_radius=15).pack()
+    button_footer.pack(side="bottom", fill="x", pady=25)
+    
+    ctk.CTkButton(button_footer, 
+                  text="กลับสู่หน้าหลัก", # นำ Emoji ออก
+                  command=go_to_main_screen, 
+                  font=("Kanit", 28, "bold"), 
+                  fg_color="#00C000", 
+                  hover_color="#008000",
+                  width=250, 
+                  height=65, 
+                  corner_radius=15).pack()
 
-    voice_text = f"ระบบกำลังนำทางไปยัง {title} ระยะทาง {distance_m} เมตร ใช้เวลาเดินประมาณ {time_min} นาที"
+    # เสียงพูด (ถ้ายังต้องการให้มี)
+    voice_text = f"กำลังนำทางไปยัง {title} ระยะทาง {distance_m} เมตร"
     speak_thai(voice_text)
+    
     show_frame(electronics_content_frame) 
     bind_inactivity_reset()
 # =============================================================================
@@ -1094,8 +1127,10 @@ def show_basic_subjects_page():
 
 def show_southern_center_page():
     INDIGO_BACKGROUND = "#4B0082" 
-    show_guided_page(title="ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้", header_bg_color=INDIGO_BACKGROUND, 
-                     dept_image_path="", waypoint_video=WAYPOINT_SOUTHERN_CENTER_VIDEO,
+    show_guided_page(title="ศูนย์ส่งเสริมและพัฒนาอาชีวศึกษาภาคใต้", 
+                     header_bg_color=INDIGO_BACKGROUND, 
+                     dept_image_path=SOUTHERN_CENTER_IMAGE_PATH, 
+                     waypoint_video=WAYPOINT_SOUTHERN_CENTER_VIDEO,
                      travel_key="SOUTHERN_CENTER")
 
 # ***************************************************************
@@ -1169,7 +1204,24 @@ def show_assessment_page():
     show_guided_page(title="ห้องงานวัดผล", header_bg_color=ROOM_BACKGROUND_COLOR, 
                      dept_image_path=ASSESSMENT_IMAGE_PATH, waypoint_video=WAYPOINT_ASSESSMENT_VIDEO,
                      travel_key="ASSESSMENT")
-                     
+
+# เพิ่มฟังก์ชันห้องงานศูนย์ข้อมูลสารสนเทศ
+def show_info_data_center_page():
+    show_guided_page(title="ห้องงานศูนย์ข้อมูลสารสนเทศ", 
+                     header_bg_color=ROOM_BACKGROUND_COLOR, 
+                     dept_image_path=INFO_DATA_CENTER_IMAGE_PATH, 
+                     waypoint_video=WAYPOINT_INFO_DATA_CENTER_VIDEO,
+                     travel_key="INFO_DATA")
+
+# เพิ่มฟังก์ชันสำนักงานอาชีวบัณฑิต
+def show_graduate_office_page():
+    show_guided_page(title="สำนักงานอาชีวบัณฑิต วิทยาลัยเทคนิคหาดใหญ่", 
+                     header_bg_color=ROOM_BACKGROUND_COLOR, 
+                     dept_image_path=GRADUATE_OFFICE_IMAGE_PATH, 
+                     waypoint_video=WAYPOINT_GRADUATE_OFFICE_VIDEO,
+                     travel_key="GRADUATE")
+
+
 # --- NEW: จุดบริการทั่วไป (POI) ---
 def show_coop_shop_page():
     show_guided_page(title="ร้านค้าสวัสดิการ", header_bg_color=POI_BACKGROUND_COLOR, 
@@ -1439,6 +1491,8 @@ def show_building_popup(name, travel_key, x, y):
     popup_timer_id = root.after(60000, close_building_popup) # เพิ่มเป็น 1 นาที
 
 # --- แก้ไขพิกัดและชื่อสถานที่ให้ตรงตามเมนูใหม่ ---
+
+
 def on_map_click(event):
     x, y = event.x, event.y
     r = 25 
@@ -1488,7 +1542,7 @@ def on_map_click(event):
         show_building_popup("ห้องสมุด", "LIBRARY", x, y) # 21
     elif abs(x - 318) < r and abs(y - 212) < r: 
         show_building_popup("โรงยิม", "GYM", x, y) # 22
-    elif abs(x - 338) < r and abs(y - 102) < r: 
+    elif abs(x-389 ) < r and abs(y-112 ) < r: 
         show_building_popup("ศูนย์ส่งเสริมและพัฒนาอาชีวะ", "SOUTHERN_CENTER", x, y) # 23
     elif abs(x - 449) < r and abs(y - 403) < r: 
         show_building_popup("งานบริหารทั่วไป", "GENERAL_ADMIN", x, y) # 24
@@ -2533,8 +2587,51 @@ btn_side_menu.bind("<Button-1>", lambda e: start_drag(e, btn_side_menu))
 btn_side_menu.bind("<B1-Motion>", lambda e: do_drag(e, btn_side_menu))
 # ===============================================================
 
+def start_compass_drag(event):
 
+    compass_label._drag_start_x = event.x
+    compass_label._drag_start_y = event.y
+
+def do_compass_drag(event):
+
+    x = compass_label.winfo_x() - compass_label._drag_start_x + event.x
+    y = compass_label.winfo_y() - compass_label._drag_start_y + event.y
+    compass_label.place(x=x, y=y)
+
+
+compass_label = ctk.CTkLabel(root, text="")
+
+try:
+    COMPASS_PATH = "เข็มทิศ.jpg" 
+    if os.path.exists(COMPASS_PATH):
+        compass_img = Image.open(COMPASS_PATH)
+
+        compass_resized = compass_img.resize((150, 150), Image.LANCZOS)
+        compass_ctk_img = ctk.CTkImage(light_image=compass_resized, size=(150, 150))
+
+        compass_label.configure(image=compass_ctk_img)
+
+        compass_label.place(x=900, y=850) 
+
+
+        compass_label.bind("<Button-1>", start_compass_drag)
+        compass_label.bind("<B1-Motion>", do_compass_drag)
+
+
+        compass_label.lift()
+    else:
+        print_status(f"ไม่พบไฟล์รูปภาพ: {COMPASS_PATH}")
+except Exception as e:
+    print_status(f"Error loading compass image: {e}")
+
+
+def keep_compass_on_top():
+    compass_label.lift()
+    root.after(100, keep_compass_on_top)
+
+keep_compass_on_top()
 
 update_datetime_clock()
 # Main Loop
 root.mainloop()
+#อัพเดทใหม่ 2.0
