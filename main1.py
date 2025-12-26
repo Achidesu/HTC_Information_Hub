@@ -2602,7 +2602,7 @@ def do_compass_drag(event):
 compass_label = ctk.CTkLabel(root, text="")
 
 try:
-    COMPASS_PATH = "เข็มทิศ.jpg" 
+    COMPASS_PATH = "compass.jpg" 
     if os.path.exists(COMPASS_PATH):
         compass_img = Image.open(COMPASS_PATH)
 
